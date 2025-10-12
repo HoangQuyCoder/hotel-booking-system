@@ -2,18 +2,18 @@ package com.example.backend.model;
 
 import com.example.backend.common.NotificationStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "notification_logs")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class NotificationLog {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
