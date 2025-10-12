@@ -3,9 +3,7 @@ package com.example.backend.model;
 import com.example.backend.common.NotificationType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,9 +12,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "notification_templates")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class NotificationTemplate {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

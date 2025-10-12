@@ -1,9 +1,7 @@
 package com.example.backend.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,9 +9,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "booking_rooms")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class BookingRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

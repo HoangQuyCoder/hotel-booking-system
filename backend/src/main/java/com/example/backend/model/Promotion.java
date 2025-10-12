@@ -1,18 +1,21 @@
 package com.example.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "promotions")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Promotion {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -49,10 +52,9 @@ public class Promotion {
     @Column(name = "is_active")
     private Boolean isActive = true;
 
-    // N:1 relationship with Booking
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "booking_id")
-    private Booking booking;
+    @OneToMany(mappedBy = "promotion")
+    @JsonIgnore
+    private List<Booking> bookings = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
