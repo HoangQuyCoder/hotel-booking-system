@@ -12,8 +12,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "notification_templates")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -26,10 +25,11 @@ public class NotificationTemplate {
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 20)
     private NotificationType type;
 
-    @Column(name = "subject", length = 255)
+    @Column(name = "subject")
     private String subject;
 
     @Column(name = "body", columnDefinition = "TEXT", nullable = false)

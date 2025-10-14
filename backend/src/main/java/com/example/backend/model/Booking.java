@@ -33,6 +33,7 @@ public class Booking {
     @Column(name = "total_amount", nullable = false)
     private Double totalAmount;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
     private BookingStatus status;
 
@@ -78,7 +79,7 @@ public class Booking {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
         if (confirmationCode == null) {
-            confirmationCode = UUID.randomUUID().toString().substring(0, 8).toUpperCase(); // Tạo mã ngẫu nhiên
+            confirmationCode = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         }
     }
 

@@ -9,15 +9,14 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "booking_rooms")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class BookingRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "item_id")
+    @Column(name = "booking_room_id")
     private UUID id;
 
     // N:1 Relationship with Booking
@@ -28,7 +27,7 @@ public class BookingRoom {
     // N:1 Relationship with RoomType
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_type_id", nullable = false)
-    private RoomType roomTypeId;
+    private RoomType roomType;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
@@ -37,8 +36,13 @@ public class BookingRoom {
     private Double pricePerNight;
 
     @ElementCollection
-    @Column(name = "specific_room_ids")
+    @CollectionTable(
+            name = "booking_specific_rooms",
+            joinColumns = @JoinColumn(name = "booking_room_id")
+    )
+    @Column(name = "specific_room_id", nullable = false)
     private List<UUID> specificRoomIds;
+
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

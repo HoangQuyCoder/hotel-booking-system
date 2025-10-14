@@ -11,8 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "room_types")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
