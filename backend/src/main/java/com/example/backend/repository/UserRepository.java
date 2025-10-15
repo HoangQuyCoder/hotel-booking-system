@@ -23,5 +23,6 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
     @Query("SELECT u FROM User u JOIN FETCH u.role WHERE u.username = :username")
     Optional<User> findByUsernameWithRole(@Param("username") String username);
 
-
+    @Query("SELECT u FROM User u WHERE u.resetPasswordToken = :token AND u.resetTokenUsed = false AND u.resetPasswordExpiry > CURRENT_TIMESTAMP")
+    Optional<User> findByValidResetPasswordToken(@Param("token") String token);
 }

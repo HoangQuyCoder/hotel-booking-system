@@ -32,8 +32,8 @@ public class NotificationTemplate {
     @Column(name = "subject")
     private String subject;
 
-    @Column(name = "body", columnDefinition = "TEXT", nullable = false)
-    private String body;
+    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
+    private String content;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

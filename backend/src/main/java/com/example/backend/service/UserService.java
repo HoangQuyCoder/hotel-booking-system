@@ -10,6 +10,7 @@ import com.example.backend.repository.RoleRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.util.SpecUtils;
 import com.example.backend.util.UserSpecification;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,13 +35,15 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final EmailService emailService;
 
     public UserService(UserRepository userRepository, RoleRepository roleRepository,
-                       BCryptPasswordEncoder passwordEncoder, JwtService jwtService) {
+                       BCryptPasswordEncoder passwordEncoder, JwtService jwtService, EmailService emailService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -221,5 +224,81 @@ public class UserService {
         response.setCreatedAt(user.getCreatedAt());
         response.setLastLoginAt(user.getLastLoginAt());
         return response;
+    }
+
+    @Transactional
+    public PasswordResetResponse requestPasswordReset(PasswordResetRequest request) {
+        logger.info("Processing password reset request for: {}", request.getUsernameOrEmail());
+
+        User user = userRepository.findByUsernameOrEmail(request.getUsernameOrEmail())
+                .orElseThrow(() -> {
+                    logger.error("User not found: {}", request.getUsernameOrEmail());
+                    return new ResourceNotFoundException("User not found");
+                });
+
+        String resetToken = jwtService.generateResetPasswordToken(user.getEmail());
+        user.setResetPasswordToken(resetToken);
+        user.setResetPasswordExpiry(LocalDateTime.now().plusMinutes(5));
+        user.setResetTokenUsed(false);
+        userRepository.save(user);
+
+        try {
+            emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
+            logger.info("Password reset email sent to: {}", user.getEmail());
+            return new PasswordResetResponse("Password reset email sent successfully");
+        } catch (MessagingException e) {
+            logger.error("Failed to send password reset email: {}", e.getMessage());
+            throw new RuntimeException("Failed to send password reset email", e);
+        }
+    }
+
+    public PasswordResetResponse validateResetToken(ValidateResetTokenRequest request) {
+        logger.info("Validating reset token: {}", request.getToken());
+        User user = validateResetToken(request.getToken());
+
+        logger.info("Reset token validated for user: {}", user.getEmail());
+        return new PasswordResetResponse("Reset token is valid");
+    }
+
+    @Transactional
+    public PasswordResetResponse resetPassword(ResetPasswordRequest request) {
+        logger.info("Processing password reset with token");
+
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            logger.error("Passwords do not match");
+            throw new IllegalArgumentException("Passwords do not match");
+        }
+
+        User user = validateResetToken(request.getToken());
+
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        user.setResetPasswordToken(null);
+        user.setResetPasswordExpiry(null);
+        user.setResetTokenUsed(true);
+        userRepository.save(user);
+
+        // Continue even if email fails
+        try {
+            emailService.sendPasswordChangedEmail(user.getEmail());
+            logger.info("Password changed email sent to: {}", user.getEmail());
+        } catch (MessagingException e) {
+            logger.warn("Failed to send password changed email: {}", e.getMessage());
+        }
+
+        logger.info("Password reset successfully for user: {}", user.getEmail());
+        return new PasswordResetResponse("Password reset successfully");
+    }
+
+    private User validateResetToken(String token) {
+        if (!jwtService.isResetTokenValid(token)) {
+            logger.error("Invalid or expired reset token");
+            throw new IllegalArgumentException("Invalid or expired reset token");
+        }
+
+        return userRepository.findByValidResetPasswordToken(token)
+                .orElseThrow(() -> {
+                    logger.error("No user found with valid reset token");
+                    return new ResourceNotFoundException("Invalid or expired reset token");
+                });
     }
 }

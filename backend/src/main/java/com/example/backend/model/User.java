@@ -71,6 +71,15 @@ public class User {
     @Column(name = "locked_until")
     private LocalDateTime lockedUntil;
 
+    @Column(name = "reset_password_token")
+    private String resetPasswordToken;
+
+    @Column(name = "reset_password_expiry")
+    private LocalDateTime resetPasswordExpiry;
+
+    @Column(name = "reset_token_used", nullable = false)
+    private Boolean resetTokenUsed = false;
+
     // N:1 relationship with Role
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false)
