@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -42,6 +43,16 @@ public class EmailService {
     public void sendPasswordChangedEmail(String toEmail) throws MessagingException {
         NotificationTemplate template = getTemplate("PASSWORD_CHANGED");
         sendEmail(toEmail, template, template.getContent());
+    }
+
+    @Async
+    public void sendPasswordChangedEmailAsync(String toEmail) {
+        try {
+            sendPasswordChangedEmail(toEmail);
+            logger.info("[ASYNC] Password changed email sent to: {}", toEmail);
+        } catch (Exception e) {
+            logger.error("[ASYNC] Failed to send password changed email to {}: {}", toEmail, e.getMessage());
+        }
     }
 
     // Reusable function to send email
