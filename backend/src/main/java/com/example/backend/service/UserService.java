@@ -8,8 +8,9 @@ import com.example.backend.model.Role;
 import com.example.backend.model.User;
 import com.example.backend.repository.RoleRepository;
 import com.example.backend.repository.UserRepository;
-import com.example.backend.util.SpecUtils;
-import com.example.backend.util.UserSpecification;
+import com.example.backend.utils.BeanUtilsHelper;
+import com.example.backend.utils.SpecUtils;
+import com.example.backend.utils.UserSpecification;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -63,9 +64,9 @@ public class UserService {
             throw new IllegalArgumentException("Email already exists");
         }
 
-        Role role = roleRepository.findById(request.getRoleId())
+        Role role = roleRepository.findByRoleName(request.getRoleName())
                 .orElseThrow(() -> {
-                    logger.error("Role not found for ID: {}", request.getRoleId());
+                    logger.error("Role not found for name: {}", request.getRoleName());
                     return new ResourceNotFoundException("Role not found");
                 });
 
@@ -217,25 +218,27 @@ public class UserService {
                     return new ResourceNotFoundException("User not found");
                 });
 
-        if (!user.getEmail().equals(request.getEmail()) && userRepository.existsByEmail(request.getEmail())) {
-            logger.warn("[update] Email already exists: {}", request.getEmail());
-            throw new IllegalArgumentException("Email already exists");
+        // Check email if sent
+        if (request.getEmail() != null && !user.getEmail().equals(request.getEmail())) {
+            if (userRepository.existsByEmail(request.getEmail())) {
+                logger.warn("[update] Email already exists: {}", request.getEmail());
+                throw new IllegalArgumentException("Email already exists");
+            }
+            user.setEmail(request.getEmail());
+            logger.debug("Updated email for user {} to {}", user.getId(), request.getEmail());
         }
 
+        // Update a role (only admin can change a role)
         String currentRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString();
-        if (request.getRoleId() != null && !user.getRole().getId().equals(request.getRoleId()) && currentRole.contains("ROLE_ADMIN")) {
-            Role role = roleRepository.findById(request.getRoleId())
+        if (request.getRoleName() != null && !user.getRole().getRoleName().equals(request.getRoleName()) && currentRole.contains("ROLE_ADMIN")) {
+            Role role = roleRepository.findByRoleName(request.getRoleName())
                     .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
             user.setRole(role);
-            logger.debug("User role updated to: {}", role.getRoleName());
+            logger.debug("Updated role for user {} to {}", user.getId(), role.getRoleName());
         }
 
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setPhoneNumber(request.getPhoneNumber());
-        user.setAddress(request.getAddress());
-        user.setPreferredLanguage(request.getPreferredLanguage());
-        user.setUpdatedAt(LocalDateTime.now());
+        // Update fields only when data is available
+        BeanUtilsHelper.copyNonNullProperties(request, user);
 
         try {
             User updated = userRepository.save(user);
@@ -351,9 +354,11 @@ public class UserService {
         response.setPhoneNumber(user.getPhoneNumber());
         response.setAddress(user.getAddress());
         response.setRoleName(user.getRole().getRoleName());
+        response.setProfilePictureUrl(user.getProfilePictureUrl());
         response.setIsActive(user.getIsActive());
         response.setPreferredLanguage(user.getPreferredLanguage());
         response.setCreatedAt(user.getCreatedAt());
+        response.setUpdateAt(user.getUpdatedAt());
         response.setLastLoginAt(user.getLastLoginAt());
         return response;
     }

@@ -16,8 +16,10 @@ public class UserResponse {
     private String phoneNumber;
     private String address;
     private RoleName roleName;
+    private String profilePictureUrl;
     private Boolean isActive;
     private String preferredLanguage;
     private LocalDateTime createdAt;
+    private LocalDateTime updateAt;
     private LocalDateTime lastLoginAt;
 }

@@ -49,6 +49,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> { auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/hotels/**", "/api/v1/room-types/**").permitAll()
+                        .requestMatchers("/api/v1/roles/**").hasRole("ADMIN")
                         .anyRequest().authenticated();
                     logger.debug("Authorization rules configured");}
                 )

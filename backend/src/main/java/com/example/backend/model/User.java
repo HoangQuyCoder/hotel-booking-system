@@ -59,8 +59,8 @@ public class User {
     @Column(name = "address")
     private String address;
 
-    @Column(name = "profile_picture")
-    private String profilePicture;
+    @Column(name = "profile_picture_url")
+    private String profilePictureUrl;
 
     @Column(name = "preferred_language", length = 10)
     private String preferredLanguage;
