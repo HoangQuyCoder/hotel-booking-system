@@ -9,8 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "daily_overrides")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

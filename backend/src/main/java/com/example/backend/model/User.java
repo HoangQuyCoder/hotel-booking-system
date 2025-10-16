@@ -12,8 +12,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -29,7 +28,7 @@ public class User {
     @Column(name = "email", unique = true, nullable = false, length = 100)
     private String email;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
+    @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
     @Column(name = "first_name", length = 50)
@@ -41,6 +40,7 @@ public class User {
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
     private UserStatus status;
 
@@ -70,6 +70,15 @@ public class User {
 
     @Column(name = "locked_until")
     private LocalDateTime lockedUntil;
+
+    @Column(name = "reset_password_token")
+    private String resetPasswordToken;
+
+    @Column(name = "reset_password_expiry")
+    private LocalDateTime resetPasswordExpiry;
+
+    @Column(name = "reset_token_used", nullable = false)
+    private Boolean resetTokenUsed = false;
 
     // N:1 relationship with Role
     @ManyToOne(fetch = FetchType.LAZY)

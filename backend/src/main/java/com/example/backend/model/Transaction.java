@@ -11,8 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "transactions")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -33,18 +32,21 @@ public class Transaction {
     @Column(name = "currency", nullable = false, length = 10)
     private String currency;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false, length = 50)
     private PaymentMethod paymentMethod;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
     private TransactionStatus status;
 
-    @Column(name = "gateway_ref", length = 255)
+    @Column(name = "gateway_ref")
     private String gatewayRef;
 
     @Column(name = "processed_at", nullable = false)
     private LocalDateTime processedAt;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "transaction_type", length = 50)
     private TransactionType transactionType;
 

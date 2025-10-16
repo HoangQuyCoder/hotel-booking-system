@@ -1,19 +1,15 @@
 package com.example.backend.model;
 
 import com.example.backend.common.RoomStatus;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "rooms")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -40,11 +36,6 @@ public class Room {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_type_id", nullable = false)
     private RoomType roomType;
-
-    // 1: N relationship with Booking
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<Booking> bookings = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

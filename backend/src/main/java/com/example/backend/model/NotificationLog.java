@@ -9,8 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "notification_logs")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -20,7 +19,7 @@ public class NotificationLog {
     @Column(name = "log_id")
     private UUID id;
 
-    @Column(name = "recipient", nullable = false, length = 255)
+    @Column(name = "recipient", nullable = false)
     private String recipient;
 
     // N:1 Relationship with NotificationTemplate
@@ -28,6 +27,7 @@ public class NotificationLog {
     @JoinColumn(name = "template_id", nullable = false)
     private NotificationTemplate template;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
     private NotificationStatus status;
 
@@ -40,11 +40,15 @@ public class NotificationLog {
     @Column(name = "sent_at")
     private LocalDateTime sentAt;
 
-    @Column(name = "user_id")
-    private UUID userId;
+    // N:1 Relationship with User
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(name = "booking_id")
-    private UUID bookingId;
+    // N:1 Relationship with Booking
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id", nullable = false)
+    private Booking booking;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

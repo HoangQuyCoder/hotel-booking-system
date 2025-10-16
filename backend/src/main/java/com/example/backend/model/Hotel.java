@@ -11,8 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "hotels")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -28,7 +27,7 @@ public class Hotel {
     @Column(name = "city", nullable = false, length = 100)
     private String city;
 
-    @Column(name = "address", length = 255)
+    @Column(name = "address")
     private String address;
 
     @Column(name = "rating")
