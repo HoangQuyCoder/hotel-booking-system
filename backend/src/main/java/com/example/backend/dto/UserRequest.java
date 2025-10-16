@@ -1,5 +1,6 @@
 package com.example.backend.dto;
 
+import com.example.backend.common.RoleName;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -33,6 +34,6 @@ public class UserRequest {
 
     private String preferredLanguage;
 
-    @NotNull(message = "Role ID is required for admin creation")
-    private Integer roleId;
+    @NotNull(message = "Role name is required for admin creation")
+    private RoleName roleName = RoleName.valueOf("CLIENT");
 }

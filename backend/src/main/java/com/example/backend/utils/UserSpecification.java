@@ -1,4 +1,4 @@
-package com.example.backend.util;
+package com.example.backend.utils;
 
 import com.example.backend.common.RoleName;
 import com.example.backend.model.User;

@@ -1,5 +1,6 @@
 package com.example.backend.dto;
 
+import com.example.backend.common.RoleName;
 import lombok.Data;
 
 @Data
@@ -10,6 +11,6 @@ public class UserUpdateRequest {
     private String phoneNumber;
     private String address;
     private String preferredLanguage;
-    private Integer roleId;
+    private RoleName roleName;
 }
 
