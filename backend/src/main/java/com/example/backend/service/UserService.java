@@ -10,7 +10,7 @@ import com.example.backend.repository.RoleRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.utils.BeanUtilsHelper;
 import com.example.backend.utils.SpecUtils;
-import com.example.backend.utils.UserSpecification;
+import com.example.backend.specification.UserSpecification;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;

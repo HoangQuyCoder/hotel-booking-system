@@ -36,9 +36,6 @@ public class Hotel {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "manager_id")
-    private UUID managerId;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -66,7 +63,12 @@ public class Hotel {
     @Column(name = "is_active")
     private Boolean isActive = true;
 
-    // 1: N Relationship with RoomType
+    // N: 1 relationship with User
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "manager_id", nullable = false)
+    private User manager;
+
+    // 1: N relationship with RoomType
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<RoomType> roomTypes = new ArrayList<>();
