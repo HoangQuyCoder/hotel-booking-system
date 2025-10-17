@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -48,7 +49,9 @@ public class SecurityConfig {
                 })
                 .authorizeHttpRequests(auth -> { auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/hotels/**", "/api/v1/room-types/**").permitAll()
+                        .requestMatchers("/api/v1/room-types/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/hotels").permitAll()
+                        .requestMatchers("/api/v1/hotels/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/roles/**").hasRole("ADMIN")
                         .anyRequest().authenticated();
                     logger.debug("Authorization rules configured");}

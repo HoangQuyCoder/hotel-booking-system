@@ -80,6 +80,11 @@ public class User {
     @Column(name = "reset_token_used", nullable = false)
     private Boolean resetTokenUsed = false;
 
+    // 1: N relationship with Hotel
+    @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Hotel> hotels;
+
     // N:1 relationship with Role
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false)

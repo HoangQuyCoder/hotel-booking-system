@@ -120,7 +120,7 @@ public class RoleService {
     private RoleResponse mapToResponse(Role role) {
         RoleResponse response = new RoleResponse();
         response.setId(role.getId());
-        response.setRoleName(String.valueOf(role.getRoleName()));
+        response.setRoleName(role.getRoleName());
         response.setDescription(role.getDescription());
         response.setCreatedAt(role.getCreatedAt());
         response.setUpdatedAt(role.getUpdatedAt());

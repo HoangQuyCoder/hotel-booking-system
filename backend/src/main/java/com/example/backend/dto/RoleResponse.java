@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Data
 public class RoleResponse {
     private Long id;
-    private String roleName;
+    private RoleName roleName;
     private String description;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
