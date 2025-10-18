@@ -55,7 +55,6 @@ public class RoomService {
             Room room = Room.builder()
                     .roomNumber(request.getRoomNumber())
                     .status(status)
-                    .isActive(true)
                     .roomType(roomType)
                     .build();
 

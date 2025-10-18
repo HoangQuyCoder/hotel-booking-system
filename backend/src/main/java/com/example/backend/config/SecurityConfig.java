@@ -62,6 +62,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/hotels/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/room-types/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/room-amenities/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/base-rates/**").hasRole("ADMIN")
                         .anyRequest().authenticated();
                     logger.debug("Authorization rules configured");}
                 )

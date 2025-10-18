@@ -26,7 +26,7 @@ public class Room {
     @Column(name = "status", nullable = false)
     private RoomStatus status = RoomStatus.AVAILABLE;
 
-    @Column(name = "is_active", nullable = false)
+    @Column(name = "is_active")
     private Boolean isActive = true;
 
     @Column(name = "created_at")
