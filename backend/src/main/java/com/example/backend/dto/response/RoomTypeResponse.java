@@ -16,5 +16,6 @@ public class RoomTypeResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Boolean isAvailable;
+    private Boolean isActive;
     private UUID hotelId;
 }

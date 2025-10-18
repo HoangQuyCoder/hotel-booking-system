@@ -183,6 +183,7 @@ public class HotelService {
                 .name(name)
                 .address(address)
                 .rating(minRating, maxRating)
+                .createdAt(startDate, endDate)
                 .isActive(isActive)
                 .manager(managerId)
                 .build();

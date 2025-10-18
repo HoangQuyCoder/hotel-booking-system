@@ -4,6 +4,7 @@ import com.example.backend.model.Hotel;
 import com.example.backend.utils.SpecUtils;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class HotelSpecBuilder {
@@ -29,6 +30,12 @@ public class HotelSpecBuilder {
             spec = spec.and(HotelSpecification.hasRatingBetween(
                     min != null ? min : 0.0,
                     max != null ? max : Double.MAX_VALUE));
+        return this;
+    }
+
+    public HotelSpecBuilder createdAt(LocalDateTime start, LocalDateTime end) {
+        if (start != null || end != null)
+            spec = spec.and(HotelSpecification.hasCreatedAtBetween(start, end));
         return this;
     }
 
