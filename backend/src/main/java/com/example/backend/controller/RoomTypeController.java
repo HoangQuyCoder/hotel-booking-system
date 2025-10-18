@@ -58,7 +58,7 @@ public class RoomTypeController {
     }
 
     @GetMapping
-    public PagedResponse<RoomTypeResponse> filterRoomTypes(
+    public ResponseEntity<PagedResponse<RoomTypeResponse>> filterRoomTypes(
             @RequestParam(required = false) UUID hotelId,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Integer capacity,
@@ -70,9 +70,8 @@ public class RoomTypeController {
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {
-        return roomTypeService.findRoomTypes(
+        return ResponseEntity.ok(roomTypeService.findRoomTypes(
                 hotelId, name, capacity, isAvailable,
-                minSize, maxSize, page, size, sortBy, sortDir
-        );
+                minSize, maxSize, page, size, sortBy, sortDir));
     }
 }
