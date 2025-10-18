@@ -56,6 +56,7 @@ public class RoomService {
                     .roomNumber(request.getRoomNumber())
                     .status(status)
                     .roomType(roomType)
+                    .isActive(true)
                     .build();
 
             Room saved = roomRepository.save(room);

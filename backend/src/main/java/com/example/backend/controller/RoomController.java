@@ -48,6 +48,7 @@ public class RoomController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<PagedResponse<RoomResponse>> filterRooms(
             @RequestParam(required = false) UUID roomTypeId,
             @RequestParam(required = false) String status,

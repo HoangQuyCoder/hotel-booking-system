@@ -59,6 +59,7 @@ public class RoomTypeService {
                 .description(request.getDescription())
                 .hotel(hotel)
                 .isAvailable(true)
+                .isActive(true)
                 .build();
 
         try {
