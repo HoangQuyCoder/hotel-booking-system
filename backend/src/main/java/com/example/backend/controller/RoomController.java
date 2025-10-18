@@ -48,7 +48,7 @@ public class RoomController {
     }
 
     @GetMapping
-    public PagedResponse<RoomResponse> filterRooms(
+    public ResponseEntity<PagedResponse<RoomResponse>> filterRooms(
             @RequestParam(required = false) UUID roomTypeId,
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "0") int page,
@@ -56,7 +56,7 @@ public class RoomController {
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {
-        return roomService.findRooms(roomTypeId, status, page, size, sortBy, sortDir);
+        return ResponseEntity.ok(roomService.findRooms(roomTypeId, status, page, size, sortBy, sortDir));
     }
 
 }

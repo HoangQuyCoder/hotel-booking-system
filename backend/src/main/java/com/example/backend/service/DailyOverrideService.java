@@ -1,0 +1,188 @@
+package com.example.backend.service;
+
+import com.example.backend.dto.request.DailyOverrideRequest;
+import com.example.backend.dto.response.DailyOverrideResponse;
+import com.example.backend.dto.response.PagedResponse;
+import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.model.DailyOverride;
+import com.example.backend.model.RoomType;
+import com.example.backend.repository.DailyOverrideRepository;
+import com.example.backend.repository.RoomTypeRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Service
+public class DailyOverrideService {
+
+    private static final Logger logger = LoggerFactory.getLogger(DailyOverrideService.class);
+
+    private final DailyOverrideRepository dailyOverrideRepository;
+    private final RoomTypeRepository roomTypeRepository;
+
+    public DailyOverrideService(DailyOverrideRepository dailyOverrideRepository, RoomTypeRepository roomTypeRepository) {
+        this.dailyOverrideRepository = dailyOverrideRepository;
+        this.roomTypeRepository = roomTypeRepository;
+    }
+
+    @Transactional
+    public DailyOverrideResponse createDailyOverride(DailyOverrideRequest request) {
+        logger.info("Creating daily override for room type ID: {} on date: {}",
+                request.getRoomTypeId(), request.getDate());
+
+        if (dailyOverrideRepository.existsByRoomTypeIdAndDate(request.getRoomTypeId(), request.getDate())) {
+            logger.error("[create] Daily override already exists for room type ID: {} on date: {}",
+                    request.getRoomTypeId(), request.getDate());
+            throw new IllegalArgumentException("Daily override already exists for this date");
+        }
+
+        RoomType roomType = roomTypeRepository.findById(request.getRoomTypeId())
+                .orElseThrow(() -> {
+                    logger.error("[create] Room type not found with ID: {}", request.getRoomTypeId());
+                    return new ResourceNotFoundException("Room type not found");
+                });
+
+        DailyOverride dailyOverride = DailyOverride.builder()
+                .roomType(roomType)
+                .date(request.getDate())
+                .priceAdjustment(request.getPriceAdjustment())
+                .availableRooms(request.getAvailableRooms())
+                .reason(request.getReason())
+                .isActive(true)
+                .build();
+
+        try {
+            DailyOverride saved = dailyOverrideRepository.save(dailyOverride);
+            logger.info("Daily override created successfully with ID: {}", saved.getId());
+            return mapToResponse(saved);
+        } catch (Exception e) {
+            logger.error("Failed to create daily override: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to create daily override", e);
+        }
+    }
+
+    public DailyOverrideResponse getDailyOverrideById(UUID id) {
+        logger.info("Fetching daily override with ID: {}", id);
+
+        DailyOverride dailyOverride = dailyOverrideRepository.findById(id)
+                .orElseThrow(() -> {
+                    logger.error("[get] Daily override not found with ID: {}", id);
+                    return new ResourceNotFoundException("Daily override not found");
+                });
+        return mapToResponse(dailyOverride);
+    }
+
+    @Transactional
+    public DailyOverrideResponse updateDailyOverride(UUID id, DailyOverrideRequest request) {
+        logger.info("Updating daily override with ID: {}", id);
+
+        DailyOverride dailyOverride = dailyOverrideRepository.findById(id)
+                .orElseThrow(() -> {
+                    logger.error("[update] Daily override not found with ID: {}", id);
+                    return new ResourceNotFoundException("Daily override not found");
+                });
+
+        if (!dailyOverride.getRoomType().getId().equals(request.getRoomTypeId()) ||
+                !dailyOverride.getDate().equals(request.getDate())) {
+            if (dailyOverrideRepository.existsByRoomTypeIdAndDate(request.getRoomTypeId(), request.getDate())) {
+                logger.error("[update] Daily override already exists for room type ID: {} on date: {}",
+                        request.getRoomTypeId(), request.getDate());
+                throw new IllegalArgumentException("Daily override already exists for this date");
+            }
+        }
+
+        RoomType roomType = roomTypeRepository.findById(request.getRoomTypeId())
+                .orElseThrow(() -> {
+                    logger.error("[update] Room type not found with ID: {}", request.getRoomTypeId());
+                    return new ResourceNotFoundException("Room type not found");
+                });
+
+        dailyOverride.setRoomType(roomType);
+        dailyOverride.setDate(request.getDate());
+        dailyOverride.setPriceAdjustment(request.getPriceAdjustment());
+        dailyOverride.setAvailableRooms(request.getAvailableRooms());
+        dailyOverride.setReason(request.getReason());
+
+        try {
+            DailyOverride updated = dailyOverrideRepository.save(dailyOverride);
+            logger.info("Daily override updated successfully with ID: {}", id);
+            return mapToResponse(updated);
+        } catch (Exception e) {
+            logger.error("Failed to update daily override: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to update daily override", e);
+        }
+    }
+
+    @Transactional
+    public void deleteDailyOverride(UUID id) {
+        logger.info("Deleting daily override with ID: {}", id);
+
+        DailyOverride dailyOverride = dailyOverrideRepository.findById(id)
+                .orElseThrow(() -> {
+                    logger.error("Daily override not found with ID: {}", id);
+                    return new ResourceNotFoundException("Daily override not found");
+                });
+
+        try {
+            dailyOverride.setIsActive(false);
+            dailyOverrideRepository.save(dailyOverride);
+            logger.info("Daily override deleted (soft) successfully with ID: {}", id);
+        } catch (Exception e) {
+            logger.error("Failed to delete daily override: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to delete daily override", e);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public PagedResponse<DailyOverrideResponse> findDailyOverrides(
+            UUID roomTypeId, LocalDate date, int page,
+            int size, String sortBy,
+            String sortDir) {
+        logger.info("Searching daily overrides with roomTypeId: {} and date: {}", roomTypeId, date);
+
+        Sort sort = sortDir.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<DailyOverride> pageResult = dailyOverrideRepository.findByFilters(roomTypeId, date, pageable);
+
+        List<DailyOverrideResponse> content = pageResult.getContent()
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+
+        return new PagedResponse<>(
+                content,
+                pageResult.getNumber(),
+                pageResult.getSize(),
+                pageResult.getTotalElements(),
+                pageResult.getTotalPages()
+        );
+    }
+
+    private DailyOverrideResponse mapToResponse(DailyOverride dailyOverride) {
+        DailyOverrideResponse response = new DailyOverrideResponse();
+        response.setId(dailyOverride.getId());
+        response.setRoomTypeId(dailyOverride.getRoomType().getId());
+        response.setDate(dailyOverride.getDate());
+        response.setPriceAdjustment(dailyOverride.getPriceAdjustment());
+        response.setAvailableRooms(dailyOverride.getAvailableRooms());
+        response.setReason(dailyOverride.getReason());
+        response.setCreatedAt(dailyOverride.getCreatedAt());
+        response.setUpdatedAt(dailyOverride.getUpdatedAt());
+        response.setIsActive(dailyOverride.getIsActive());
+        return response;
+    }
+}
