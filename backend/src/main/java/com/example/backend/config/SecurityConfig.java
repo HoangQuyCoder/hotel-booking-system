@@ -49,12 +49,19 @@ public class SecurityConfig {
                 })
                 .authorizeHttpRequests(auth -> { auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/room-types/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/hotels").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/hotels", "/api/v1/hotels/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/room-types", "/api/v1/room-types/**").permitAll()
-                        .requestMatchers("/api/v1/hotels/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/room-amenities", "/api/v1/room-amenities/**").permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/api/v1/rooms").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/rooms", "/api/v1/rooms/**").hasAnyRole("ADMIN", "STAFF")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/rooms/**").hasAnyRole("ADMIN", "STAFF")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/rooms/**").hasRole("ADMIN")
+
                         .requestMatchers("/api/v1/roles/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/hotels/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/room-types/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/room-amenities/**").hasRole("ADMIN")
                         .anyRequest().authenticated();
                     logger.debug("Authorization rules configured");}
                 )

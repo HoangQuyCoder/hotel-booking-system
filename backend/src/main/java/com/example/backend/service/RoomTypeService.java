@@ -219,6 +219,7 @@ public class RoomTypeService {
         response.setCreatedAt(roomType.getCreatedAt());
         response.setUpdatedAt(roomType.getUpdatedAt());
         response.setIsAvailable(roomType.getIsAvailable());
+        response.setIsActive(roomType.getIsActive());
         response.setHotelId(roomType.getHotel().getId());
         return response;
     }
