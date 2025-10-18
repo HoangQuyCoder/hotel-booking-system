@@ -10,7 +10,7 @@ import com.example.backend.model.Hotel;
 import com.example.backend.model.User;
 import com.example.backend.repository.HotelRepository;
 import com.example.backend.repository.UserRepository;
-import com.example.backend.specification.HotelSpecBuilder;
+import com.example.backend.specification.builder.HotelSpecBuilder;
 import com.example.backend.specification.HotelSpecification;
 import com.example.backend.utils.BeanUtilsHelper;
 import com.example.backend.utils.SpecUtils;

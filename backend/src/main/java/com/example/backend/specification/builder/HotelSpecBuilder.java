@@ -1,6 +1,7 @@
-package com.example.backend.specification;
+package com.example.backend.specification.builder;
 
 import com.example.backend.model.Hotel;
+import com.example.backend.specification.HotelSpecification;
 import com.example.backend.utils.SpecUtils;
 import org.springframework.data.jpa.domain.Specification;
 

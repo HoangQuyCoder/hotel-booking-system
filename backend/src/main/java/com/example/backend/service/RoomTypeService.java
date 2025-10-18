@@ -9,7 +9,7 @@ import com.example.backend.model.Hotel;
 import com.example.backend.model.RoomType;
 import com.example.backend.repository.HotelRepository;
 import com.example.backend.repository.RoomTypeRepository;
-import com.example.backend.specification.RoomTypeSpecBuilder;
+import com.example.backend.specification.builder.RoomTypeSpecBuilder;
 import com.example.backend.utils.BeanUtilsHelper;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
