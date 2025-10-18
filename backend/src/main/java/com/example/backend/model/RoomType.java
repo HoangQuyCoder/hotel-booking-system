@@ -45,6 +45,9 @@ public class RoomType {
     @Column(name = "is_available")
     private Boolean isAvailable = true;
 
+    @Column(name = "is_active")
+    private Boolean isActive = true;
+
     // N:1 relationship with Hotel
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hotel_id", nullable = false)

@@ -1,7 +1,7 @@
 package com.example.backend.controller;
 
-import com.example.backend.dto.RoleRequest;
-import com.example.backend.dto.RoleResponse;
+import com.example.backend.dto.request.RoleRequest;
+import com.example.backend.dto.response.RoleResponse;
 import com.example.backend.service.RoleService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

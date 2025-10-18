@@ -1,7 +1,7 @@
 package com.example.backend.service;
 
-import com.example.backend.dto.RoleRequest;
-import com.example.backend.dto.RoleResponse;
+import com.example.backend.dto.request.RoleRequest;
+import com.example.backend.dto.response.RoleResponse;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.model.Role;
 import com.example.backend.repository.RoleRepository;
