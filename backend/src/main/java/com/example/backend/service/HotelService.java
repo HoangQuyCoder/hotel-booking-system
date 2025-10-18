@@ -1,7 +1,10 @@
 package com.example.backend.service;
 
-import com.example.backend.common.RoleName;
-import com.example.backend.dto.*;
+import com.example.backend.dto.request.HotelRequest;
+import com.example.backend.dto.request.HotelUpdateRequest;
+import com.example.backend.dto.response.HotelResponse;
+import com.example.backend.dto.response.ManagerResponse;
+import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.model.Hotel;
 import com.example.backend.model.User;
@@ -9,7 +12,6 @@ import com.example.backend.repository.HotelRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.specification.HotelSpecBuilder;
 import com.example.backend.specification.HotelSpecification;
-import com.example.backend.specification.UserSpecification;
 import com.example.backend.utils.BeanUtilsHelper;
 import com.example.backend.utils.SpecUtils;
 import org.slf4j.Logger;

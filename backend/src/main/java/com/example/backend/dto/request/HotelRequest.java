@@ -1,6 +1,5 @@
-package com.example.backend.dto;
+package com.example.backend.dto.request;
 
-import com.example.backend.model.User;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 

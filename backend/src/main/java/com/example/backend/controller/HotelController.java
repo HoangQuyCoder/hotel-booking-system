@@ -1,6 +1,9 @@
 package com.example.backend.controller;
 
-import com.example.backend.dto.*;
+import com.example.backend.dto.request.HotelRequest;
+import com.example.backend.dto.request.HotelUpdateRequest;
+import com.example.backend.dto.response.HotelResponse;
+import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.service.HotelService;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;

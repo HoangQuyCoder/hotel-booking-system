@@ -80,8 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        boolean bypass = path.startsWith("/api/v1/auth") ||
-                path.startsWith("/api/v1/room-types");
+        boolean bypass = path.startsWith("/api/v1/auth");
 
         if (bypass) {
             logger.debug("Bypassing JWT filter for URI: {}", path);

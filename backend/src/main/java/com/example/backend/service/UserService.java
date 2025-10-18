@@ -2,7 +2,11 @@ package com.example.backend.service;
 
 import com.example.backend.common.RoleName;
 import com.example.backend.common.UserStatus;
-import com.example.backend.dto.*;
+import com.example.backend.dto.request.*;
+import com.example.backend.dto.response.LoginResponse;
+import com.example.backend.dto.response.PagedResponse;
+import com.example.backend.dto.response.PasswordResetResponse;
+import com.example.backend.dto.response.UserResponse;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.model.Role;
 import com.example.backend.model.User;
