@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/hotels", "/api/v1/hotels/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/room-types", "/api/v1/room-types/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/room-amenities", "/api/v1/room-amenities/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/promotions").hasAnyRole("ADMIN", "CLIENT")
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/rooms").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/rooms", "/api/v1/rooms/**").hasAnyRole("ADMIN", "STAFF")
@@ -64,6 +65,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/room-amenities/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/base-rates/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/daily-overrides/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/promotions/**").hasRole("ADMIN")
                         .anyRequest().authenticated();
                     logger.debug("Authorization rules configured");}
                 )

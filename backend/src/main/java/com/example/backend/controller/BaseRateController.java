@@ -51,6 +51,7 @@ public class BaseRateController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PagedResponse<BaseRateResponse>> filterBaseRates(
             @RequestParam(required = false) UUID roomTypeId,
             @RequestParam(required = false) Boolean isActive,
