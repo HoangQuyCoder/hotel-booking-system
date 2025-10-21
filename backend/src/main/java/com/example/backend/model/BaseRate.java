@@ -9,8 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "base_rates")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

@@ -146,11 +146,6 @@ public class RoomTypeService {
         // Softly delete
         roomType.setIsActive(false);
 
-        if (!roomType.getRooms().isEmpty() || !roomType.getBookingRooms().isEmpty()) {
-            logger.error("Cannot delete room type with associated rooms or bookings");
-            throw new IllegalStateException("Cannot delete room type with associated rooms or bookings");
-        }
-
         try {
             roomTypeRepository.save(roomType);
             logger.info("Room type deleted successfully with ID: {}", id);

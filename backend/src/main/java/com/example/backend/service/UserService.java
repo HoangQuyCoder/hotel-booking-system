@@ -74,18 +74,19 @@ public class UserService {
                     return new ResourceNotFoundException("Role not found");
                 });
 
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setPhoneNumber(request.getPhoneNumber());
-        user.setAddress(request.getAddress());
-        user.setRole(role);
-        user.setStatus(UserStatus.ACTIVE);
-        user.setIsActive(true);
-        user.setPreferredLanguage(request.getPreferredLanguage());
+        User user = User.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .passwordHash(passwordEncoder.encode(request.getPassword()))
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .phoneNumber(request.getPhoneNumber())
+                .address(request.getAddress())
+                .role(role)
+                .status(UserStatus.ACTIVE)
+                .isActive(true)
+                .preferredLanguage(request.getPreferredLanguage())
+                .build();
 
         try {
             User saved = userRepository.save(user);

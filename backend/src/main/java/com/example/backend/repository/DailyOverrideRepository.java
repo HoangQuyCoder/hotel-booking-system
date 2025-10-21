@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -19,4 +20,6 @@ public interface DailyOverrideRepository extends JpaRepository<DailyOverride, UU
     Page<DailyOverride> findByFilters(@Param("roomTypeId") UUID roomTypeId, @Param("date") LocalDate date, Pageable pageable);
 
     boolean existsByRoomTypeIdAndDate(UUID roomTypeId, LocalDate date);
+
+    Optional<DailyOverride> findByRoomTypeIdAndDate(UUID roomTypeId, LocalDate date);
 }

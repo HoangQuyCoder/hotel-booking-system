@@ -54,6 +54,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/room-amenities/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/promotions").hasAnyRole("ADMIN", "CLIENT")
                         .requestMatchers("/api/v1/rooms/**").hasAnyRole("ADMIN", "STAFF")
+                        .requestMatchers("/api/v1/bookings/**").hasAnyRole("ADMIN", "STAFF", "CLIENT")
                         .anyRequest().authenticated();
                     logger.debug("Authorization rules configured");}
                 )
