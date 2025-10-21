@@ -49,23 +49,11 @@ public class SecurityConfig {
                 })
                 .authorizeHttpRequests(auth -> { auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/hotels", "/api/v1/hotels/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/room-types", "/api/v1/room-types/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/room-amenities", "/api/v1/room-amenities/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/api/v1/hotels/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/api/v1/room-types/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/room-amenities/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/promotions").hasAnyRole("ADMIN", "CLIENT")
-
-                        .requestMatchers(HttpMethod.POST, "/api/v1/rooms").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/rooms", "/api/v1/rooms/**").hasAnyRole("ADMIN", "STAFF")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/rooms/**").hasAnyRole("ADMIN", "STAFF")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/rooms/**").hasRole("ADMIN")
-
-                        .requestMatchers("/api/v1/roles/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/hotels/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/room-types/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/room-amenities/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/base-rates/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/daily-overrides/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/promotions/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/rooms/**").hasAnyRole("ADMIN", "STAFF")
                         .anyRequest().authenticated();
                     logger.debug("Authorization rules configured");}
                 )
