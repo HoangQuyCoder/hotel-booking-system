@@ -34,9 +34,10 @@ public class RoleService {
             throw new IllegalArgumentException("Role name already exists");
         }
 
-        Role role = new Role();
-        role.setRoleName(request.getRoleName());
-        role.setDescription(request.getDescription());
+        Role role = Role.builder()
+                .roleName(request.getRoleName())
+                .description(request.getDescription())
+                .build();
 
         try {
             Role saved = roleRepository.save(role);
