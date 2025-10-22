@@ -1,20 +1,23 @@
 package com.example.backend.service;
 
+import com.example.backend.common.RoomStatus;
+import com.example.backend.dto.filter.RoomFilterRequest;
 import com.example.backend.dto.request.RoomRequest;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.dto.response.RoomResponse;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.model.Room;
-import com.example.backend.common.RoomStatus;
 import com.example.backend.model.RoomType;
 import com.example.backend.repository.RoomRepository;
 import com.example.backend.repository.RoomTypeRepository;
+import com.example.backend.specification.RoomSpecification;
+import com.example.backend.utils.PagingUtils;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,17 +26,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class RoomService {
 
     private static final Logger logger = LoggerFactory.getLogger(RoomService.class);
 
     private final RoomRepository roomRepository;
     private final RoomTypeRepository roomTypeRepository;
-
-    public RoomService(RoomRepository roomRepository, RoomTypeRepository roomTypeRepository) {
-        this.roomRepository = roomRepository;
-        this.roomTypeRepository = roomTypeRepository;
-    }
 
     @Transactional
     public RoomResponse createRoom(RoomRequest request) {
@@ -144,33 +143,14 @@ public class RoomService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<RoomResponse> findRooms(
-            UUID roomTypeId,
-            String status,
-            int page,
-            int size,
-            String sortBy,
-            String sortDir
-    ) {
-        logger.info("Searching rooms with roomTypeId: {} and status: {}", roomTypeId, status);
+    public PagedResponse<RoomResponse> getAllRooms(RoomFilterRequest filterRequest) {
+        logger.info("Searching rooms with: {}", filterRequest);
 
-        RoomStatus roomStatus = null;
-        if (status != null) {
-            try {
-                roomStatus = RoomStatus.valueOf(status.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                logger.error("Invalid room status: {}", status);
-                throw new IllegalArgumentException("Invalid room status: " + status);
-            }
-        }
+        Pageable pageable = PagingUtils.toPageable(filterRequest);
 
-        Sort sort = sortDir.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
+        Specification<Room> spec = RoomSpecification.build(filterRequest);
 
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        Page<Room> roomPage = roomRepository.findByFilters(roomTypeId, roomStatus, pageable);
+        Page<Room> roomPage = roomRepository.findAll(spec, pageable);
 
         List<RoomResponse> content = roomPage.getContent()
                 .stream()

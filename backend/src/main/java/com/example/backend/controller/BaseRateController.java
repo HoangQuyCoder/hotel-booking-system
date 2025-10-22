@@ -1,29 +1,25 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.filter.BaseRateFilterRequest;
 import com.example.backend.dto.request.BaseRateRequest;
 import com.example.backend.dto.response.BaseRateResponse;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.service.BaseRateService;
 import jakarta.validation.Valid;
-import org.springframework.format.annotation.DateTimeFormat;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/base-rates")
 public class BaseRateController {
 
     private final BaseRateService baseRateService;
-
-    public BaseRateController(BaseRateService baseRateService) {
-        this.baseRateService = baseRateService;
-    }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -52,22 +48,8 @@ public class BaseRateController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PagedResponse<BaseRateResponse>> filterBaseRates(
-            @RequestParam(required = false) UUID roomTypeId,
-            @RequestParam(required = false) Boolean isActive,
-            @RequestParam(required = false) BigDecimal minPrice,
-            @RequestParam(required = false) BigDecimal maxPrice,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortDir
-    ) {
-        PagedResponse<BaseRateResponse> result = baseRateService.findBaseRates(
-                roomTypeId, isActive, minPrice, maxPrice, startDate, endDate,
-                page, size, sortBy, sortDir
-        );
+    public ResponseEntity<PagedResponse<BaseRateResponse>> getAllBaseRates(BaseRateFilterRequest filterRequest) {
+        PagedResponse<BaseRateResponse> result = baseRateService.getAllBaseRates(filterRequest);
         return ResponseEntity.ok(result);
     }
 }

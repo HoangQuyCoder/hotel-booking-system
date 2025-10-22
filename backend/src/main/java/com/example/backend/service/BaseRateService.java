@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.filter.BaseRateFilterRequest;
 import com.example.backend.dto.request.BaseRateRequest;
 import com.example.backend.dto.response.BaseRateResponse;
 import com.example.backend.dto.response.PagedResponse;
@@ -8,34 +9,28 @@ import com.example.backend.model.BaseRate;
 import com.example.backend.model.RoomType;
 import com.example.backend.repository.BaseRateRepository;
 import com.example.backend.repository.RoomTypeRepository;
-import com.example.backend.specification.builder.BaseRateSpecBuilder;
+import com.example.backend.specification.BaseRateSpecification;
+import com.example.backend.utils.PagingUtils;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class BaseRateService {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseRateService.class);
 
     private final BaseRateRepository baseRateRepository;
     private final RoomTypeRepository roomTypeRepository;
-
-    public BaseRateService(BaseRateRepository baseRateRepository, RoomTypeRepository roomTypeRepository) {
-        this.baseRateRepository = baseRateRepository;
-        this.roomTypeRepository = roomTypeRepository;
-    }
 
     @Transactional
     public BaseRateResponse createBaseRate(BaseRateRequest request) {
@@ -156,30 +151,12 @@ public class BaseRateService {
         }
     }
 
-    public PagedResponse<BaseRateResponse> findBaseRates(
-            UUID roomTypeId,
-            Boolean isActive,
-            BigDecimal minPrice,
-            BigDecimal maxPrice,
-            LocalDate startDate,
-            LocalDate endDate,
-            int page,
-            int size,
-            String sortBy,
-            String sortDir
-    ) {
-        logger.info("Filtering BaseRates - roomTypeId={}, active={}, priceRange={}~{}, dateRange={}~{}",
-                roomTypeId, isActive, minPrice, maxPrice, startDate, endDate);
+    public PagedResponse<BaseRateResponse> getAllBaseRates(BaseRateFilterRequest filterRequest) {
+        logger.info("Filtering BaseRates with request: {}", filterRequest);
 
-        Sort sort = sortDir.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
+        Pageable pageable = PagingUtils.toPageable(filterRequest);
 
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        Specification<BaseRate> spec = BaseRateSpecBuilder.build(
-                roomTypeId, isActive, minPrice, maxPrice, startDate, endDate
-        );
+        Specification<BaseRate> spec = BaseRateSpecification.build(filterRequest);
 
         Page<BaseRate> pageResult = baseRateRepository.findAll(spec, pageable);
 
