@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BookingCalculationResult {
+public class BookingCalculationResponse {
     private Promotion promotion;
     private List<BookingRoom> bookingRooms;
     private double totalAmount;

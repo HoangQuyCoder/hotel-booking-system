@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.filter.HotelFilterRequest;
 import com.example.backend.dto.request.HotelRequest;
 import com.example.backend.dto.request.HotelUpdateRequest;
 import com.example.backend.dto.response.HotelResponse;
@@ -10,37 +11,30 @@ import com.example.backend.model.Hotel;
 import com.example.backend.model.User;
 import com.example.backend.repository.HotelRepository;
 import com.example.backend.repository.UserRepository;
-import com.example.backend.specification.builder.HotelSpecBuilder;
 import com.example.backend.specification.HotelSpecification;
 import com.example.backend.utils.BeanUtilsHelper;
-import com.example.backend.utils.SpecUtils;
+import com.example.backend.utils.PagingUtils;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class HotelService {
 
     private static final Logger logger = LoggerFactory.getLogger(HotelService.class);
 
     private final HotelRepository hotelRepository;
     private final UserRepository userRepository;
-
-    public HotelService(HotelRepository hotelRepository, UserRepository userRepository) {
-        this.hotelRepository = hotelRepository;
-        this.userRepository = userRepository;
-    }
 
     @Transactional
     public HotelResponse createHotel(HotelRequest request) {
@@ -154,39 +148,12 @@ public class HotelService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<HotelResponse> getAllHotels(
-            int page,
-            int size,
-            String city,
-            String name,
-            String address,
-            Double minRating,
-            Double maxRating,
-            Boolean isActive,
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            UUID managerId,
-            String sortBy,
-            String sortDir
-    ) {
-        logger.info("Fetching hotels with filters (city={}, rating={}, createdAt={}–{})",
-                city, maxRating, startDate, endDate);
+    public PagedResponse<HotelResponse> getAllHotels(HotelFilterRequest filterRequest) {
+        logger.info("Fetching hotels with filters: {}", filterRequest);
 
-        Sort sort = sortDir.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
+        Pageable pageable = PagingUtils.toPageable(filterRequest);
 
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        Specification<Hotel> spec = new HotelSpecBuilder()
-                .city(city)
-                .name(name)
-                .address(address)
-                .rating(minRating, maxRating)
-                .createdAt(startDate, endDate)
-                .isActive(isActive)
-                .manager(managerId)
-                .build();
+        Specification<Hotel> spec = HotelSpecification.build(filterRequest);
 
         Page<Hotel> hotels = hotelRepository.findAll(spec, pageable);
 
@@ -200,35 +167,6 @@ public class HotelService {
                 hotels.getSize(),
                 hotels.getTotalElements(),
                 hotels.getTotalPages()
-        );
-    }
-
-    public PagedResponse<HotelResponse> searchHotels(int page, int size, String keyword) {
-        logger.info("Fetching hotels - page: {}, size: {}, keyword: {}", page, size, keyword);
-
-        Pageable pageable = PageRequest.of(page, size);
-        Specification<Hotel> spec = SpecUtils.empty();
-
-        // Filter by keyword
-        if (keyword != null && !keyword.isEmpty()) {
-            spec = spec.and(HotelSpecification.keywordContains(keyword));
-            logger.debug("Filtering by keyword: {}", keyword);
-        }
-
-        // Execute query
-        Page<Hotel> pageResult = hotelRepository.findAll(spec, pageable);
-        logger.info("Found {} hotels (page {}/{})", pageResult.getNumberOfElements(), pageResult.getNumber() + 1, pageResult.getTotalPages());
-
-        List<HotelResponse> content = pageResult.getContent().stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-
-        return new PagedResponse<>(
-                content,
-                pageResult.getNumber(),
-                pageResult.getSize(),
-                pageResult.getTotalElements(),
-                pageResult.getTotalPages()
         );
     }
 

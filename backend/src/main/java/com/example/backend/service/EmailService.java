@@ -4,6 +4,7 @@ import com.example.backend.model.NotificationTemplate;
 import com.example.backend.repository.NotificationTemplateRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class EmailService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
@@ -25,11 +27,6 @@ public class EmailService {
 
     @Value("${frontend.reset-password-url}")
     private String resetPasswordUrl;
-
-    public EmailService(JavaMailSender mailSender, NotificationTemplateRepository notificationTemplateRepository) {
-        this.mailSender = mailSender;
-        this.notificationTemplateRepository = notificationTemplateRepository;
-    }
 
     // Send password reset email
     public void sendPasswordResetEmail(String toEmail, String resetToken) throws MessagingException {

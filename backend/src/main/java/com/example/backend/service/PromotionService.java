@@ -1,37 +1,33 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.filter.PromotionFilterRequest;
 import com.example.backend.dto.request.PromotionRequest;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.dto.response.PromotionResponse;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.model.Promotion;
 import com.example.backend.repository.PromotionRepository;
-import com.example.backend.specification.builder.PromotionSpecBuilder;
+import com.example.backend.specification.PromotionSpecification;
+import com.example.backend.utils.PagingUtils;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class PromotionService {
 
     private static final Logger logger = LoggerFactory.getLogger(PromotionService.class);
 
     private final PromotionRepository promotionRepository;
-
-    public PromotionService(PromotionRepository promotionRepository) {
-        this.promotionRepository = promotionRepository;
-    }
 
     @Transactional
     public PromotionResponse createPromotion(PromotionRequest request) {
@@ -159,29 +155,12 @@ public class PromotionService {
         }
     }
 
-    public PagedResponse<PromotionResponse> findPromotions(
-            String code,
-            Boolean isActive,
-            LocalDateTime validFrom,
-            LocalDateTime validTo,
-            BigDecimal minBookingAmount,
-            int page,
-            int size,
-            String sortBy,
-            String sortDir
-    ) {
-        logger.info("Searching promotions - code={}, active={}, validFrom={}, validTo={}, minAmount={}",
-                code, isActive, validFrom, validTo, minBookingAmount);
+    public PagedResponse<PromotionResponse> getAllPromotions(PromotionFilterRequest filterRequest) {
+        logger.info("Searching promotions with = {}", filterRequest);
 
-        Sort sort = sortDir.equalsIgnoreCase("asc") ?
-                Sort.by(sortBy).ascending() :
-                Sort.by(sortBy).descending();
+        Pageable pageable = PagingUtils.toPageable(filterRequest);
 
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        Specification<Promotion> spec = PromotionSpecBuilder.build(
-                code, isActive, validFrom, validTo, minBookingAmount
-        );
+        Specification<Promotion> spec = PromotionSpecification.build(filterRequest);
 
         Page<Promotion> pageResult = promotionRepository.findAll(spec, pageable);
 

@@ -1,11 +1,13 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.filter.RoomTypeFilterRequest;
 import com.example.backend.dto.request.RoomTypeRequest;
 import com.example.backend.dto.request.RoomTypeUpdateRequest;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.dto.response.RoomTypeResponse;
 import com.example.backend.service.RoomTypeService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,14 +16,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/room-types")
 public class RoomTypeController {
 
     private final RoomTypeService roomTypeService;
-
-    public RoomTypeController(RoomTypeService roomTypeService) {
-        this.roomTypeService = roomTypeService;
-    }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -58,20 +57,7 @@ public class RoomTypeController {
     }
 
     @GetMapping
-    public ResponseEntity<PagedResponse<RoomTypeResponse>> filterRoomTypes(
-            @RequestParam(required = false) UUID hotelId,
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) Integer capacity,
-            @RequestParam(required = false) Boolean isAvailable,
-            @RequestParam(required = false) Integer minSize,
-            @RequestParam(required = false) Integer maxSize,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortDir
-    ) {
-        return ResponseEntity.ok(roomTypeService.findRoomTypes(
-                hotelId, name, capacity, isAvailable,
-                minSize, maxSize, page, size, sortBy, sortDir));
+    public ResponseEntity<PagedResponse<RoomTypeResponse>> getAllRoomTypes(RoomTypeFilterRequest filterRequest) {
+        return ResponseEntity.ok(roomTypeService.getAllRoomTypes(filterRequest));
     }
 }

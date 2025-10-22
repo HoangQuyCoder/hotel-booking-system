@@ -1,7 +1,7 @@
 package com.example.backend.service;
 
-import com.example.backend.common.RoleName;
 import com.example.backend.common.UserStatus;
+import com.example.backend.dto.filter.UserFilterRequest;
 import com.example.backend.dto.request.*;
 import com.example.backend.dto.response.LoginResponse;
 import com.example.backend.dto.response.PagedResponse;
@@ -12,16 +12,16 @@ import com.example.backend.model.Role;
 import com.example.backend.model.User;
 import com.example.backend.repository.RoleRepository;
 import com.example.backend.repository.UserRepository;
-import com.example.backend.utils.BeanUtilsHelper;
-import com.example.backend.utils.SpecUtils;
 import com.example.backend.specification.UserSpecification;
+import com.example.backend.utils.BeanUtilsHelper;
+import com.example.backend.utils.PagingUtils;
 import jakarta.mail.MessagingException;
-import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +34,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
@@ -43,15 +44,6 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final EmailService emailService;
-
-    public UserService(UserRepository userRepository, RoleRepository roleRepository,
-                       BCryptPasswordEncoder passwordEncoder, JwtService jwtService, EmailService emailService) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
-        this.emailService = emailService;
-    }
 
     // ============================= REGISTER =============================
 
@@ -159,35 +151,12 @@ public class UserService {
         return mapToResponse(user);
     }
 
-    public PagedResponse<UserResponse> getAllUsers(int page, int size, String role, String keyword, Boolean isActive) {
-        logger.info("Fetching users - page: {}, size: {}, role: {}, keyword: {}, isActive: {}", page, size, role, keyword, isActive);
+    @Transactional(readOnly = true)
+    public PagedResponse<UserResponse> getAllUsers(UserFilterRequest filterRequest) {
+        logger.info("Fetching users with filters: {}", filterRequest);
 
-        Pageable pageable = PageRequest.of(page, size);
-        Specification<User> spec = SpecUtils.empty();
-
-        // Filter by role
-        if (role != null && !role.isEmpty()) {
-            try {
-                RoleName roleEnum = RoleName.valueOf(role.toUpperCase());
-                spec = spec.and(UserSpecification.hasRole(roleEnum));
-                logger.debug("Filtering by role: {}", roleEnum);
-            } catch (IllegalArgumentException e) {
-                logger.warn("Invalid role provided: {}", role);
-                throw new IllegalArgumentException("Invalid role: " + role);
-            }
-        }
-
-        // Filter by keyword
-        if (keyword != null && !keyword.isEmpty()) {
-            spec = spec.and(UserSpecification.keywordContains(keyword));
-            logger.debug("Filtering by keyword: {}", keyword);
-        }
-
-        // Filter by active status
-        if (isActive != null) {
-            spec = spec.and(UserSpecification.isActive(isActive));
-            logger.debug("Filtering by isActive: {}", isActive);
-        }
+        Pageable pageable = PagingUtils.toPageable(filterRequest);
+        Specification<User> spec = UserSpecification.build(filterRequest);
 
         // Execute query
         Page<User> pageResult = userRepository.findAll(spec, pageable);

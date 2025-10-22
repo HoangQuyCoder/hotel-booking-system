@@ -1,34 +1,37 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.filter.RoomAmenityFilterRequest;
 import com.example.backend.dto.request.RoomAmenityRequest;
+import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.dto.response.RoomAmenityResponse;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.model.RoomAmenity;
 import com.example.backend.model.RoomType;
 import com.example.backend.repository.RoomAmenityRepository;
 import com.example.backend.repository.RoomTypeRepository;
+import com.example.backend.specification.RoomAmenitySpecification;
 import com.example.backend.utils.BeanUtilsHelper;
+import com.example.backend.utils.PagingUtils;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class RoomAmenityService {
 
     private static final Logger logger = LoggerFactory.getLogger(RoomAmenityService.class);
 
     private final RoomAmenityRepository roomAmenityRepository;
     private final RoomTypeRepository roomTypeRepository;
-
-    public RoomAmenityService(RoomAmenityRepository roomAmenityRepository, RoomTypeRepository roomTypeRepository) {
-        this.roomAmenityRepository = roomAmenityRepository;
-        this.roomTypeRepository = roomTypeRepository;
-    }
 
     @Transactional
     public RoomAmenityResponse createRoomAmenity(RoomAmenityRequest request) {
@@ -130,13 +133,27 @@ public class RoomAmenityService {
     }
 
     @Transactional(readOnly = true)
-    public List<RoomAmenityResponse> findRoomAmenities(UUID roomTypeId, String category) {
-        logger.info("Searching room amenities with roomTypeId: {} and category: {}", roomTypeId, category);
+    public PagedResponse<RoomAmenityResponse> getAllRoomAmenities(RoomAmenityFilterRequest filterRequest) {
+        logger.info("Searching room amenities with: {}", filterRequest);
 
-        List<RoomAmenity> roomAmenities = roomAmenityRepository.findByFilters(roomTypeId, category);
-        return roomAmenities.stream()
+        Pageable pageable = PagingUtils.toPageable(filterRequest);
+
+        Specification<RoomAmenity> spec = RoomAmenitySpecification.build(filterRequest);
+
+        Page<RoomAmenity> pageResult = roomAmenityRepository.findAll(spec, pageable);
+
+        List<RoomAmenityResponse> content = pageResult.getContent()
+                .stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
+
+        return new PagedResponse<>(
+                content,
+                pageResult.getNumber(),
+                pageResult.getSize(),
+                pageResult.getTotalElements(),
+                pageResult.getTotalPages()
+        );
     }
 
     private RoomAmenityResponse mapToResponse(RoomAmenity roomAmenity) {
@@ -146,6 +163,8 @@ public class RoomAmenityService {
         response.setCategory(roomAmenity.getCategory());
         response.setIsActive(roomAmenity.getIsActive());
         response.setRoomTypeId(roomAmenity.getRoomType().getId());
+        response.setCreatedAt(roomAmenity.getCreatedAt());
+        response.setUpdateAt(roomAmenity.getUpdatedAt());
         return response;
     }
 }

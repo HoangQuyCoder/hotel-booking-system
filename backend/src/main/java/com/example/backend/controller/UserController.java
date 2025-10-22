@@ -1,5 +1,6 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.filter.UserFilterRequest;
 import com.example.backend.dto.request.PasswordResetRequest;
 import com.example.backend.dto.request.UserUpdateRequest;
 import com.example.backend.dto.response.PagedResponse;
@@ -7,6 +8,7 @@ import com.example.backend.dto.response.PasswordResetResponse;
 import com.example.backend.dto.response.UserResponse;
 import com.example.backend.service.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,14 +16,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('CLIENT') and #id == authentication.principal.id or hasRole('ADMIN')")
@@ -30,14 +29,8 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<PagedResponse<UserResponse>> getAllUsers(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String role,
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) Boolean isActive
-    ) {
-        return ResponseEntity.ok(userService.getAllUsers(page, size, role, keyword, isActive));
+    public ResponseEntity<PagedResponse<UserResponse>> getAllUsers(UserFilterRequest filterRequest) {
+        return ResponseEntity.ok(userService.getAllUsers(filterRequest));
     }
 
     @PutMapping("/{id}")

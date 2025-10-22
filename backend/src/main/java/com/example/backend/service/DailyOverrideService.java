@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.filter.DailyOverrideFilterRequest;
 import com.example.backend.dto.request.DailyOverrideRequest;
 import com.example.backend.dto.response.DailyOverrideResponse;
 import com.example.backend.dto.response.PagedResponse;
@@ -8,32 +9,29 @@ import com.example.backend.model.DailyOverride;
 import com.example.backend.model.RoomType;
 import com.example.backend.repository.DailyOverrideRepository;
 import com.example.backend.repository.RoomTypeRepository;
+import com.example.backend.specification.DailyOverrideSpecification;
+import com.example.backend.utils.PagingUtils;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class DailyOverrideService {
 
     private static final Logger logger = LoggerFactory.getLogger(DailyOverrideService.class);
 
     private final DailyOverrideRepository dailyOverrideRepository;
     private final RoomTypeRepository roomTypeRepository;
-
-    public DailyOverrideService(DailyOverrideRepository dailyOverrideRepository, RoomTypeRepository roomTypeRepository) {
-        this.dailyOverrideRepository = dailyOverrideRepository;
-        this.roomTypeRepository = roomTypeRepository;
-    }
 
     @Transactional
     public DailyOverrideResponse createDailyOverride(DailyOverrideRequest request) {
@@ -144,19 +142,14 @@ public class DailyOverrideService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<DailyOverrideResponse> findDailyOverrides(
-            UUID roomTypeId, LocalDate date, int page,
-            int size, String sortBy,
-            String sortDir) {
-        logger.info("Searching daily overrides with roomTypeId: {} and date: {}", roomTypeId, date);
+    public PagedResponse<DailyOverrideResponse> getAllDailyOverrides(DailyOverrideFilterRequest filterRequest) {
+        logger.info("Searching daily overrides with: {}", filterRequest);
 
-        Sort sort = sortDir.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
+        Pageable pageable = PagingUtils.toPageable(filterRequest);
 
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Specification<DailyOverride> spec = DailyOverrideSpecification.build(filterRequest);
 
-        Page<DailyOverride> pageResult = dailyOverrideRepository.findByFilters(roomTypeId, date, pageable);
+        Page<DailyOverride> pageResult = dailyOverrideRepository.findAll(spec, pageable);
 
         List<DailyOverrideResponse> content = pageResult.getContent()
                 .stream()

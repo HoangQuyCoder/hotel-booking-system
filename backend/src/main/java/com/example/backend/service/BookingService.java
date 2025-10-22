@@ -1,19 +1,22 @@
 package com.example.backend.service;
 
 import com.example.backend.common.BookingStatus;
-import com.example.backend.dto.request.BookingFilterRequest;
+import com.example.backend.dto.filter.BookingFilterRequest;
 import com.example.backend.dto.request.BookingRequest;
 import com.example.backend.dto.request.BookingRoomRequest;
-import com.example.backend.dto.response.BookingCalculationResult;
+import com.example.backend.dto.response.BookingCalculationResponse;
 import com.example.backend.dto.response.BookingResponse;
 import com.example.backend.dto.response.BookingRoomResponse;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.model.Booking;
 import com.example.backend.model.BookingRoom;
+import com.example.backend.model.Hotel;
 import com.example.backend.model.User;
 import com.example.backend.repository.*;
 import com.example.backend.specification.BookingSpecification;
+import com.example.backend.specification.HotelSpecification;
+import com.example.backend.utils.PagingUtils;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +62,7 @@ public class BookingService {
                     return new ResourceNotFoundException("User not found");
                 });
 
-        BookingCalculationResult calc = bookingCalc.calculateBookingTotal(request);
+        BookingCalculationResponse calc = bookingCalc.calculateBookingTotal(request);
 
         Booking booking = Booking.builder()
                 .checkInDate(request.getCheckInDate())
@@ -133,7 +136,7 @@ public class BookingService {
 
         if (shouldRecalculate) {
             logger.info("[update] Recalculating booking total for ID: {}", id);
-            BookingCalculationResult calc = bookingCalc.calculateBookingTotal(request);
+            BookingCalculationResponse calc = bookingCalc.calculateBookingTotal(request);
 
             booking.setCheckInDate(request.getCheckInDate());
             booking.setCheckOutDate(request.getCheckOutDate());
@@ -237,8 +240,8 @@ public class BookingService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<BookingResponse> findBookings(BookingFilterRequest filter) {
-        logger.info("Filtering bookings with: {}", filter);
+    public PagedResponse<BookingResponse> getAllBookings(BookingFilterRequest filterRequest) {
+        logger.info("Filtering bookings with: {}", filterRequest);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdminOrStaff = auth.getAuthorities().stream()
@@ -248,27 +251,12 @@ public class BookingService {
         if (!isAdminOrStaff) {
             User user = userRepository.findByUsernameOrEmail(auth.getName())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-            filter.setUserId(user.getId());
+            filterRequest.setUserId(user.getId());
         }
 
-        // Specification chain
-        Specification<Booking> spec = Specification
-                .allOf(BookingSpecification.hasUserId(filter.getUserId()))
-                .and(BookingSpecification.hasHotelId(filter.getHotelId()))
-                .and(BookingSpecification.hasStatus(filter.getStatus()))
-                .and(BookingSpecification.hasCheckInBetween(filter.getCheckInFrom(), filter.getCheckInTo()))
-                .and(BookingSpecification.hasCheckOutBetween(filter.getCheckOutFrom(), filter.getCheckOutTo()))
-                .and(BookingSpecification.hasTotalAmountBetween(filter.getMinTotalAmount(), filter.getMaxTotalAmount()))
-                .and(BookingSpecification.hasCreatedBetween(filter.getCreatedFrom(), filter.getCreatedTo()))
-                .and(BookingSpecification.hasUpdatedBetween(filter.getUpdatedFrom(), filter.getUpdatedTo()))
-                .and(BookingSpecification.isActive(filter.getIsActive()));
+        Pageable pageable = PagingUtils.toPageable(filterRequest);
 
-        // Sort và Pageable
-        Sort sort = filter.getDirection().equalsIgnoreCase("DESC")
-                ? Sort.by(filter.getSortBy()).descending()
-                : Sort.by(filter.getSortBy()).ascending();
-
-        Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize(), sort);
+        Specification<Booking> spec = BookingSpecification.build(filterRequest);
 
         Page<Booking> pageResult = bookingRepository.findAll(spec, pageable);
 

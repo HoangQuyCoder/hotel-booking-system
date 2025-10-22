@@ -1,7 +1,7 @@
 package com.example.backend.service;
 
 import com.example.backend.dto.request.BookingRequest;
-import com.example.backend.dto.response.BookingCalculationResult;
+import com.example.backend.dto.response.BookingCalculationResponse;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.model.*;
 import com.example.backend.repository.BaseRateRepository;
@@ -30,13 +30,13 @@ public class BookingCalculationService {
     private final BaseRateRepository baseRateRepository;
     private final DailyOverrideRepository dailyOverrideRepository;
 
-    public BookingCalculationResult calculateBookingTotal(BookingRequest request) {
+    public BookingCalculationResponse calculateBookingTotal(BookingRequest request) {
         Promotion promotion = validateAndGetPromotion(request.getPromoCode());
         List<BookingRoom> bookingRooms = buildBookingRooms(request);
         double totalAmount = calculateTotalAmount(bookingRooms);
         totalAmount = applyPromotionIfEligible(promotion, totalAmount);
 
-        return BookingCalculationResult.builder()
+        return BookingCalculationResponse.builder()
                 .promotion(promotion)
                 .bookingRooms(bookingRooms)
                 .totalAmount(totalAmount)

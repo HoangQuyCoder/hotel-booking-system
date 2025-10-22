@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.filter.RoomTypeFilterRequest;
 import com.example.backend.dto.request.RoomTypeRequest;
 import com.example.backend.dto.request.RoomTypeUpdateRequest;
 import com.example.backend.dto.response.PagedResponse;
@@ -9,12 +10,15 @@ import com.example.backend.model.Hotel;
 import com.example.backend.model.RoomType;
 import com.example.backend.repository.HotelRepository;
 import com.example.backend.repository.RoomTypeRepository;
-import com.example.backend.specification.builder.RoomTypeSpecBuilder;
+import com.example.backend.specification.RoomTypeSpecification;
 import com.example.backend.utils.BeanUtilsHelper;
+import com.example.backend.utils.PagingUtils;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,17 +28,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class RoomTypeService {
 
     private static final Logger logger = LoggerFactory.getLogger(RoomTypeService.class);
 
     private final RoomTypeRepository roomTypeRepository;
     private final HotelRepository hotelRepository;
-
-    public RoomTypeService(RoomTypeRepository roomTypeRepository, HotelRepository hotelRepository) {
-        this.roomTypeRepository = roomTypeRepository;
-        this.hotelRepository = hotelRepository;
-    }
 
     @Transactional
     public RoomTypeResponse createRoomType(RoomTypeRequest request) {
@@ -155,36 +155,12 @@ public class RoomTypeService {
         }
     }
 
-    public PagedResponse<RoomTypeResponse> findRoomTypes(
-            UUID hotelId,
-            String name,
-            Integer capacity,
-            Boolean isAvailable,
-            Integer minSize,
-            Integer maxSize,
-            int page,
-            int size,
-            String sortBy,
-            String sortDir
-    ) {
-        logger.info("Filtering room types with pagination...");
+    @Transactional(readOnly = true)
+    public PagedResponse<RoomTypeResponse> getAllRoomTypes(RoomTypeFilterRequest filterRequest) {
+        logger.info("Filtering room types with: {}", filterRequest);
 
-        // Create dynamic specifications
-        Specification<RoomType> spec = new RoomTypeSpecBuilder()
-                .withHotelId(hotelId)
-                .withName(name)
-                .withCapacity(capacity)
-                .withAvailability(isAvailable)
-                .withMinSize(minSize)
-                .withMaxSize(maxSize)
-                .build();
-
-        // Set up sorting
-        Sort sort = sortDir.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
-
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = PagingUtils.toPageable(filterRequest);
+        Specification<RoomType> spec = RoomTypeSpecification.build(filterRequest);
 
         // Get data by page
         Page<RoomType> roomTypePage = roomTypeRepository.findAll(spec, pageable);

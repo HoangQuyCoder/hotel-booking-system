@@ -1,6 +1,6 @@
 package com.example.backend.controller;
 
-import com.example.backend.dto.request.BookingFilterRequest;
+import com.example.backend.dto.filter.BookingFilterRequest;
 import com.example.backend.dto.request.BookingRequest;
 import com.example.backend.dto.response.BookingResponse;
 import com.example.backend.dto.response.PagedResponse;
@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -50,9 +49,8 @@ public class BookingController {
     @GetMapping
     @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN', 'STAFF')")
     public ResponseEntity<PagedResponse<BookingResponse>> getAllBookings(BookingFilterRequest filter) {
-        return ResponseEntity.ok(bookingService.findBookings(filter));
+        return ResponseEntity.ok(bookingService.getAllBookings(filter));
     }
-
 
     @PutMapping("/{id}/check-in")
     @PreAuthorize("hasRole('STAFF')")

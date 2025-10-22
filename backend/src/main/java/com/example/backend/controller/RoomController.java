@@ -1,10 +1,12 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.filter.RoomFilterRequest;
 import com.example.backend.dto.request.RoomRequest;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.dto.response.RoomResponse;
 import com.example.backend.service.RoomService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,14 +15,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/rooms")
 public class RoomController {
 
     private final RoomService roomService;
-
-    public RoomController(RoomService roomService) {
-        this.roomService = roomService;
-    }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -49,15 +48,8 @@ public class RoomController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public ResponseEntity<PagedResponse<RoomResponse>> filterRooms(
-            @RequestParam(required = false) UUID roomTypeId,
-            @RequestParam(required = false) String status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortDir
-    ) {
-        return ResponseEntity.ok(roomService.findRooms(roomTypeId, status, page, size, sortBy, sortDir));
+    public ResponseEntity<PagedResponse<RoomResponse>> getAllRooms(RoomFilterRequest filterRequest) {
+        return ResponseEntity.ok(roomService.getAllRooms(filterRequest));
     }
 
 }
