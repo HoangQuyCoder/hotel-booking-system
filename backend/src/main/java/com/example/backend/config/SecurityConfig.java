@@ -59,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/base-rates/**").permitAll()
                         .requestMatchers("/api/v1/daily-overrides/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/bookings/**").hasAnyRole("ADMIN", "STAFF", "CLIENT")
+                        .requestMatchers("/api/v1/transactions/**").hasAnyRole("ADMIN", "STAFF", "CLIENT")
                         .anyRequest().authenticated();
                     logger.debug("Authorization rules configured");}
                 )
