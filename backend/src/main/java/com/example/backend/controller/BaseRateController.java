@@ -28,7 +28,6 @@ public class BaseRateController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BaseRateResponse> getBaseRate(@PathVariable UUID id) {
         return ResponseEntity.ok(baseRateService.getBaseRateById(id));
     }
@@ -47,7 +46,6 @@ public class BaseRateController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PagedResponse<BaseRateResponse>> getAllBaseRates(BaseRateFilterRequest filterRequest) {
         PagedResponse<BaseRateResponse> result = baseRateService.getAllBaseRates(filterRequest);
         return ResponseEntity.ok(result);
