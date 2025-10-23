@@ -49,11 +49,15 @@ public class SecurityConfig {
                 })
                 .authorizeHttpRequests(auth -> { auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/users").hasAnyRole("ADMIN", "CLIENT")
+                        .requestMatchers("/api/v1/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,  "/api/v1/hotels/**").permitAll()
                         .requestMatchers(HttpMethod.GET,  "/api/v1/room-types/**").permitAll()
+                        .requestMatchers("/api/v1/rooms/**").hasAnyRole("ADMIN", "STAFF")
                         .requestMatchers(HttpMethod.GET, "/api/v1/room-amenities/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/promotions").hasAnyRole("ADMIN", "CLIENT")
-                        .requestMatchers("/api/v1/rooms/**").hasAnyRole("ADMIN", "STAFF")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/base-rates/**").permitAll()
+                        .requestMatchers("/api/v1/daily-overrides/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/bookings/**").hasAnyRole("ADMIN", "STAFF", "CLIENT")
                         .anyRequest().authenticated();
                     logger.debug("Authorization rules configured");}

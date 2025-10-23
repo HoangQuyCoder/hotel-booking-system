@@ -1,10 +1,8 @@
 package com.example.backend.controller;
 
 import com.example.backend.dto.filter.UserFilterRequest;
-import com.example.backend.dto.request.PasswordResetRequest;
 import com.example.backend.dto.request.UserUpdateRequest;
 import com.example.backend.dto.response.PagedResponse;
-import com.example.backend.dto.response.PasswordResetResponse;
 import com.example.backend.dto.response.UserResponse;
 import com.example.backend.service.UserService;
 import jakarta.validation.Valid;
@@ -37,11 +35,6 @@ public class UserController {
     @PreAuthorize("hasRole('CLIENT') and #id == authentication.principal.id or hasRole('ADMIN')")
     public ResponseEntity<UserResponse> updateUser(@PathVariable UUID id, @Valid @RequestBody UserUpdateRequest request) {
         return ResponseEntity.ok(userService.updateUser(id, request));
-    }
-
-    @PostMapping("/password-reset")
-    public ResponseEntity<PasswordResetResponse> requestPasswordReset(@Valid @RequestBody PasswordResetRequest request) {
-        return ResponseEntity.ok(userService.requestPasswordReset(request));
     }
 
     @DeleteMapping("/{id}")
