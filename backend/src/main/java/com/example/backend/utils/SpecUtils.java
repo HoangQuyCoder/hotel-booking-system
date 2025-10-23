@@ -97,7 +97,7 @@ public class SpecUtils {
             Predicate[] predicates = Arrays.stream(fields)
                     .map(field -> {
                         if (field.contains(".")) {
-                            // xử lý nested field, ví dụ: hotel.name
+                            // handle nested field
                             String[] parts = field.split("\\.");
                             Join<Object, Object> join = root.join(parts[0], JoinType.LEFT);
                             return cb.like(cb.lower(join.get(parts[1]).as(String.class)), pattern);
@@ -119,5 +119,4 @@ public class SpecUtils {
             return cb.lessThanOrEqualTo(root.get(field), to);
         };
     }
-
 }

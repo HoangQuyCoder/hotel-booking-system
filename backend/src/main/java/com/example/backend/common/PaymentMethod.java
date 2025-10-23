@@ -1,5 +1,8 @@
 package com.example.backend.common;
 
 public enum PaymentMethod {
-    CARD, CASH, ONLINE
+    CREDIT_CARD,
+    CASH,
+    BANK_TRANSFER,
+    MOBILE_PAYMENT
 }

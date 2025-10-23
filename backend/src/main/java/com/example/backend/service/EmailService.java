@@ -1,6 +1,9 @@
 package com.example.backend.service;
 
+import com.example.backend.model.Booking;
 import com.example.backend.model.NotificationTemplate;
+import com.example.backend.model.Transaction;
+import com.example.backend.model.User;
 import com.example.backend.repository.NotificationTemplateRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -49,6 +52,32 @@ public class EmailService {
             logger.info("[ASYNC] Password changed email sent to: {}", toEmail);
         } catch (Exception e) {
             logger.error("[ASYNC] Failed to send password changed email to {}: {}", toEmail, e.getMessage());
+        }
+    }
+
+    public void sendPaymentSuccessEmail(Transaction transaction) {
+        sendPaymentEmail(transaction, "PAYMENT_SUCCESS", "success");
+    }
+
+    public void sendPaymentRefundEmail(Transaction transaction) {
+        sendPaymentEmail(transaction, "PAYMENT_REFUND", "refund");
+    }
+
+    public void sendPaymentEmail(Transaction transaction, String templateCode, String action) {
+        Booking booking = transaction.getBooking();
+        User user = booking.getUser();
+        String confirmationCode = booking.getConfirmationCode();
+        String recipientEmail = user.getEmail();
+        NotificationTemplate template = getTemplate(templateCode);
+
+        try {
+            sendEmail(recipientEmail, template, template.getContent() + confirmationCode);
+            logger.info("Payment {} email sent to {} for transaction ID: {}",
+                    action, recipientEmail, transaction.getId());
+        } catch (MessagingException e) {
+            logger.error("Failed to send payment {} email to {}: {}",
+                    action, recipientEmail, e.getMessage(), e);
+            throw new RuntimeException("Failed to send payment " + action + " email", e);
         }
     }
 
