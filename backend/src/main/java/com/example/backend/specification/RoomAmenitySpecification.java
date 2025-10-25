@@ -10,7 +10,7 @@ public class RoomAmenitySpecification {
     private static final Specification<RoomAmenity> spec = SpecUtils.empty();
 
     public static Specification<RoomAmenity> build(RoomAmenityFilterRequest filterRequest) {
-        return spec.and(SpecUtils.equalIfNotNull("roomType.id", filterRequest.getRoomTypeId()))
+        return spec.and(SpecUtils.nestedEqualIfNotNull("roomType", "id", filterRequest.getRoomTypeId()))
                 .and(SpecUtils.likeIfNotNull("category", filterRequest.getCategory()))
                 .and(SpecUtils.likeIfNotNull("name", filterRequest.getName()))
                 .and(SpecUtils.equalIfNotNull("isActive", filterRequest.getIsActive()))

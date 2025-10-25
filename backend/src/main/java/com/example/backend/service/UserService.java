@@ -43,7 +43,7 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final EmailService emailService;
+    private final NotificationService notificationService;
 
     // ============================= REGISTER =============================
 
@@ -266,7 +266,7 @@ public class UserService {
         userRepository.save(user);
 
         try {
-            emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
+            notificationService.sendPasswordResetEmail(user.getEmail(), resetToken);
             logger.info("Password reset email sent to: {}", user.getEmail());
             return new PasswordResetResponse("Password reset email sent successfully");
         } catch (MessagingException e) {
@@ -291,7 +291,7 @@ public class UserService {
         user.setResetTokenUsed(true);
         userRepository.save(user);
 
-        emailService.sendPasswordChangedEmailAsync(user.getEmail());
+        notificationService.sendPasswordChangedEmailAsync(user.getEmail());
         logger.info("Password reset completed successfully for user: {}", user.getEmail());
         return new PasswordResetResponse("Password reset successfully");
     }
