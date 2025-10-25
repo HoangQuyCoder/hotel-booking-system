@@ -42,7 +42,7 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final BookingRepository bookingRepository;
-    private final EmailService emailService;
+    private final NotificationService notificationService;
 
     @Transactional
     public TransactionResponse createTransaction(TransactionRequest request) {
@@ -169,7 +169,7 @@ public class TransactionService {
             transaction.setStatus(TransactionStatus.REFUNDED);
             transactionRepository.save(transaction);
             Transaction saved = transactionRepository.save(refundTransaction);
-            emailService.sendPaymentRefundEmail(saved);
+            notificationService.sendPaymentRefundEmail(saved);
             logger.info("Transaction refunded successfully with ID: {}", id);
             return mapToResponse(saved);
         } catch (Exception e) {
@@ -257,7 +257,7 @@ public class TransactionService {
         try {
             Transaction saved = transactionRepository.save(transaction);
             if (status == TransactionStatus.COMPLETED) {
-                emailService.sendPaymentSuccessEmail(saved);
+                notificationService.sendPaymentSuccessEmail(saved);
             }
             logger.info("Transaction status updated successfully for ID: {} to {}", id, status);
             return mapToResponse(saved);

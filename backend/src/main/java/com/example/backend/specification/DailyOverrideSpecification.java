@@ -12,7 +12,7 @@ public class DailyOverrideSpecification {
     private static final Specification<DailyOverride> spec = SpecUtils.empty();
 
     public static Specification<DailyOverride> build(DailyOverrideFilterRequest filterRequest) {
-        return spec.and(SpecUtils.equalIfNotNull("roomType.id", filterRequest.getRoomTypeId()))
+        return spec.and(SpecUtils.nestedEqualIfNotNull("roomType","id", filterRequest.getRoomTypeId()))
                 .and(dateBetween(filterRequest.getFromDate(), filterRequest.getToDate()))
                 .and(SpecUtils.betweenIfNotNull("priceAdjustment", filterRequest.getMinAdjustment(), filterRequest.getMaxAdjustment()))
                 .and(SpecUtils.betweenIfNotNull("availableRooms", filterRequest.getMinAvailableRooms(), filterRequest.getMaxAvailableRooms()))

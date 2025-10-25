@@ -60,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/daily-overrides/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/bookings/**").hasAnyRole("ADMIN", "STAFF", "CLIENT")
                         .requestMatchers("/api/v1/transactions/**").hasAnyRole("ADMIN", "STAFF", "CLIENT")
+                        .requestMatchers("/api/v1/notifications/**").hasAnyRole("ADMIN", "STAFF", "CLIENT")
                         .anyRequest().authenticated();
                     logger.debug("Authorization rules configured");}
                 )

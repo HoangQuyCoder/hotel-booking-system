@@ -1,10 +1,5 @@
 package com.example.backend.service;
 
-import com.example.backend.model.Booking;
-import com.example.backend.model.NotificationTemplate;
-import com.example.backend.model.Transaction;
-import com.example.backend.model.User;
-import com.example.backend.repository.NotificationTemplateRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -23,88 +18,35 @@ public class EmailService {
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     private final JavaMailSender mailSender;
-    private final NotificationTemplateRepository notificationTemplateRepository;
 
     @Value("${spring.mail.from}")
     private String fromEmail;
 
-    @Value("${frontend.reset-password-url}")
-    private String resetPasswordUrl;
-
-    // Send password reset email
-    public void sendPasswordResetEmail(String toEmail, String resetToken) throws MessagingException {
-        NotificationTemplate template = getTemplate("PASSWORD_RESET");
-        String resetLink = resetPasswordUrl + "?token=" + resetToken;
-        String content = template.getContent().replace("{reset_link}", resetLink);
-        sendEmail(toEmail, template, content);
-    }
-
-    // Send email notification of password change
-    public void sendPasswordChangedEmail(String toEmail) throws MessagingException {
-        NotificationTemplate template = getTemplate("PASSWORD_CHANGED");
-        sendEmail(toEmail, template, template.getContent());
-    }
-
-    @Async
-    public void sendPasswordChangedEmailAsync(String toEmail) {
+    // Send emails synchronously
+    public void sendEmail(String toEmail, String subject, String content) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
         try {
-            sendPasswordChangedEmail(toEmail);
-            logger.info("[ASYNC] Password changed email sent to: {}", toEmail);
-        } catch (Exception e) {
-            logger.error("[ASYNC] Failed to send password changed email to {}: {}", toEmail, e.getMessage());
-        }
-    }
-
-    public void sendPaymentSuccessEmail(Transaction transaction) {
-        sendPaymentEmail(transaction, "PAYMENT_SUCCESS", "success");
-    }
-
-    public void sendPaymentRefundEmail(Transaction transaction) {
-        sendPaymentEmail(transaction, "PAYMENT_REFUND", "refund");
-    }
-
-    public void sendPaymentEmail(Transaction transaction, String templateCode, String action) {
-        Booking booking = transaction.getBooking();
-        User user = booking.getUser();
-        String confirmationCode = booking.getConfirmationCode();
-        String recipientEmail = user.getEmail();
-        NotificationTemplate template = getTemplate(templateCode);
-
-        try {
-            sendEmail(recipientEmail, template, template.getContent() + confirmationCode);
-            logger.info("Payment {} email sent to {} for transaction ID: {}",
-                    action, recipientEmail, transaction.getId());
-        } catch (MessagingException e) {
-            logger.error("Failed to send payment {} email to {}: {}",
-                    action, recipientEmail, e.getMessage(), e);
-            throw new RuntimeException("Failed to send payment " + action + " email", e);
-        }
-    }
-
-    // Reusable function to send email
-    private void sendEmail(String toEmail, NotificationTemplate template, String content) throws MessagingException {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setFrom(fromEmail);
             helper.setTo(toEmail);
-            helper.setSubject(template.getSubject());
-            helper.setText(content, true);
+            helper.setSubject(subject);
+            helper.setText(content, true); // true = HTML
 
             mailSender.send(message);
-            logger.info("Email '{}' sent to: {}", template.getName(), toEmail);
+            logger.info("Email '{}' sent to {}", subject, toEmail);
         } catch (Exception e) {
-            logger.error("Failed to send email '{}' to {}: {}", template.getName(), toEmail, e.getMessage());
+            logger.error("Failed to send email to {}: {}", toEmail, e.getMessage());
             throw new MessagingException("Failed to send email", e);
         }
     }
 
-    // Function to get template by name
-    private NotificationTemplate getTemplate(String name) {
-        return notificationTemplateRepository.findByName(name)
-                .orElseThrow(() -> {
-                    logger.error("{} template not found", name);
-                    return new IllegalStateException(name + " template not found");
-                });
+    // Send emails asynchronously
+    @Async
+    public void sendEmailAsync(String toEmail, String subject, String content) {
+        try {
+            sendEmail(toEmail, subject, content);
+        } catch (MessagingException e) {
+            logger.error("[ASYNC] Failed to send email to {}: {}", toEmail, e.getMessage());
+        }
     }
 }
