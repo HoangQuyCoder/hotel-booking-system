@@ -1,7 +1,6 @@
 package com.example.backend.service;
 
 import com.example.backend.common.NotificationStatus;
-import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.model.*;
 import com.example.backend.repository.NotificationLogRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -36,40 +34,56 @@ public class NotificationService {
     // ------------------------------
 
     public void sendPasswordResetEmail(String toEmail, String resetToken) throws MessagingException {
-        NotificationTemplate template = templateService.getTemplate("PASSWORD_RESET");
-        Map<String, String> placeholders = Map.of("reset_link", resetPasswordUrl + "?token=" + resetToken);
-        String content = templateService.buildContent(template, placeholders);
-
-        logAndSend(toEmail, template, "PasswordReset", placeholders, () -> {
-            try {
-                emailService.sendEmail(toEmail, template.getSubject(), content);
-            } catch (MessagingException e) {
-                throw new ResourceNotFoundException("Email could not be sent");
-            }
-        });
+        sendNotification(
+                "PASSWORD_RESET",
+                toEmail,
+                "PasswordReset",
+                Map.of(
+                        "userName", toEmail,
+                        "resetLink", resetPasswordUrl + "?token=" + resetToken
+                )
+        );
     }
 
     public void sendPasswordChangedEmail(String toEmail) throws MessagingException {
-        NotificationTemplate template = templateService.getTemplate("PASSWORD_CHANGED");
-        Map<String, String> placeholders = Map.of();
-        String content = templateService.buildContent(template, placeholders);
-
-        logAndSend(toEmail, template, "PasswordChanged", placeholders, () -> {
-            try {
-                emailService.sendEmail(toEmail, template.getSubject(), content);
-            } catch (MessagingException e) {
-                throw new ResourceNotFoundException("Email could not be found");
-            }
-        });
+        sendNotification(
+                "PASSWORD_CHANGED",
+                toEmail,
+                "PasswordChanged",
+                Map.of("userName", toEmail, "loginUrl", "https://hotelify.com/login")
+        );
     }
 
-    @Async
-    public void sendPasswordChangedEmailAsync(String toEmail) {
-        try {
-            sendPasswordChangedEmail(toEmail);
-        } catch (MessagingException e) {
-            logger.error("[ASYNC] Failed to send password changed email to {}: {}", toEmail, e.getMessage());
-        }
+    // ------------------------------
+    // BOOKING RELATED
+    // ------------------------------
+
+    public void sendBookingConfirmationEmail(Booking booking) {
+        User user = booking.getUser();
+
+        Map<String, Object> model = Map.of(
+                "userName", user.getFirstName() + " " + user.getLastName(),
+                "bookingCode", booking.getConfirmationCode(),
+                "hotelName", booking.getHotel().getName(),
+                "checkIn", booking.getCheckInDate().toString(),
+                "checkOut", booking.getCheckOutDate().toString()
+        );
+
+        sendNotification("BOOKING_CONFIRMATION", user.getEmail(), "BookingConfirmation", model);
+    }
+
+    public void sendBookingCancelledEmail(Booking booking) {
+        User user = booking.getUser();
+
+        Map<String, Object> model = Map.of(
+                "userName", user.getFirstName() + " " + user.getLastName(),
+                "bookingCode", booking.getConfirmationCode(),
+                "hotelName", booking.getHotel().getName(),
+                "checkIn", booking.getCheckInDate().toString(),
+                "checkOut", booking.getCheckOutDate().toString()
+        );
+
+        sendNotification("BOOKING_CANCELLED", user.getEmail(), "BookingCancelled", model);
     }
 
     // ------------------------------
@@ -84,35 +98,44 @@ public class NotificationService {
         sendPaymentEmail(transaction, "PAYMENT_REFUND", "PaymentRefund");
     }
 
-    private void sendPaymentEmail(Transaction transaction, String templateCode, String event) {
+    private void sendPaymentEmail(Transaction transaction, String templateName, String event) {
         Booking booking = transaction.getBooking();
         User user = booking.getUser();
 
-        NotificationTemplate template = templateService.getTemplate(templateCode);
-        Map<String, String> placeholders = Map.of(
-                "confirmation_code", booking.getConfirmationCode(),
-                "transaction_id", transaction.getId().toString()
+        Map<String, Object> model = Map.of(
+                "userName", user.getFirstName() + " " + user.getLastName(),
+                "bookingCode", booking.getConfirmationCode(),
+                "transactionCode", transaction.getId().toString(),
+                "amount", transaction.getAmount().toString(),
+                "paymentDate", transaction.getProcessedAt().toString()
         );
-        String content = templateService.buildContent(template, placeholders);
 
-        logAndSend(user.getEmail(), template, event, placeholders, () -> {
-            try {
-                emailService.sendEmail(user.getEmail(), template.getSubject(), content);
-            } catch (MessagingException e) {
-                throw new ResourceNotFoundException("Could not send payment email for user " + user.getEmail());
-            }
-        });
+        sendNotification(templateName, user.getEmail(), event, model);
     }
 
     // ------------------------------
-    // CORE LOGGING WRAPPER
+    // USER REGISTER RELATED
     // ------------------------------
 
-    private void logAndSend(String recipient,
-                            NotificationTemplate template,
-                            String event,
-                            Map<String, String> placeholders,
-                            Runnable sendAction) {
+    public void sendRegisterSuccessEmail(User user) {
+        Map<String, Object> model = Map.of(
+                "userName", user.getFirstName() + " " + user.getLastName(),
+                "userEmail", user.getEmail()
+        );
+
+        sendNotification("REGISTER_SUCCESS", user.getEmail(), "RegisterSuccess", model);
+    }
+
+    // ------------------------------
+    // CORE SENDING LOGIC
+    // ------------------------------
+
+    private void sendNotification(String templateName,
+                                  String recipient,
+                                  String event,
+                                  Map<String, Object> placeholders) {
+        NotificationTemplate template = templateService.getTemplate(templateName);
+
         NotificationLog log = NotificationLog.builder()
                 .recipient(recipient)
                 .template(template)
@@ -126,11 +149,14 @@ public class NotificationService {
         notificationLogRepository.save(log);
 
         try {
-            sendAction.run();
+            String content = templateService.buildContent(template.getTemplateFile(), placeholders);
+            emailService.sendEmailAsync(recipient, template.getSubject(), content);
+
             log.setStatus(NotificationStatus.SENT);
             log.setSentAt(LocalDateTime.now());
             log.setErrorMessage(null);
             logger.info("Notification '{}' sent to {}", template.getName(), recipient);
+
         } catch (Exception e) {
             log.setStatus(NotificationStatus.FAILED);
             log.setErrorMessage(e.getMessage());
@@ -142,7 +168,7 @@ public class NotificationService {
         }
     }
 
-    private String toJson(Map<String, String> map) {
+    private String toJson(Map<String, Object> map) {
         try {
             return objectMapper.writeValueAsString(map);
         } catch (JsonProcessingException e) {

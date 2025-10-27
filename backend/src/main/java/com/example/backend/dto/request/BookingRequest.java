@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 public class BookingRequest {
@@ -15,6 +16,9 @@ public class BookingRequest {
 
     @NotNull(message = "Check-out date is required")
     private LocalDate checkOutDate;
+
+    @NotNull(message = "Hotel ID is required")
+    private UUID hotelId;
 
     @NotNull(message = "Booking Room are required")
     @Size(min = 1, message = "At least one room must be selected")

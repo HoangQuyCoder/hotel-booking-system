@@ -32,14 +32,9 @@ public class NotificationTemplate {
     @Column(name = "subject")
     private String subject;
 
-    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
-    private String content;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    // FreeMarker template path file
+    @Column(name = "template_file", nullable = false)
+    private String templateFile;
 
     @Column(name = "is_active")
     private Boolean isActive = true;
@@ -49,6 +44,12 @@ public class NotificationTemplate {
 
     @Column(name = "priority")
     private Integer priority = 0;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     // 1: N relationship with NotificationLog
     @OneToMany(mappedBy = "template", cascade = CascadeType.ALL, orphanRemoval = true)

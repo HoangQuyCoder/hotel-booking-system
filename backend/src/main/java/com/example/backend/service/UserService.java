@@ -82,6 +82,7 @@ public class UserService {
 
         try {
             User saved = userRepository.save(user);
+            notificationService.sendRegisterSuccessEmail(saved);
             logger.info("User registered successfully: {}", saved.getEmail());
             return mapToResponse(saved);
         } catch (Exception e) {
@@ -263,9 +264,9 @@ public class UserService {
         user.setResetPasswordToken(resetToken);
         user.setResetPasswordExpiry(LocalDateTime.now().plusMinutes(5));
         user.setResetTokenUsed(false);
-        userRepository.save(user);
 
         try {
+            userRepository.save(user);
             notificationService.sendPasswordResetEmail(user.getEmail(), resetToken);
             logger.info("Password reset email sent to: {}", user.getEmail());
             return new PasswordResetResponse("Password reset email sent successfully");
@@ -289,11 +290,16 @@ public class UserService {
         user.setResetPasswordToken(null);
         user.setResetPasswordExpiry(null);
         user.setResetTokenUsed(true);
-        userRepository.save(user);
 
-        notificationService.sendPasswordChangedEmailAsync(user.getEmail());
-        logger.info("Password reset completed successfully for user: {}", user.getEmail());
-        return new PasswordResetResponse("Password reset successfully");
+        try {
+            userRepository.save(user);
+            notificationService.sendPasswordChangedEmail(user.getEmail());
+            logger.info("Password reset completed successfully for user: {}", user.getEmail());
+            return new PasswordResetResponse("Password reset successfully");
+        } catch (MessagingException e) {
+            logger.error("Failed to send password reset completed successfully email to {}: {}", user.getEmail(), e.getMessage(), e);
+            throw new RuntimeException("Failed to send password reset completed successfully email", e);
+        }
     }
 
     public PasswordResetResponse validateResetToken(ValidateResetTokenRequest request) {

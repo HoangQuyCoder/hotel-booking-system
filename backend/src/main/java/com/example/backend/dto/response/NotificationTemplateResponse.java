@@ -12,7 +12,7 @@ public class NotificationTemplateResponse {
     private String name;
     private NotificationType type;
     private String subject;
-    private String content;
+    private String templateFile;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Boolean isActive;
