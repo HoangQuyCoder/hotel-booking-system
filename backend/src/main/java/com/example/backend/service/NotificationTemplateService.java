@@ -9,6 +9,7 @@ import com.example.backend.model.NotificationTemplate;
 import com.example.backend.repository.NotificationTemplateRepository;
 import com.example.backend.specification.NotificationSpecification;
 import com.example.backend.utils.PagingUtils;
+import freemarker.template.Configuration;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +19,14 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +34,7 @@ public class NotificationTemplateService {
 
     private static final Logger logger = LoggerFactory.getLogger(NotificationTemplateService.class);
     private final NotificationTemplateRepository notificationTemplateRepository;
+    private final Configuration freemarkerConfig;
 
     @Transactional
     public NotificationTemplateResponse createTemplate(NotificationTemplateRequest request) {
@@ -38,7 +44,7 @@ public class NotificationTemplateService {
                 .name(request.getName())
                 .type(request.getType())
                 .subject(request.getSubject())
-                .content(request.getContent())
+                .templateFile(request.getTemplateFile())
                 .defaultLanguage(request.getDefaultLanguage())
                 .priority(request.getPriority() != null ? request.getPriority() : 0)
                 .isActive(true)
@@ -78,7 +84,7 @@ public class NotificationTemplateService {
         template.setName(request.getName());
         template.setType(request.getType());
         template.setSubject(request.getSubject());
-        template.setContent(request.getContent());
+        template.setTemplateFile(request.getTemplateFile());
         template.setDefaultLanguage(request.getDefaultLanguage());
         template.setPriority(request.getPriority() != null ? request.getPriority() : 0);
 
@@ -149,7 +155,7 @@ public class NotificationTemplateService {
         r.setName(t.getName());
         r.setType(t.getType());
         r.setSubject(t.getSubject());
-        r.setContent(t.getContent());
+        r.setTemplateFile(t.getTemplateFile());
         r.setCreatedAt(t.getCreatedAt());
         r.setUpdatedAt(t.getUpdatedAt());
         r.setIsActive(t.getIsActive());
@@ -161,12 +167,15 @@ public class NotificationTemplateService {
     /**
      * Replace {key} placeholders in template content with values from a map.
      */
-    public String buildContent(NotificationTemplate template, Map<String, String> placeholders) {
-        String content = template.getContent();
-        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-            content = content.replace("{" + entry.getKey() + "}", entry.getValue());
+    public String buildContent(String templateFile, Map<String, Object> model)
+            throws IOException, TemplateException {
+
+        Template template = freemarkerConfig.getTemplate("email/" + templateFile);
+
+        try (StringWriter out = new StringWriter()) {
+            template.process(model, out);
+            return out.toString();
         }
-        return content;
     }
 }
 

@@ -54,6 +54,11 @@ public class Booking {
     @Column(name = "is_active")
     private Boolean isActive = true;
 
+    // N:1 Relationship with Hotel
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hotel_id", nullable = false)
+    private Hotel hotel;
+
     // N:1 Relationship with Promotion
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "promo_id")

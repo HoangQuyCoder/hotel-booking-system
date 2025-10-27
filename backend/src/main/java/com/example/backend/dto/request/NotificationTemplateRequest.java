@@ -16,8 +16,8 @@ public class NotificationTemplateRequest {
     @Size(max = 255)
     private String subject;
 
-    @NotBlank(message = "Content is required")
-    private String content;
+    @NotBlank(message = "Template file is required")
+    private String templateFile;
 
     @Size(max = 10)
     private String defaultLanguage;

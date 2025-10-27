@@ -106,6 +106,7 @@ public class TransactionService {
             booking.setStatus(BookingStatus.CONFIRMED); // Update booking status to CONFIRMED
             booking.setTransaction(saved);
             bookingRepository.save(booking);
+            notificationService.sendBookingConfirmationEmail(booking);
             logger.info("Transaction created successfully with ID: {}", saved.getId());
             return mapToResponse(saved);
         } catch (Exception e) {

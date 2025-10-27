@@ -11,8 +11,10 @@ import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.model.Booking;
 import com.example.backend.model.BookingRoom;
+import com.example.backend.model.Hotel;
 import com.example.backend.model.User;
 import com.example.backend.repository.BookingRepository;
+import com.example.backend.repository.HotelRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.specification.BookingSpecification;
 import com.example.backend.utils.PagingUtils;
@@ -42,6 +44,8 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final BookingCalculationService bookingCalc;
     private final UserRepository userRepository;
+    private final HotelRepository hotelRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public BookingResponse createBooking(BookingRequest request) {
@@ -59,6 +63,12 @@ public class BookingService {
                     return new ResourceNotFoundException("User not found");
                 });
 
+        Hotel hotel = hotelRepository.findById(request.getHotelId())
+                .orElseThrow(() -> {
+                    logger.error("Hotel not found with ID: {}", request.getHotelId());
+                    return new ResourceNotFoundException("Hotel not found");
+                });
+
         BookingCalculationResponse calc = bookingCalc.calculateBookingTotal(request);
 
         Booking booking = Booking.builder()
@@ -68,6 +78,7 @@ public class BookingService {
                 .guestCount(request.getGuestCount())
                 .notes(request.getNotes())
                 .user(user)
+                .hotel(hotel)
                 .promotion(calc.getPromotion())
                 .bookingRooms(calc.getBookingRooms())
                 .totalAmount(calc.getTotalAmount())
@@ -173,8 +184,8 @@ public class BookingService {
         booking.setIsActive(false);
 
         try {
+            notificationService.sendBookingCancelledEmail(booking);
             bookingRepository.save(booking);
-            // Trigger refund logic (to be implemented)
             logger.info("Booking cancelled successfully with ID: {}", id);
         } catch (Exception e) {
             logger.error("Failed to cancel booking: {}", e.getMessage(), e);
