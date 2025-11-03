@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -50,5 +51,11 @@ public class HotelController {
     public ResponseEntity<PagedResponse<HotelResponse>> getAllHotels(HotelFilterRequest filter) {
         PagedResponse<HotelResponse> response = hotelService.getAllHotels(filter);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/cities")
+    public ResponseEntity<List<String>> getCities(@RequestParam String q) {
+        List<String> cities = hotelService.findDistinctCitiesContaining(q);
+        return ResponseEntity.ok(cities);
     }
 }

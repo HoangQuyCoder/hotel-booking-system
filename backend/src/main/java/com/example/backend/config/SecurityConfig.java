@@ -9,12 +9,18 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -27,7 +33,6 @@ public class SecurityConfig {
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        logger.info("SecurityConfig initialized with JwtAuthenticationFilter");
     }
 
     @Bean
@@ -36,33 +41,40 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:5173")); // FE Vite
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true); // Allow sending cookie / header Authorization
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", config);
+        return source;
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         logger.info("Configuring SecurityFilterChain");
+
         http
-                .csrf(csrf -> {
-                    csrf.disable();
-                    logger.debug("CSRF protection disabled");
-                })
-                .sessionManagement(session -> {
-                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-                    logger.debug("Session management set to STATELESS");
-                })
-                .authorizeHttpRequests(auth -> { auth
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/users").hasAnyRole("ADMIN", "CLIENT")
-                        .requestMatchers("/api/v1/users").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET,  "/api/v1/hotels/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,  "/api/v1/room-types/**").permitAll()
-                        .requestMatchers("/api/v1/rooms/**").hasAnyRole("ADMIN", "STAFF")
+                        .requestMatchers("/api/v1/users").hasAnyRole("ADMIN", "CLIENT", "STAFF")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/hotels/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/room-types/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/room-amenities/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/promotions").hasAnyRole("ADMIN", "CLIENT")
                         .requestMatchers(HttpMethod.GET, "/api/v1/base-rates/**").permitAll()
+                        .requestMatchers("/api/v1/rooms/**").hasAnyRole("ADMIN", "STAFF")
                         .requestMatchers("/api/v1/daily-overrides/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/bookings/**").hasAnyRole("ADMIN", "STAFF", "CLIENT")
                         .requestMatchers("/api/v1/transactions/**").hasAnyRole("ADMIN", "STAFF", "CLIENT")
                         .requestMatchers("/api/v1/notifications/**").hasAnyRole("ADMIN", "STAFF", "CLIENT")
-                        .anyRequest().authenticated();
-                    logger.debug("Authorization rules configured");}
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
