@@ -60,6 +60,7 @@ public class HotelService {
                 .address(request.getAddress())
                 .rating(request.getRating())
                 .description(request.getDescription())
+                .thumbnailUrl(request.getThumbnailUrl())
                 .manager(user)
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
@@ -170,6 +171,13 @@ public class HotelService {
         );
     }
 
+    public List<String> findDistinctCitiesContaining(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return List.of();
+        }
+        return hotelRepository.findDistinctCitiesContainingIgnoreCase(keyword.trim());
+    }
+
     private HotelResponse mapToResponse(Hotel hotel) {
         HotelResponse response = new HotelResponse();
         response.setId(hotel.getId());
@@ -178,6 +186,7 @@ public class HotelService {
         response.setAddress(hotel.getAddress());
         response.setRating(hotel.getRating());
         response.setDescription(hotel.getDescription());
+        response.setThumbnailUrl(hotel.getThumbnailUrl());
         response.setCreatedAt(hotel.getCreatedAt());
         response.setUpdatedAt(hotel.getUpdatedAt());
         response.setLatitude(hotel.getLatitude());

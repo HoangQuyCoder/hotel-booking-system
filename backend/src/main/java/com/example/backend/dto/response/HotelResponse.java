@@ -13,6 +13,7 @@ public class HotelResponse {
     private String address;
     private Double rating;
     private String description;
+    private String thumbnailUrl;
     private ManagerResponse manager;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

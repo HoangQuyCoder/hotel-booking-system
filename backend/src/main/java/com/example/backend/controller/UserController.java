@@ -4,11 +4,14 @@ import com.example.backend.dto.filter.UserFilterRequest;
 import com.example.backend.dto.request.UserUpdateRequest;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.dto.response.UserResponse;
+import com.example.backend.model.User;
+import com.example.backend.security.CustomUserDetails;
 import com.example.backend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -24,6 +27,11 @@ public class UserController {
     @PreAuthorize("hasRole('CLIENT') and #id == authentication.principal.id or hasRole('ADMIN')")
     public ResponseEntity<UserResponse> getUser(@PathVariable UUID id) {
         return ResponseEntity.ok(userService.getUserById(id));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(userService.getUserById(userDetails.getId()));
     }
 
     @GetMapping

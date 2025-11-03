@@ -36,11 +36,8 @@ public class Hotel {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "thumbnailUrl")
+    private String thumbnailUrl;
 
     @Column(name = "latitude")
     private Double latitude;
@@ -62,6 +59,12 @@ public class Hotel {
 
     @Column(name = "is_active")
     private Boolean isActive = true;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     // N: 1 relationship with User
     @ManyToOne(fetch = FetchType.LAZY)

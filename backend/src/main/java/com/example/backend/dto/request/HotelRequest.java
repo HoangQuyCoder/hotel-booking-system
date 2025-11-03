@@ -24,6 +24,8 @@ public class HotelRequest {
 
     private String description;
 
+    private String thumbnailUrl;
+
     private UUID managerId;
 
     private Double latitude;
