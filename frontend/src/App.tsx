@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import Header from "./components/Header.tsx";
-import Footer from "./components/Footer.tsx";
-import Spinner from "./components/Spinner.tsx";
+import { Header } from "./components/layout/Header.tsx";
+import { Footer } from "./components/layout/Footer.tsx";
+import { Spinner } from "./components//ui/Spinner.tsx";
 
 // Lazy load pages
 const Login = lazy(() => import("./pages/Login.tsx"));

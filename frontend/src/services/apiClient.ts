@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { toast } from "react-toastify";
-import { extractApiErrorMessage } from "../types/api-error";
+import { extractApiErrorMessage } from "./apiError";
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -9,7 +9,7 @@ const apiClient = axios.create({
   },
 });
 
-// ✅ Interceptor: tự động thêm token vào header
+// Interceptor: tự động thêm token vào header
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -18,7 +18,7 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// ✅ Interceptor: xử lý lỗi toàn cục
+// Interceptor: xử lý lỗi toàn cục
 apiClient.interceptors.response.use(
   (res) => res,
   (error: AxiosError & { config?: { silent?: boolean } }) => {

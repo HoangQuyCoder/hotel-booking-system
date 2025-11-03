@@ -1,16 +1,16 @@
 import { AxiosError } from "axios";
 
 /**
- * Cấu trúc lỗi trả về từ backend (tùy API mà bạn có thể chỉnh thêm)
+ * Error structure returned from backend (depending on API you can customize more)
  */
 export interface ApiErrorResponse {
   message: string;
   status?: number;
-  errors?: Record<string, string[]>; // lỗi chi tiết theo field (nếu có)
+  errors?: Record<string, string[]>; // Detailed errors by field (if any)
 }
 
 /**
- * Trích xuất thông điệp lỗi thân thiện
+ * Extract friendly error messages
  */
 export function extractApiErrorMessage(error: unknown): string {
   if (error instanceof AxiosError) {

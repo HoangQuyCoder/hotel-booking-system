@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import apiClient from "../services/apiClient";
-import Spinner from "../components/Spinner";
+import { Spinner } from "../components/ui/Spinner";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { type LatLngExpression } from "leaflet";
