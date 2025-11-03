@@ -11,7 +11,6 @@ interface User {
   firstName: string;
   lastName: string;
   role: "CLIENT" | "STAFF" | "ADMIN";
-  // Thêm fields khác nếu cần
 }
 
 interface AuthContextType {
