@@ -1,3 +1,4 @@
+// src/components/search/CityAutocomplete.tsx
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCitySuggestions } from "../../api/hotelApi";

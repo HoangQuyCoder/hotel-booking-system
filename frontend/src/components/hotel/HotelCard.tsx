@@ -1,4 +1,3 @@
-// src/components/hotel/HotelCard.tsx
 import { Link } from "react-router-dom";
 import type { Hotel } from "../../types";
 import { Star, MapPin, Phone, Mail, Clock } from "lucide-react";
