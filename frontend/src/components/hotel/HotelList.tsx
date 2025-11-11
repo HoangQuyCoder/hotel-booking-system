@@ -1,4 +1,3 @@
-// src/components/hotel/HotelList.tsx
 import React from "react";
 import { HotelCard } from "./HotelCard";
 import { HotelCardSkeleton } from "./HotelCardSkeleton";

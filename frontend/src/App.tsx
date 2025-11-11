@@ -1,7 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import { Header } from "./components/layout/Header.tsx";
-import { Footer } from "./components/layout/Footer.tsx";
+import Footer from "./components/layout/Footer.tsx";
 import { Spinner } from "./components//ui/Spinner.tsx";
 
 // Lazy load pages
@@ -15,7 +14,6 @@ const HotelDetail = lazy(() => import("./pages/HotelDetail.tsx"));
 function App() {
   return (
     <>
-      <Header />
       <Suspense fallback={<Spinner />}>
         <Routes>
           <Route path="/login" element={<Login />} />
