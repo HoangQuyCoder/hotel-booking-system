@@ -5,6 +5,7 @@ import com.example.backend.dto.request.PromotionRequest;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.dto.response.PromotionResponse;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.PromotionMapper;
 import com.example.backend.model.Promotion;
 import com.example.backend.repository.PromotionRepository;
 import com.example.backend.specification.PromotionSpecification;
@@ -28,6 +29,7 @@ public class PromotionService {
     private static final Logger logger = LoggerFactory.getLogger(PromotionService.class);
 
     private final PromotionRepository promotionRepository;
+    private final PromotionMapper promotionMapper;
 
     @Transactional
     public PromotionResponse createPromotion(PromotionRequest request) {
@@ -61,7 +63,7 @@ public class PromotionService {
         try {
             Promotion saved = promotionRepository.save(promotion);
             logger.info("Promotion created successfully with ID: {}", saved.getId());
-            return mapToResponse(saved);
+            return promotionMapper.toResponse(saved);
         } catch (Exception e) {
             logger.error("Failed to create promotion: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to create promotion", e);
@@ -76,7 +78,7 @@ public class PromotionService {
                     logger.error("[get] Promotion not found with ID: {}", id);
                     return new ResourceNotFoundException("Promotion not found");
                 });
-        return mapToResponse(promotion);
+        return promotionMapper.toResponse(promotion);
     }
 
     @Transactional
@@ -123,7 +125,7 @@ public class PromotionService {
         try {
             Promotion updated = promotionRepository.save(promotion);
             logger.info("Promotion updated successfully with ID: {}", id);
-            return mapToResponse(updated);
+            return promotionMapper.toResponse(updated);
         } catch (Exception e) {
             logger.error("Failed to update promotion: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to update promotion", e);
@@ -166,7 +168,7 @@ public class PromotionService {
 
         List<PromotionResponse> content = pageResult.getContent()
                 .stream()
-                .map(this::mapToResponse)
+                .map(promotionMapper::toResponse)
                 .toList();
 
         return new PagedResponse<>(
@@ -176,21 +178,5 @@ public class PromotionService {
                 pageResult.getTotalElements(),
                 pageResult.getTotalPages()
         );
-    }
-
-    private PromotionResponse mapToResponse(Promotion promotion) {
-        PromotionResponse response = new PromotionResponse();
-        response.setId(promotion.getId());
-        response.setCode(promotion.getCode());
-        response.setDiscountPercent(promotion.getDiscountPercent());
-        response.setValidFrom(promotion.getValidFrom());
-        response.setValidTo(promotion.getValidTo());
-        response.setMaxUses(promotion.getMaxUses());
-        response.setUsedCount(promotion.getUsedCount());
-        response.setMinBookingAmount(promotion.getMinBookingAmount());
-        response.setCreatedAt(promotion.getCreatedAt());
-        response.setUpdatedAt(promotion.getUpdatedAt());
-        response.setIsActive(promotion.getIsActive());
-        return response;
     }
 }

@@ -8,6 +8,7 @@ import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.dto.response.PasswordResetResponse;
 import com.example.backend.dto.response.UserResponse;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.UserMapper;
 import com.example.backend.model.Role;
 import com.example.backend.model.User;
 import com.example.backend.repository.RoleRepository;
@@ -44,6 +45,7 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final NotificationService notificationService;
+    private final UserMapper userMapper;
 
     // ============================= REGISTER =============================
 
@@ -84,7 +86,7 @@ public class UserService {
             User saved = userRepository.save(user);
             notificationService.sendRegisterSuccessEmail(saved);
             logger.info("User registered successfully: {}", saved.getEmail());
-            return mapToResponse(saved);
+            return userMapper.toResponse(saved);
         } catch (Exception e) {
             logger.error("Failed to register user {}: {}", request.getEmail(), e.getMessage(), e);
             throw new ResourceNotFoundException("Failed to register user");
@@ -132,7 +134,7 @@ public class UserService {
 
         LoginResponse response = new LoginResponse();
         response.setToken(token);
-        response.setUser(mapToResponse(user));
+        response.setUser(userMapper.toResponse(user));
 
         return response;
     }
@@ -149,7 +151,7 @@ public class UserService {
                 });
 
         logger.info("User retrieved successfully: {}", user.getEmail());
-        return mapToResponse(user);
+        return userMapper.toResponse(user);
     }
 
     @Transactional(readOnly = true)
@@ -164,7 +166,7 @@ public class UserService {
         logger.info("Found {} users (page {}/{})", pageResult.getNumberOfElements(), pageResult.getNumber() + 1, pageResult.getTotalPages());
 
         List<UserResponse> content = pageResult.getContent().stream()
-                .map(this::mapToResponse)
+                .map(userMapper::toResponse)
                 .collect(Collectors.toList());
 
         // Optional detailed logging (DEBUG)
@@ -218,7 +220,7 @@ public class UserService {
         try {
             User updated = userRepository.save(user);
             logger.info("User updated successfully: {}", user.getEmail());
-            return mapToResponse(updated);
+            return userMapper.toResponse(updated);
         } catch (Exception e) {
             logger.error("Failed to update user {}: {}", user.getEmail(), e.getMessage(), e);
             throw new ResourceNotFoundException("Failed to update user by id");
@@ -320,26 +322,5 @@ public class UserService {
                     logger.error("No user found for reset token");
                     return new ResourceNotFoundException("Invalid or expired reset token");
                 });
-    }
-
-    // ============================= MAPPER =============================
-
-    private UserResponse mapToResponse(User user) {
-        UserResponse response = new UserResponse();
-        response.setId(user.getId());
-        response.setUsername(user.getUsername());
-        response.setEmail(user.getEmail());
-        response.setFirstName(user.getFirstName());
-        response.setLastName(user.getLastName());
-        response.setPhoneNumber(user.getPhoneNumber());
-        response.setAddress(user.getAddress());
-        response.setRoleName(user.getRole().getRoleName());
-        response.setProfilePictureUrl(user.getProfilePictureUrl());
-        response.setIsActive(user.getIsActive());
-        response.setPreferredLanguage(user.getPreferredLanguage());
-        response.setCreatedAt(user.getCreatedAt());
-        response.setUpdateAt(user.getUpdatedAt());
-        response.setLastLoginAt(user.getLastLoginAt());
-        return response;
     }
 }

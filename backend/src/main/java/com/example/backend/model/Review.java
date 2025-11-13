@@ -23,9 +23,13 @@ public class Review {
     private Integer rating;
     private String text;
 
-    @ManyToOne
-    @JoinColumn(name = "hotel_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hotel_id",  nullable = false)
     private Hotel hotel;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id",  nullable = false)
+    private User user;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

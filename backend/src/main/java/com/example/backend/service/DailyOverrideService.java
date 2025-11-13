@@ -5,6 +5,7 @@ import com.example.backend.dto.request.DailyOverrideRequest;
 import com.example.backend.dto.response.DailyOverrideResponse;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.DailyOverrideMapper;
 import com.example.backend.model.DailyOverride;
 import com.example.backend.model.RoomType;
 import com.example.backend.repository.DailyOverrideRepository;
@@ -32,6 +33,7 @@ public class DailyOverrideService {
 
     private final DailyOverrideRepository dailyOverrideRepository;
     private final RoomTypeRepository roomTypeRepository;
+    private final DailyOverrideMapper dailyOverrideMapper;
 
     @Transactional
     public DailyOverrideResponse createDailyOverride(DailyOverrideRequest request) {
@@ -62,7 +64,7 @@ public class DailyOverrideService {
         try {
             DailyOverride saved = dailyOverrideRepository.save(dailyOverride);
             logger.info("Daily override created successfully with ID: {}", saved.getId());
-            return mapToResponse(saved);
+            return dailyOverrideMapper.toResponse(saved);
         } catch (Exception e) {
             logger.error("Failed to create daily override: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to create daily override", e);
@@ -77,7 +79,7 @@ public class DailyOverrideService {
                     logger.error("[get] Daily override not found with ID: {}", id);
                     return new ResourceNotFoundException("Daily override not found");
                 });
-        return mapToResponse(dailyOverride);
+        return dailyOverrideMapper.toResponse(dailyOverride);
     }
 
     @Transactional
@@ -114,7 +116,7 @@ public class DailyOverrideService {
         try {
             DailyOverride updated = dailyOverrideRepository.save(dailyOverride);
             logger.info("Daily override updated successfully with ID: {}", id);
-            return mapToResponse(updated);
+            return dailyOverrideMapper.toResponse(updated);
         } catch (Exception e) {
             logger.error("Failed to update daily override: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to update daily override", e);
@@ -153,7 +155,7 @@ public class DailyOverrideService {
 
         List<DailyOverrideResponse> content = pageResult.getContent()
                 .stream()
-                .map(this::mapToResponse)
+                .map(dailyOverrideMapper::toResponse)
                 .collect(Collectors.toList());
 
         return new PagedResponse<>(
@@ -163,19 +165,5 @@ public class DailyOverrideService {
                 pageResult.getTotalElements(),
                 pageResult.getTotalPages()
         );
-    }
-
-    private DailyOverrideResponse mapToResponse(DailyOverride dailyOverride) {
-        DailyOverrideResponse response = new DailyOverrideResponse();
-        response.setId(dailyOverride.getId());
-        response.setRoomTypeId(dailyOverride.getRoomType().getId());
-        response.setDate(dailyOverride.getDate());
-        response.setPriceAdjustment(dailyOverride.getPriceAdjustment());
-        response.setAvailableRooms(dailyOverride.getAvailableRooms());
-        response.setReason(dailyOverride.getReason());
-        response.setCreatedAt(dailyOverride.getCreatedAt());
-        response.setUpdatedAt(dailyOverride.getUpdatedAt());
-        response.setIsActive(dailyOverride.getIsActive());
-        return response;
     }
 }

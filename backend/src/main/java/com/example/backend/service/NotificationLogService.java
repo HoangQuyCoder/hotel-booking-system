@@ -4,6 +4,7 @@ import com.example.backend.dto.filter.NotificationLogFilterRequest;
 import com.example.backend.dto.response.NotificationLogResponse;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.NotificationLogMapper;
 import com.example.backend.model.NotificationLog;
 import com.example.backend.model.User;
 import com.example.backend.repository.NotificationLogRepository;
@@ -38,6 +39,7 @@ public class NotificationLogService {
     private final NotificationLogRepository logRepository;
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final NotificationLogMapper notificationLogMapper;
 
     public NotificationLogResponse getLogById(UUID id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -52,7 +54,7 @@ public class NotificationLogService {
             throw new SecurityException("Unauthorized access to log");
         }
 
-        return mapLogToResponse(log);
+        return notificationLogMapper.toResponse(log);
     }
 
     public List<NotificationLogResponse> getLogs(UUID userId) {
@@ -68,7 +70,7 @@ public class NotificationLogService {
         }
 
         List<NotificationLog> logs = logRepository.findByUserId(isAdmin ? userId : null);
-        return logs.stream().map(this::mapLogToResponse).collect(Collectors.toList());
+        return logs.stream().map(notificationLogMapper::toResponse).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -82,7 +84,7 @@ public class NotificationLogService {
         Page<NotificationLog> pageResult = logRepository.findAll(spec, pageable);
 
         List<NotificationLogResponse> content = pageResult.getContent().stream()
-                .map(this::mapLogToResponse)
+                .map(notificationLogMapper::toResponse)
                 .collect(Collectors.toList());
 
         return new PagedResponse<>(
@@ -102,25 +104,5 @@ public class NotificationLogService {
             logger.warn("Failed to deserialize metadata", e);
             return null;
         }
-    }
-
-    private NotificationLogResponse mapLogToResponse(NotificationLog l) {
-        NotificationLogResponse r = new NotificationLogResponse();
-        r.setId(l.getId());
-        r.setRecipient(l.getRecipient());
-        r.setTemplateId(l.getTemplate().getId());
-        r.setTemplateName(l.getTemplate().getName());
-        r.setStatus(l.getStatus());
-        r.setSourceEvent(l.getSourceEvent());
-        r.setMetadata(fromJson(l.getMetadata()));
-        r.setSentAt(l.getSentAt());
-        r.setUserId(l.getUser().getId());
-        r.setBookingId(l.getBooking().getId());
-        r.setCreatedAt(l.getCreatedAt());
-        r.setUpdatedAt(l.getUpdatedAt());
-        r.setRetryCount(l.getRetryCount());
-        r.setErrorMessage(l.getErrorMessage());
-        r.setIsActive(l.getIsActive());
-        return r;
     }
 }

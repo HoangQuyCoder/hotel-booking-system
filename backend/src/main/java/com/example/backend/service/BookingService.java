@@ -6,9 +6,9 @@ import com.example.backend.dto.request.BookingRequest;
 import com.example.backend.dto.request.BookingRoomRequest;
 import com.example.backend.dto.response.BookingCalculationResponse;
 import com.example.backend.dto.response.BookingResponse;
-import com.example.backend.dto.response.BookingRoomResponse;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.BookingMapper;
 import com.example.backend.model.Booking;
 import com.example.backend.model.BookingRoom;
 import com.example.backend.model.Hotel;
@@ -46,6 +46,7 @@ public class BookingService {
     private final UserRepository userRepository;
     private final HotelRepository hotelRepository;
     private final NotificationService notificationService;
+    private final BookingMapper bookingMapper;
 
     @Transactional
     public BookingResponse createBooking(BookingRequest request) {
@@ -90,7 +91,7 @@ public class BookingService {
         try {
             Booking saved = bookingRepository.save(booking);
             logger.info("Booking created successfully with ID: {}", saved.getId());
-            return mapToResponse(saved);
+            return bookingMapper.toResponse(saved);
         } catch (Exception e) {
             logger.error("Failed to create booking: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to create booking", e);
@@ -113,7 +114,7 @@ public class BookingService {
             throw new SecurityException("Unauthorized access to booking");
         }
 
-        return mapToResponse(booking);
+        return bookingMapper.toResponse(booking);
     }
 
     @Transactional
@@ -155,7 +156,7 @@ public class BookingService {
 
         Booking updated = bookingRepository.save(booking);
         logger.info("Booking updated successfully with ID: {}", id);
-        return mapToResponse(updated);
+        return bookingMapper.toResponse(updated);
     }
 
     @Transactional
@@ -213,7 +214,7 @@ public class BookingService {
         try {
             Booking updated = bookingRepository.save(booking);
             logger.info("Booking checked in successfully with ID: {}", id);
-            return mapToResponse(updated);
+            return bookingMapper.toResponse(updated);
         } catch (Exception e) {
             logger.error("Failed to check-in booking: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to check-in booking", e);
@@ -240,7 +241,7 @@ public class BookingService {
         try {
             Booking updated = bookingRepository.save(booking);
             logger.info("Booking checked out successfully with ID: {}", id);
-            return mapToResponse(updated);
+            return bookingMapper.toResponse(updated);
         } catch (Exception e) {
             logger.error("Failed to check-out booking: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to check-out booking", e);
@@ -269,7 +270,7 @@ public class BookingService {
         Page<Booking> pageResult = bookingRepository.findAll(spec, pageable);
 
         List<BookingResponse> content = pageResult.getContent().stream()
-                .map(this::mapToResponse)
+                .map(bookingMapper::toResponse)
                 .collect(Collectors.toList());
 
         return new PagedResponse<>(
@@ -317,36 +318,5 @@ public class BookingService {
             }
         }
         return false;
-    }
-
-    private BookingResponse mapToResponse(Booking booking) {
-        BookingResponse response = new BookingResponse();
-        response.setId(booking.getId());
-        response.setCheckInDate(booking.getCheckInDate());
-        response.setCheckOutDate(booking.getCheckOutDate());
-        response.setTotalAmount(booking.getTotalAmount());
-        response.setStatus(booking.getStatus());
-        response.setConfirmationCode(booking.getConfirmationCode());
-        response.setGuestCount(booking.getGuestCount());
-        response.setNotes(booking.getNotes());
-        response.setCreatedAt(booking.getCreatedAt());
-        response.setUpdatedAt(booking.getUpdatedAt());
-        response.setIsActive(booking.getIsActive());
-        response.setUserId(booking.getUser().getId());
-        response.setPromoId(booking.getPromotion() != null ? booking.getPromotion().getId() : null);
-        response.setBookingRooms(booking.getBookingRooms().stream()
-                .map(br -> {
-                    BookingRoomResponse brr = new BookingRoomResponse();
-                    brr.setId(br.getId());
-                    brr.setQuantity(br.getQuantity());
-                    brr.setRoomTypeId(br.getRoomType().getId());
-                    brr.setPricePerNight(br.getPricePerNight());
-                    brr.setSpecificRoomIds(br.getSpecificRoomIds());
-                    brr.setCreatedAt(br.getCreatedAt());
-                    brr.setUpdatedAt(br.getUpdatedAt());
-                    brr.setIsActive(br.getIsActive());
-                    return brr;
-                }).collect(Collectors.toList()));
-        return response;
     }
 }

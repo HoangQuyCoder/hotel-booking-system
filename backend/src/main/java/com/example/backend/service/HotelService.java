@@ -5,6 +5,7 @@ import com.example.backend.dto.request.HotelRequest;
 import com.example.backend.dto.request.HotelUpdateRequest;
 import com.example.backend.dto.response.*;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.HotelMapper;
 import com.example.backend.model.Hotel;
 import com.example.backend.model.User;
 import com.example.backend.repository.HotelRepository;
@@ -33,6 +34,7 @@ public class HotelService {
 
     private final HotelRepository hotelRepository;
     private final UserRepository userRepository;
+    private final HotelMapper hotelMapper;
 
     @Transactional
     public HotelDetailResponse createHotel(HotelRequest request) {
@@ -73,7 +75,7 @@ public class HotelService {
         try {
             Hotel saved = hotelRepository.save(hotel);
             logger.info("Hotel created successfully with ID: {}", saved.getId());
-            return mapToResponse(saved);
+            return hotelMapper.toResponse(saved);
         } catch (Exception e) {
             logger.error("Failed to create hotel: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to create hotel", e);
@@ -88,7 +90,7 @@ public class HotelService {
                     logger.error("[get] Hotel not found with ID: {}", id);
                     return new ResourceNotFoundException("Hotel not found");
                 });
-        return mapToResponse(hotel);
+        return hotelMapper.toResponse(hotel);
     }
 
     @Transactional
@@ -119,7 +121,7 @@ public class HotelService {
         try {
             Hotel updated = hotelRepository.save(hotel);
             logger.info("Hotel updated successfully with ID: {}", id);
-            return mapToResponse(updated);
+            return hotelMapper.toResponse(updated);
         } catch (Exception e) {
             logger.error("Failed to update hotel: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to update hotel", e);
@@ -158,7 +160,7 @@ public class HotelService {
         Page<Hotel> hotels = hotelRepository.findAll(spec, pageable);
 
         List<HotelDetailResponse> content = hotels.getContent().stream()
-                .map(this::mapToResponse)
+                .map(hotelMapper::toResponse)
                 .collect(Collectors.toList());
 
         return new PagedResponse<>(
@@ -175,55 +177,5 @@ public class HotelService {
             return List.of();
         }
         return hotelRepository.findDistinctCitiesContainingIgnoreCase(keyword.trim());
-    }
-
-    private HotelDetailResponse mapToResponse(Hotel hotel) {
-        HotelDetailResponse  response = new HotelDetailResponse ();
-        response.setId(hotel.getId());
-        response.setName(hotel.getName());
-        response.setCity(hotel.getCity());
-        response.setAddress(hotel.getAddress());
-        response.setRating(hotel.getRating());
-        response.setDescription(hotel.getDescription());
-        response.setThumbnailUrl(hotel.getThumbnailUrl());
-        response.setImages(hotel.getImages());
-        response.setCreatedAt(hotel.getCreatedAt());
-        response.setUpdatedAt(hotel.getUpdatedAt());
-        response.setLatitude(hotel.getLatitude());
-        response.setLongitude(hotel.getLongitude());
-        response.setContactPhone(hotel.getContactPhone());
-        response.setContactEmail(hotel.getContactEmail());
-        response.setCheckInTime(hotel.getCheckInTime());
-        response.setCheckOutTime(hotel.getCheckOutTime());
-        response.setIsActive(hotel.getIsActive());
-
-        // Manager
-        if (hotel.getManager() != null) {
-            ManagerResponse manager = new ManagerResponse();
-            manager.setId(hotel.getManager().getId());
-            manager.setUsername(hotel.getManager().getUsername());
-            manager.setEmail(hotel.getManager().getEmail());
-            manager.setFirstName(hotel.getManager().getFirstName());
-            manager.setLastName(hotel.getManager().getLastName());
-            response.setManager(manager);
-        }
-
-        // Room types
-        if (hotel.getRoomTypes() != null) {
-            List<RoomTypeResponse> roomTypeResponses = hotel.getRoomTypes().stream()
-                    .map(this::mapToRoomTypeResponse)
-                    .toList();
-            response.setRoomTypes(roomTypeResponses);
-        }
-
-        // Reviews
-        if (hotel.getReviews() != null) {
-            List<ReviewResponse> reviewResponses = hotel.getReviews().stream()
-                    .map(this::mapToReviewResponse)
-                    .toList();
-            response.setReviews(reviewResponses);
-        }
-
-        return response;
     }
 }
