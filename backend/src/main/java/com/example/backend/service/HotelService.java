@@ -3,9 +3,7 @@ package com.example.backend.service;
 import com.example.backend.dto.filter.HotelFilterRequest;
 import com.example.backend.dto.request.HotelRequest;
 import com.example.backend.dto.request.HotelUpdateRequest;
-import com.example.backend.dto.response.HotelResponse;
-import com.example.backend.dto.response.ManagerResponse;
-import com.example.backend.dto.response.PagedResponse;
+import com.example.backend.dto.response.*;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.model.Hotel;
 import com.example.backend.model.User;
@@ -37,7 +35,7 @@ public class HotelService {
     private final UserRepository userRepository;
 
     @Transactional
-    public HotelResponse createHotel(HotelRequest request) {
+    public HotelDetailResponse createHotel(HotelRequest request) {
         User user = null;
         logger.info("Creating hotel with name: {} in city: {}", request.getName(), request.getCity());
 
@@ -61,6 +59,7 @@ public class HotelService {
                 .rating(request.getRating())
                 .description(request.getDescription())
                 .thumbnailUrl(request.getThumbnailUrl())
+                .images(request.getImages())
                 .manager(user)
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
@@ -81,7 +80,7 @@ public class HotelService {
         }
     }
 
-    public HotelResponse getHotelById(UUID id) {
+    public HotelDetailResponse getHotelById(UUID id) {
         logger.info("Fetching hotel with ID: {}", id);
 
         Hotel hotel = hotelRepository.findById(id)
@@ -93,7 +92,7 @@ public class HotelService {
     }
 
     @Transactional
-    public HotelResponse updateHotel(UUID id, HotelUpdateRequest request) {
+    public HotelDetailResponse updateHotel(UUID id, HotelUpdateRequest request) {
         logger.info("Updating hotel with ID: {}", id);
 
         Hotel hotel = hotelRepository.findById(id)
@@ -149,7 +148,7 @@ public class HotelService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<HotelResponse> getAllHotels(HotelFilterRequest filterRequest) {
+    public PagedResponse<HotelDetailResponse> getAllHotels(HotelFilterRequest filterRequest) {
         logger.info("Fetching hotels with filters: {}", filterRequest);
 
         Pageable pageable = PagingUtils.toPageable(filterRequest);
@@ -158,7 +157,7 @@ public class HotelService {
 
         Page<Hotel> hotels = hotelRepository.findAll(spec, pageable);
 
-        List<HotelResponse> content = hotels.getContent().stream()
+        List<HotelDetailResponse> content = hotels.getContent().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
 
@@ -178,8 +177,8 @@ public class HotelService {
         return hotelRepository.findDistinctCitiesContainingIgnoreCase(keyword.trim());
     }
 
-    private HotelResponse mapToResponse(Hotel hotel) {
-        HotelResponse response = new HotelResponse();
+    private HotelDetailResponse mapToResponse(Hotel hotel) {
+        HotelDetailResponse  response = new HotelDetailResponse ();
         response.setId(hotel.getId());
         response.setName(hotel.getName());
         response.setCity(hotel.getCity());
@@ -187,6 +186,7 @@ public class HotelService {
         response.setRating(hotel.getRating());
         response.setDescription(hotel.getDescription());
         response.setThumbnailUrl(hotel.getThumbnailUrl());
+        response.setImages(hotel.getImages());
         response.setCreatedAt(hotel.getCreatedAt());
         response.setUpdatedAt(hotel.getUpdatedAt());
         response.setLatitude(hotel.getLatitude());
@@ -197,6 +197,7 @@ public class HotelService {
         response.setCheckOutTime(hotel.getCheckOutTime());
         response.setIsActive(hotel.getIsActive());
 
+        // Manager
         if (hotel.getManager() != null) {
             ManagerResponse manager = new ManagerResponse();
             manager.setId(hotel.getManager().getId());
@@ -205,6 +206,22 @@ public class HotelService {
             manager.setFirstName(hotel.getManager().getFirstName());
             manager.setLastName(hotel.getManager().getLastName());
             response.setManager(manager);
+        }
+
+        // Room types
+        if (hotel.getRoomTypes() != null) {
+            List<RoomTypeResponse> roomTypeResponses = hotel.getRoomTypes().stream()
+                    .map(this::mapToRoomTypeResponse)
+                    .toList();
+            response.setRoomTypes(roomTypeResponses);
+        }
+
+        // Reviews
+        if (hotel.getReviews() != null) {
+            List<ReviewResponse> reviewResponses = hotel.getReviews().stream()
+                    .map(this::mapToReviewResponse)
+                    .toList();
+            response.setReviews(reviewResponses);
         }
 
         return response;

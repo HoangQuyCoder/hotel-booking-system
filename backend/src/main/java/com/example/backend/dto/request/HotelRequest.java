@@ -3,6 +3,7 @@ package com.example.backend.dto.request;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -25,6 +26,7 @@ public class HotelRequest {
     private String description;
 
     private String thumbnailUrl;
+    private List<String> images;
 
     private UUID managerId;
 

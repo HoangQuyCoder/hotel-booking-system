@@ -3,7 +3,7 @@ package com.example.backend.controller;
 import com.example.backend.dto.filter.HotelFilterRequest;
 import com.example.backend.dto.request.HotelRequest;
 import com.example.backend.dto.request.HotelUpdateRequest;
-import com.example.backend.dto.response.HotelResponse;
+import com.example.backend.dto.response.HotelDetailResponse;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.service.HotelService;
 import jakarta.validation.Valid;
@@ -25,18 +25,18 @@ public class HotelController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<HotelResponse> createHotel(@Valid @RequestBody HotelRequest request) {
+    public ResponseEntity<HotelDetailResponse> createHotel(@Valid @RequestBody HotelRequest request) {
         return new ResponseEntity<>(hotelService.createHotel(request), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<HotelResponse> getHotel(@PathVariable UUID id) {
+    public ResponseEntity<HotelDetailResponse> getHotel(@PathVariable UUID id) {
         return ResponseEntity.ok(hotelService.getHotelById(id));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<HotelResponse> updateHotel(@PathVariable UUID id, @Valid @RequestBody HotelUpdateRequest request) {
+    public ResponseEntity<HotelDetailResponse> updateHotel(@PathVariable UUID id, @Valid @RequestBody HotelUpdateRequest request) {
         return ResponseEntity.ok(hotelService.updateHotel(id, request));
     }
 
@@ -48,8 +48,8 @@ public class HotelController {
     }
 
     @GetMapping
-    public ResponseEntity<PagedResponse<HotelResponse>> getAllHotels(HotelFilterRequest filter) {
-        PagedResponse<HotelResponse> response = hotelService.getAllHotels(filter);
+    public ResponseEntity<PagedResponse<HotelDetailResponse>> getAllHotels(HotelFilterRequest filter) {
+        PagedResponse<HotelDetailResponse> response = hotelService.getAllHotels(filter);
         return ResponseEntity.ok(response);
     }
 
