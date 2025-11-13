@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       else if (role === "STAFF") navigate("/staff-dashboard");
       else navigate("/client-dashboard");
     } catch {
-      // toast.error(err.response?.data?.message || "Đăng nhập thất bại");
+      toast.error("Đăng nhập thất bại");
     }
   };
 
@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       toast.success("Đăng ký thành công! Đang tự động đăng nhập...");
       await login({ email: data.email, password: data.password });
     } catch {
-      // toast.error(err.response?.data?.message || "Đăng ký thất bại");
+      toast.error("Đăng ký thất bại");
     }
   };
 

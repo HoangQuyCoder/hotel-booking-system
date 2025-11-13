@@ -6,6 +6,8 @@ export interface Hotel {
   rating?: number;
   description?: string;
   thumbnailUrl?: string;
+  images?: string[];
+  reviews?: string;
   latitude?: number;
   longitude?: number;
   contactPhone?: string;
@@ -16,7 +18,6 @@ export interface Hotel {
   createdAt: string;
   updatedAt: string;
   managerId: string;
-  // roomTypes?: RoomType[];
 }
 
 export interface SearchFilters {

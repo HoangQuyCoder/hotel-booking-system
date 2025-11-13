@@ -9,7 +9,7 @@ const apiClient = axios.create({
   },
 });
 
-// Interceptor: tự động thêm token vào header
+// Interceptor: automatically add token to header
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -18,7 +18,7 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Interceptor: xử lý lỗi toàn cục
+// Interceptor: global error handling
 apiClient.interceptors.response.use(
   (res) => res,
   (error: AxiosError & { config?: { silent?: boolean } }) => {
