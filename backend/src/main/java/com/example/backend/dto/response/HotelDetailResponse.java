@@ -1,12 +1,15 @@
 package com.example.backend.dto.response;
 
+import com.example.backend.model.Review;
+import com.example.backend.model.RoomType;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
-public class HotelResponse {
+public class HotelDetailResponse {
     private UUID id;
     private String name;
     private String city;
@@ -14,6 +17,7 @@ public class HotelResponse {
     private Double rating;
     private String description;
     private String thumbnailUrl;
+    private List<String> images;
     private ManagerResponse manager;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -23,5 +27,7 @@ public class HotelResponse {
     private String contactEmail;
     private String checkInTime;
     private String checkOutTime;
+    private List<RoomTypeResponse> roomType;
+    private List<ReviewResponse> review;
     private Boolean isActive;
 }

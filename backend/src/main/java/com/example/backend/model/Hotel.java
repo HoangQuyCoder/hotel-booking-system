@@ -39,6 +39,9 @@ public class Hotel {
     @Column(name = "thumbnailUrl")
     private String thumbnailUrl;
 
+    @Column(name = "images")
+    private List<String> images;
+
     @Column(name = "latitude")
     private Double latitude;
 
@@ -75,6 +78,10 @@ public class Hotel {
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<RoomType> roomTypes = new ArrayList<>();
+
+    // 1: N relationship with Review
+    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews;
 
     @PrePersist
     protected void onCreate() {
