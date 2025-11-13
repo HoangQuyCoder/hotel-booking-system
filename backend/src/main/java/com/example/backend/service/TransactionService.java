@@ -9,6 +9,7 @@ import com.example.backend.dto.request.TransactionRequest;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.dto.response.TransactionResponse;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.TransactionMapper;
 import com.example.backend.model.Booking;
 import com.example.backend.model.Transaction;
 import com.example.backend.repository.BookingRepository;
@@ -43,6 +44,7 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final BookingRepository bookingRepository;
     private final NotificationService notificationService;
+    private final TransactionMapper transactionMapper;
 
     @Transactional
     public TransactionResponse createTransaction(TransactionRequest request) {
@@ -108,7 +110,7 @@ public class TransactionService {
             bookingRepository.save(booking);
             notificationService.sendBookingConfirmationEmail(booking);
             logger.info("Transaction created successfully with ID: {}", saved.getId());
-            return mapToResponse(saved);
+            return transactionMapper.toResponse(saved);
         } catch (Exception e) {
             logger.error("Failed to create transaction: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to create transaction", e);
@@ -131,7 +133,7 @@ public class TransactionService {
             throw new SecurityException("Unauthorized access to transaction");
         }
 
-        return mapToResponse(transaction);
+        return transactionMapper.toResponse(transaction);
     }
 
     @Transactional
@@ -172,7 +174,7 @@ public class TransactionService {
             Transaction saved = transactionRepository.save(refundTransaction);
             notificationService.sendPaymentRefundEmail(saved);
             logger.info("Transaction refunded successfully with ID: {}", id);
-            return mapToResponse(saved);
+            return transactionMapper.toResponse(saved);
         } catch (Exception e) {
             logger.error("Failed to refund transaction: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to refund transaction", e);
@@ -189,7 +191,7 @@ public class TransactionService {
         Page<Transaction> pageResult = transactionRepository.findAll(spec, pageable);
 
         List<TransactionResponse> content = pageResult.getContent().stream()
-                .map(this::mapToResponse)
+                .map(transactionMapper::toResponse)
                 .collect(Collectors.toList());
 
         return new PagedResponse<>(
@@ -261,27 +263,10 @@ public class TransactionService {
                 notificationService.sendPaymentSuccessEmail(saved);
             }
             logger.info("Transaction status updated successfully for ID: {} to {}", id, status);
-            return mapToResponse(saved);
+            return transactionMapper.toResponse(saved);
         } catch (Exception e) {
             logger.error("Failed to update transaction status: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to update transaction status", e);
         }
-    }
-
-    private TransactionResponse mapToResponse(Transaction transaction) {
-        TransactionResponse response = new TransactionResponse();
-        response.setId(transaction.getId());
-        response.setBookingId(transaction.getBooking().getId());
-        response.setAmount(transaction.getAmount());
-        response.setCurrency(transaction.getCurrency());
-        response.setPaymentMethod(transaction.getPaymentMethod());
-        response.setStatus(transaction.getStatus());
-        response.setGatewayRef(transaction.getGatewayRef());
-        response.setProcessedAt(transaction.getProcessedAt());
-        response.setTransactionType(transaction.getTransactionType());
-        response.setCreatedAt(transaction.getCreatedAt());
-        response.setUpdatedAt(transaction.getUpdatedAt());
-        response.setIsActive(transaction.getIsActive());
-        return response;
     }
 }

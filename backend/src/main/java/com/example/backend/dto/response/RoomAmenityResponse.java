@@ -13,5 +13,4 @@ public class RoomAmenityResponse {
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updateAt;
-    private UUID roomTypeId;
 }

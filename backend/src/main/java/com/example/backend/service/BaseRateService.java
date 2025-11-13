@@ -5,6 +5,7 @@ import com.example.backend.dto.request.BaseRateRequest;
 import com.example.backend.dto.response.BaseRateResponse;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.BaseRateMapper;
 import com.example.backend.model.BaseRate;
 import com.example.backend.model.RoomType;
 import com.example.backend.repository.BaseRateRepository;
@@ -31,6 +32,7 @@ public class BaseRateService {
 
     private final BaseRateRepository baseRateRepository;
     private final RoomTypeRepository roomTypeRepository;
+    private final BaseRateMapper baseRateMapper;
 
     @Transactional
     public BaseRateResponse createBaseRate(BaseRateRequest request) {
@@ -66,7 +68,7 @@ public class BaseRateService {
         try {
             BaseRate saved = baseRateRepository.save(baseRate);
             logger.info("Base rate created successfully with ID: {}", saved.getId());
-            return mapToResponse(saved);
+            return baseRateMapper.toResponse(saved);
         } catch (Exception e) {
             logger.error("Failed to create base rate: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to create base rate", e);
@@ -81,7 +83,7 @@ public class BaseRateService {
                     logger.error("[get] Base rate not found with ID: {}", id);
                     return new ResourceNotFoundException("Base rate not found");
                 });
-        return mapToResponse(baseRate);
+        return baseRateMapper.toResponse(baseRate);
     }
 
     @Transactional
@@ -124,7 +126,7 @@ public class BaseRateService {
         try {
             BaseRate updated = baseRateRepository.save(baseRate);
             logger.info("Base rate updated successfully with ID: {}", id);
-            return mapToResponse(updated);
+            return baseRateMapper.toResponse(updated);
         } catch (Exception e) {
             logger.error("Failed to update base rate: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to update base rate", e);
@@ -162,7 +164,7 @@ public class BaseRateService {
 
         List<BaseRateResponse> content = pageResult.getContent()
                 .stream()
-                .map(this::mapToResponse)
+                .map(baseRateMapper::toResponse)
                 .toList();
 
         return new PagedResponse<>(
@@ -172,18 +174,5 @@ public class BaseRateService {
                 pageResult.getTotalElements(),
                 pageResult.getTotalPages()
         );
-    }
-
-    private BaseRateResponse mapToResponse(BaseRate baseRate) {
-        BaseRateResponse response = new BaseRateResponse();
-        response.setId(baseRate.getId());
-        response.setRoomTypeId(baseRate.getRoomType().getId());
-        response.setBasePrice(baseRate.getBasePrice());
-        response.setStartDate(baseRate.getStartDate());
-        response.setEndDate(baseRate.getEndDate());
-        response.setCreatedAt(baseRate.getCreatedAt());
-        response.setUpdatedAt(baseRate.getUpdatedAt());
-        response.setIsActive(baseRate.getIsActive());
-        return response;
     }
 }

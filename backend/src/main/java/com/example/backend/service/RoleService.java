@@ -3,6 +3,7 @@ package com.example.backend.service;
 import com.example.backend.dto.request.RoleRequest;
 import com.example.backend.dto.response.RoleResponse;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.RoleMapper;
 import com.example.backend.model.Role;
 import com.example.backend.repository.RoleRepository;
 import com.example.backend.utils.BeanUtilsHelper;
@@ -22,6 +23,7 @@ public class RoleService {
     private static final Logger logger = LoggerFactory.getLogger(RoleService.class);
 
     private final RoleRepository roleRepository;
+    private final RoleMapper roleMapper;
 
     @Transactional
     public RoleResponse createRole(RoleRequest request) {
@@ -40,7 +42,7 @@ public class RoleService {
         try {
             Role saved = roleRepository.save(role);
             logger.info("Role created successfully with ID: {}", saved.getId());
-            return mapToResponse(saved);
+            return roleMapper.toResponse(saved);
         } catch (Exception e) {
             logger.error("Failed to create role: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to create role", e);
@@ -55,7 +57,7 @@ public class RoleService {
                     logger.error("[get] Role not found with ID: {}", id);
                     return new ResourceNotFoundException("Role not found");
                 });
-        return mapToResponse(role);
+        return roleMapper.toResponse(role);
     }
 
     @Transactional
@@ -79,7 +81,7 @@ public class RoleService {
         try {
             Role updated = roleRepository.save(role);
             logger.info("Role updated successfully with ID: {}", id);
-            return mapToResponse(updated);
+            return roleMapper.toResponse(updated);
         } catch (Exception e) {
             logger.error("Failed to update role: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to update role", e);
@@ -112,17 +114,7 @@ public class RoleService {
 
         List<Role> roles = roleRepository.findAll();
         return roles.stream()
-                .map(this::mapToResponse)
+                .map(roleMapper::toResponse)
                 .collect(Collectors.toList());
-    }
-
-    private RoleResponse mapToResponse(Role role) {
-        RoleResponse response = new RoleResponse();
-        response.setId(role.getId());
-        response.setRoleName(role.getRoleName());
-        response.setDescription(role.getDescription());
-        response.setCreatedAt(role.getCreatedAt());
-        response.setUpdatedAt(role.getUpdatedAt());
-        return response;
     }
 }

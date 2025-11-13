@@ -6,6 +6,7 @@ import com.example.backend.dto.request.RoomTypeUpdateRequest;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.dto.response.RoomTypeResponse;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.RoomTypeMapper;
 import com.example.backend.model.Hotel;
 import com.example.backend.model.RoomType;
 import com.example.backend.repository.HotelRepository;
@@ -35,6 +36,7 @@ public class RoomTypeService {
 
     private final RoomTypeRepository roomTypeRepository;
     private final HotelRepository hotelRepository;
+    private final RoomTypeMapper roomTypeMapper;
 
     @Transactional
     public RoomTypeResponse createRoomType(RoomTypeRequest request) {
@@ -65,7 +67,7 @@ public class RoomTypeService {
         try {
             RoomType saved = roomTypeRepository.save(roomType);
             logger.info("Room type created successfully with ID: {}", saved.getId());
-            return mapToResponse(saved);
+            return roomTypeMapper.toResponse(saved);
         } catch (Exception e) {
             logger.error("Failed to create room type: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to create room type", e);
@@ -80,7 +82,7 @@ public class RoomTypeService {
                     logger.error("[get] Room type not found with ID: {}", id);
                     return new ResourceNotFoundException("Room type not found");
                 });
-        return mapToResponse(roomType);
+        return roomTypeMapper.toResponse(roomType);
     }
 
     @Transactional
@@ -113,7 +115,7 @@ public class RoomTypeService {
         try {
             RoomType updated = roomTypeRepository.save(roomType);
             logger.info("Room type updated successfully with ID: {}", id);
-            return mapToResponse(updated);
+            return roomTypeMapper.toResponse(updated);
         } catch (Exception e) {
             logger.error("Failed to update room type: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to update room type", e);
@@ -130,7 +132,7 @@ public class RoomTypeService {
 
         logger.info("RoomType {} availability updated to {}", id, isAvailable);
 
-        return mapToResponse(roomType);
+        return roomTypeMapper.toResponse(roomType);
     }
 
     @Transactional
@@ -168,7 +170,7 @@ public class RoomTypeService {
         // Switch to DTO
         List<RoomTypeResponse> content = roomTypePage.getContent()
                 .stream()
-                .map(this::mapToResponse)
+                .map(roomTypeMapper::toResponse)
                 .collect(Collectors.toList());
 
         return new PagedResponse<>(
@@ -178,21 +180,5 @@ public class RoomTypeService {
                 roomTypePage.getTotalElements(),
                 roomTypePage.getTotalPages()
         );
-    }
-
-    private RoomTypeResponse mapToResponse(RoomType roomType) {
-        RoomTypeResponse response = new RoomTypeResponse();
-        response.setId(roomType.getId());
-        response.setName(roomType.getName());
-        response.setCapacity(roomType.getCapacity());
-        response.setSizeSqm(roomType.getSizeSqm());
-        response.setTotalRooms(roomType.getTotalRooms());
-        response.setDescription(roomType.getDescription());
-        response.setCreatedAt(roomType.getCreatedAt());
-        response.setUpdatedAt(roomType.getUpdatedAt());
-        response.setIsAvailable(roomType.getIsAvailable());
-        response.setIsActive(roomType.getIsActive());
-        response.setHotelId(roomType.getHotel().getId());
-        return response;
     }
 }

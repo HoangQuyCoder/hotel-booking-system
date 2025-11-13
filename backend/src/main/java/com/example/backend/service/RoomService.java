@@ -6,6 +6,7 @@ import com.example.backend.dto.request.RoomRequest;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.dto.response.RoomResponse;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.RoomMapper;
 import com.example.backend.model.Room;
 import com.example.backend.model.RoomType;
 import com.example.backend.repository.RoomRepository;
@@ -33,6 +34,7 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final RoomTypeRepository roomTypeRepository;
+    private final RoomMapper roomMapper;
 
     @Transactional
     public RoomResponse createRoom(RoomRequest request) {
@@ -60,7 +62,7 @@ public class RoomService {
 
             Room saved = roomRepository.save(room);
             logger.info("Room created successfully with ID: {}", saved.getId());
-            return mapToResponse(saved);
+            return roomMapper.toResponse(saved);
         } catch (IllegalArgumentException e) {
             logger.error("[create] Invalid room status: {}", request.getStatus());
             throw new IllegalArgumentException("Invalid room status: " + request.getStatus());
@@ -78,7 +80,7 @@ public class RoomService {
                     logger.error("[get] Room not found with ID: {}", id);
                     return new ResourceNotFoundException("Room not found");
                 });
-        return mapToResponse(room);
+        return roomMapper.toResponse(room);
     }
 
     @Transactional
@@ -112,7 +114,7 @@ public class RoomService {
 
             Room updated = roomRepository.save(room);
             logger.info("Room updated successfully with ID: {}", id);
-            return mapToResponse(updated);
+            return roomMapper.toResponse(updated);
         } catch (IllegalArgumentException e) {
             logger.error("[update] Invalid room status: {}", request.getStatus());
             throw new IllegalArgumentException("Invalid room status: " + request.getStatus());
@@ -154,7 +156,7 @@ public class RoomService {
 
         List<RoomResponse> content = roomPage.getContent()
                 .stream()
-                .map(this::mapToResponse)
+                .map(roomMapper::toResponse)
                 .collect(Collectors.toList());
 
         return new PagedResponse<>(
@@ -164,17 +166,5 @@ public class RoomService {
                 roomPage.getTotalElements(),
                 roomPage.getTotalPages()
         );
-    }
-
-    private RoomResponse mapToResponse(Room room) {
-        RoomResponse response = new RoomResponse();
-        response.setId(room.getId());
-        response.setRoomNumber(room.getRoomNumber());
-        response.setStatus(room.getStatus().name());
-        response.setIsActive(room.getIsActive());
-        response.setCreatedAt(room.getCreatedAt());
-        response.setUpdatedAt(room.getUpdatedAt());
-        response.setRoomTypeId(room.getRoomType().getId());
-        return response;
     }
 }

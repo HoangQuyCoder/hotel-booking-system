@@ -5,6 +5,7 @@ import com.example.backend.dto.request.RoomAmenityRequest;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.dto.response.RoomAmenityResponse;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.RoomAmenityMapper;
 import com.example.backend.model.RoomAmenity;
 import com.example.backend.model.RoomType;
 import com.example.backend.repository.RoomAmenityRepository;
@@ -32,6 +33,7 @@ public class RoomAmenityService {
 
     private final RoomAmenityRepository roomAmenityRepository;
     private final RoomTypeRepository roomTypeRepository;
+    private final RoomAmenityMapper roomAmenityMapper;
 
     @Transactional
     public RoomAmenityResponse createRoomAmenity(RoomAmenityRequest request) {
@@ -58,7 +60,7 @@ public class RoomAmenityService {
         try {
             RoomAmenity saved = roomAmenityRepository.save(roomAmenity);
             logger.info("Room amenity created successfully with ID: {}", saved.getId());
-            return mapToResponse(saved);
+            return roomAmenityMapper.toResponse(saved);
         } catch (Exception e) {
             logger.error("Failed to create room amenity: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to create room amenity", e);
@@ -73,7 +75,7 @@ public class RoomAmenityService {
                     logger.error("[get] Room amenity not found with ID: {}", id);
                     return new ResourceNotFoundException("Room amenity not found");
                 });
-        return mapToResponse(roomAmenity);
+        return roomAmenityMapper.toResponse(roomAmenity);
     }
 
     @Transactional
@@ -105,7 +107,7 @@ public class RoomAmenityService {
         try {
             RoomAmenity updated = roomAmenityRepository.save(roomAmenity);
             logger.info("Room amenity updated successfully with ID: {}", id);
-            return mapToResponse(updated);
+            return roomAmenityMapper.toResponse(updated);
         } catch (Exception e) {
             logger.error("Failed to update room amenity: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to update room amenity", e);
@@ -144,7 +146,7 @@ public class RoomAmenityService {
 
         List<RoomAmenityResponse> content = pageResult.getContent()
                 .stream()
-                .map(this::mapToResponse)
+                .map(roomAmenityMapper::toResponse)
                 .toList();
 
         return new PagedResponse<>(
@@ -154,17 +156,5 @@ public class RoomAmenityService {
                 pageResult.getTotalElements(),
                 pageResult.getTotalPages()
         );
-    }
-
-    private RoomAmenityResponse mapToResponse(RoomAmenity roomAmenity) {
-        RoomAmenityResponse response = new RoomAmenityResponse();
-        response.setId(roomAmenity.getId());
-        response.setName(roomAmenity.getName());
-        response.setCategory(roomAmenity.getCategory());
-        response.setIsActive(roomAmenity.getIsActive());
-        response.setRoomTypeId(roomAmenity.getRoomType().getId());
-        response.setCreatedAt(roomAmenity.getCreatedAt());
-        response.setUpdateAt(roomAmenity.getUpdatedAt());
-        return response;
     }
 }

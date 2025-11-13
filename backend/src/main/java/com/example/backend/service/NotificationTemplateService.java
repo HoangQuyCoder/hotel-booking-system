@@ -5,6 +5,7 @@ import com.example.backend.dto.request.NotificationTemplateRequest;
 import com.example.backend.dto.response.NotificationTemplateResponse;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.NotificationTemplateMapper;
 import com.example.backend.model.NotificationTemplate;
 import com.example.backend.repository.NotificationTemplateRepository;
 import com.example.backend.specification.NotificationSpecification;
@@ -35,6 +36,7 @@ public class NotificationTemplateService {
     private static final Logger logger = LoggerFactory.getLogger(NotificationTemplateService.class);
     private final NotificationTemplateRepository notificationTemplateRepository;
     private final Configuration freemarkerConfig;
+    private final NotificationTemplateMapper notificationTemplateMapper;
 
     @Transactional
     public NotificationTemplateResponse createTemplate(NotificationTemplateRequest request) {
@@ -53,7 +55,7 @@ public class NotificationTemplateService {
         try {
             NotificationTemplate saved = notificationTemplateRepository.save(template);
             logger.info("Template created with ID: {}", saved.getId());
-            return mapTemplateToResponse(saved);
+            return notificationTemplateMapper.toResponse(saved);
         } catch (Exception e) {
             logger.error("Failed to create template {}: {}", request.getName(), e.getMessage(), e);
             throw new ResourceNotFoundException("Failed to create template");
@@ -70,7 +72,7 @@ public class NotificationTemplateService {
                 });
 
         logger.info("Template retrieved successfully: {}", template.getName());
-        return mapTemplateToResponse(template);
+        return notificationTemplateMapper.toResponse(template);
     }
 
     @Transactional
@@ -91,7 +93,7 @@ public class NotificationTemplateService {
         try {
             NotificationTemplate updated = notificationTemplateRepository.save(template);
             logger.info("Template updated: {}", id);
-            return mapTemplateToResponse(updated);
+            return notificationTemplateMapper.toResponse(updated);
         } catch (Exception e) {
             logger.error("Failed to update template {}: {}", request.getName(), e.getMessage(), e);
             throw new ResourceNotFoundException("Failed to update template");
@@ -129,7 +131,7 @@ public class NotificationTemplateService {
         Page<NotificationTemplate> pageResult = notificationTemplateRepository.findAll(spec, pageable);
 
         List<NotificationTemplateResponse> content = pageResult.getContent().stream()
-                .map(this::mapTemplateToResponse)
+                .map(notificationTemplateMapper::toResponse)
                 .collect(Collectors.toList());
 
         return new PagedResponse<>(
@@ -147,21 +149,6 @@ public class NotificationTemplateService {
                     logger.error("{} template not found", name);
                     return new IllegalStateException(name + " template not found");
                 });
-    }
-
-    private NotificationTemplateResponse mapTemplateToResponse(NotificationTemplate t) {
-        NotificationTemplateResponse r = new NotificationTemplateResponse();
-        r.setId(t.getId());
-        r.setName(t.getName());
-        r.setType(t.getType());
-        r.setSubject(t.getSubject());
-        r.setTemplateFile(t.getTemplateFile());
-        r.setCreatedAt(t.getCreatedAt());
-        r.setUpdatedAt(t.getUpdatedAt());
-        r.setIsActive(t.getIsActive());
-        r.setDefaultLanguage(t.getDefaultLanguage());
-        r.setPriority(t.getPriority());
-        return r;
     }
 
     /**
