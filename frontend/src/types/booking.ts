@@ -1,33 +1,22 @@
-import { type Hotel } from "./hotel";
-import { type User } from "./user";
+import type { BaseEntity } from "./common";
+import type { Promotion } from "./promotion";
+import type { BookingRoom } from "./bookingRoom";
+import type { Transaction } from "./transaction";
+import type { BookingStatus } from "./enum";
 
-export interface BookingRoomResponse {
-  id: string;
-  roomId: string;
-  roomNumber: string;
-  pricePerNight: number;
-  nights: number;
-  subtotal: number;
-}
-
-export interface Booking {
-  id: string;
-  user: User;
-  hotel: Hotel;
-  checkInDate: string; // ISO date
-  checkOutDate: string; // ISO date
+export interface Booking extends BaseEntity {
+  checkInDate: string; // YYYY-MM-DD
+  checkOutDate: string; // YYYY-MM-DD
   totalAmount: number;
   status: BookingStatus;
-  createdAt?: string;
-  updatedAt?: string;
+  confirmationCode: string;
+  promotionId?: string;
+  promotion?: Promotion;
+  guestCount: number;
+  notes?: string;
+  bookingRooms?: BookingRoom[];
+  transaction?: Transaction;
 }
-
-export type BookingStatus =
-  | "PENDING"
-  | "CONFIRMED"
-  | "CANCELLED"
-  | "COMPLETED"
-  | "REFUNDED";
 
 export interface BookingRequest {
   hotelId: string;

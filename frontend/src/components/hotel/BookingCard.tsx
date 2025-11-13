@@ -1,4 +1,3 @@
-// ...existing code...
 import { useState, useRef } from "react";
 import { Calendar, Users } from "lucide-react";
 import { Button } from "../ui/Button";
@@ -127,4 +126,3 @@ export default function BookingCard({ hotel }: { hotel: Hotel }) {
     </div>
   );
 }
-// ...existing code...

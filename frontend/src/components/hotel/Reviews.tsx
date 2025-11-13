@@ -1,4 +1,3 @@
-// ...existing code...
 import { Star } from "lucide-react";
 import type { Hotel } from "../../types";
 
@@ -69,4 +68,3 @@ export default function Reviews({ hotel }: { hotel: Hotel }) {
     </div>
   );
 }
-// ...existing code...

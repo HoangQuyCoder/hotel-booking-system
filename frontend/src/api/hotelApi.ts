@@ -1,12 +1,12 @@
 import api from "../services/apiClient";
-import type { Hotel, HotelResponse, SearchFilters } from "../types";
+import type { Hotel, GetAllHotelsResponse, SearchFilters } from "../types";
 
 // === Tìm kiếm khách sạn (có phân trang) ===
 export const searchHotels = (
   filters: SearchFilters = {},
   page: number = 0,
   size: number = 9
-): Promise<{ data: HotelResponse }> => {
+): Promise<{ data: GetAllHotelsResponse }> => {
   const params = new URLSearchParams();
 
   if (filters.city) params.append("city", filters.city.trim());
@@ -18,7 +18,7 @@ export const searchHotels = (
   params.append("page", String(page));
   params.append("size", String(size));
 
-  return api.get<HotelResponse>("/hotels", { params });
+  return api.get<GetAllHotelsResponse>("/hotels", { params });
 };
 
 // === Lấy chi tiết 1 hotel ===

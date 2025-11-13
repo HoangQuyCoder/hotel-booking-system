@@ -1,5 +1,6 @@
-export interface Hotel {
-  id: string;
+import type { BaseEntity, PagedResponse } from "./common";
+
+export interface Hotel extends BaseEntity {
   name: string;
   city: string;
   address: string;
@@ -14,9 +15,6 @@ export interface Hotel {
   contactEmail?: string;
   checkInTime?: string;
   checkOutTime?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
   managerId: string;
 }
 
@@ -34,10 +32,4 @@ export interface SearchFilters {
   guests?: number;
 }
 
-export interface HotelResponse {
-  content: Hotel[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-}
+export type GetAllHotelsResponse = PagedResponse<Hotel>;
