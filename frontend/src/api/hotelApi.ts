@@ -1,4 +1,3 @@
-// src/api/hotelApi.ts
 import api from "../services/apiClient";
 import type { Hotel, HotelResponse, SearchFilters } from "../types";
 

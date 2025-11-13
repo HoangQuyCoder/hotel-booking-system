@@ -1,163 +1,91 @@
-import { useParams, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import apiClient from "../services/apiClient";
-import { Spinner } from "../components/ui/Spinner";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import { type LatLngExpression } from "leaflet";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import Gallery from "../components/hotel/Gallery";
+import Info from "../components/hotel/Info";
+import TabsContent from "../components/hotel/TabsContent";
+import Reviews from "../components/hotel/Reviews";
+import BookingCard from "../components/hotel/BookingCard";
+import Map from "../components/hotel/Map";
+import { getHotelById } from "../api/hotelApi";
+import type { Hotel } from "../types";
 
-interface Hotel {
-  id: string;
-  name: string;
-  address: string;
-  rating: number;
-  description: string;
-  contactPhone: string;
-  contactEmail: string;
-  checkInTime: string;
-  checkOutTime: string;
-  latitude?: number;
-  longitude?: number;
-}
+export default function HotelDetail() {
+  const { id } = useParams();
+  const [hotel, setHotel] = useState<Hotel | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-interface RoomType {
-  id: string;
-  name: string;
-  capacity: number;
-  sizeSqm: number;
-  description: string;
-}
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    setError(null);
 
-interface Promotion {
-  id: string;
-  code: string;
-  discountPercent: number;
-  validFrom: string;
-  validTo: string;
-}
+    getHotelById(id)
+      .then((res) => {
+        setHotel(res.data);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(err?.message ?? "Không thể tải dữ liệu khách sạn.");
+      })
+      .finally(() => setLoading(false));
+  }, [id]);
 
-const HotelDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  if (loading) {
+    return (
+      <div className="min-h-screen font-sans bg-gray-50 overflow-x-hidden">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 py-8">
+          <div className="animate-pulse">
+            <div className="h-64 bg-gray-200 rounded mb-6" />
+            <div className="h-6 bg-gray-200 rounded w-1/3 mb-2" />
+            <div className="h-4 bg-gray-200 rounded w-1/2 mb-4" />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 space-y-4">
+                <div className="h-40 bg-gray-200 rounded" />
+                <div className="h-40 bg-gray-200 rounded" />
+                <div className="h-40 bg-gray-200 rounded" />
+              </div>
+              <div className="lg:col-span-1 space-y-4">
+                <div className="h-40 bg-gray-200 rounded" />
+                <div className="h-40 bg-gray-200 rounded" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  // 🔹 Fetch hotel info
-  const {
-    data: hotel,
-    isLoading: hotelLoading,
-    isError: hotelError,
-  } = useQuery<Hotel>({
-    queryKey: ["hotel", id],
-    queryFn: async () => {
-      const res = await apiClient.get(`/hotels/${id}`);
-      return res.data;
-    },
-    enabled: !!id, // tránh fetch khi id chưa có
-  });
+  if (error) {
+    return (
+      <div className="min-h-screen font-sans bg-gray-50 overflow-x-hidden">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 py-8">
+          <div className="text-red-600">Lỗi: {error}</div>
+        </div>
+      </div>
+    );
+  }
 
-  // 🔹 Fetch room types
-  const { data: roomTypes } = useQuery<RoomType[]>({
-    queryKey: ["roomTypes", id],
-    queryFn: async () => {
-      const res = await apiClient.get("/room-types", {
-        params: { hotelId: id },
-      });
-      return res.data;
-    },
-    enabled: !!id,
-  });
-
-  // 🔹 Fetch promotions
-  const { data: promotions } = useQuery<Promotion[]>({
-    queryKey: ["promotions"],
-    queryFn: async () => {
-      const res = await apiClient.get("/promotions");
-      return res.data;
-    },
-  });
-
-  // 🔹 Handle loading / error
-  if (hotelLoading) return <Spinner />;
-  if (hotelError || !hotel) return <p>Không tìm thấy khách sạn.</p>;
-
-  // 🔹 Tính toán vị trí bản đồ nếu có
-  const position: LatLngExpression | undefined =
-    hotel.latitude && hotel.longitude
-      ? [hotel.latitude, hotel.longitude]
-      : undefined;
+  if (!hotel) {
+    return null;
+  }
 
   return (
-    <div className="container my-5">
-      <h1 className="fw-bold mb-3">{hotel.name}</h1>
-      <p className="text-muted mb-2">
-        <strong>Địa chỉ:</strong> {hotel.address} <br />
-        <strong>Đánh giá:</strong> {hotel.rating} ⭐
-      </p>
-
-      <p className="mb-3">{hotel.description}</p>
-
-      <p>
-        <strong>Liên hệ:</strong> {hotel.contactPhone} / {hotel.contactEmail}
-      </p>
-      <p>
-        <strong>Check-in:</strong> {hotel.checkInTime} —{" "}
-        <strong>Check-out:</strong> {hotel.checkOutTime}
-      </p>
-
-      {position && (
-        <div className="my-4">
-          <MapContainer
-            center={position}
-            zoom={13}
-            style={{ height: "300px", width: "100%", borderRadius: "8px" }}
-          >
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            <Marker position={position}>
-              <Popup>{hotel.name}</Popup>
-            </Marker>
-          </MapContainer>
+    <div className="min-h-screen font-sans bg-gray-50 overflow-x-hidden">
+      <div className="">
+        <Gallery hotel={hotel} />
+        <div className="max-w-7xl mx-auto px-6 md:px-12 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8 a">
+            <Info hotel={hotel} />
+            <TabsContent hotel={hotel} />
+            <Reviews hotel={hotel} />
+          </div>
+          <div className="lg:col-span-1 space-y-8">
+            <BookingCard hotel={hotel} />
+            <Map hotel={hotel} />
+          </div>
         </div>
-      )}
-
-      <h3 className="mt-5">🏨 Loại phòng</h3>
-      <ul className="list-group mb-4">
-        {roomTypes?.length ? (
-          roomTypes.map((room) => (
-            <li key={room.id} className="list-group-item">
-              <strong>{room.name}</strong> — Sức chứa: {room.capacity} người —{" "}
-              {room.sizeSqm} m² <br />
-              <span className="text-muted">{room.description}</span>
-            </li>
-          ))
-        ) : (
-          <li className="list-group-item text-muted">
-            Không có loại phòng nào.
-          </li>
-        )}
-      </ul>
-
-      <h3>🎁 Khuyến mãi</h3>
-      <ul className="list-group mb-4">
-        {promotions?.length ? (
-          promotions.map((promo) => (
-            <li key={promo.id} className="list-group-item">
-              Mã: <strong>{promo.code}</strong> — Giảm {promo.discountPercent}%{" "}
-              <br />
-              <small>
-                Hiệu lực: {promo.validFrom} → {promo.validTo}
-              </small>
-            </li>
-          ))
-        ) : (
-          <li className="list-group-item text-muted">
-            Không có khuyến mãi nào.
-          </li>
-        )}
-      </ul>
-
-      <Link to="/booking" className="btn btn-primary">
-        Đặt phòng
-      </Link>
+      </div>
     </div>
   );
-};
-
-export default HotelDetail;
+}
