@@ -9,7 +9,6 @@ import java.util.UUID;
 @Data
 public class BaseRateResponse {
     private UUID id;
-    private UUID roomTypeId;
     private Double basePrice;
     private LocalDate startDate;
     private LocalDate endDate;

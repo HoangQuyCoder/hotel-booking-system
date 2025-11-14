@@ -9,7 +9,6 @@ import java.util.UUID;
 @Data
 public class DailyOverrideResponse {
     private UUID id;
-    private UUID roomTypeId;
     private LocalDate date;
     private Double priceAdjustment;
     private Integer availableRooms;

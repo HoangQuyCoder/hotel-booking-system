@@ -38,7 +38,6 @@ public class Role {
 
     // 1: N relationship with User
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<User> users = new ArrayList<>();
 
     @PrePersist

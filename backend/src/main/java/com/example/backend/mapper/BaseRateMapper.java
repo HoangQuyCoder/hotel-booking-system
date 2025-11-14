@@ -6,5 +6,6 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface BaseRateMapper extends BaseMapper<BaseRate, BaseRateResponse> {
+
     BaseRateResponse toResponse(BaseRate baseRate);
 }

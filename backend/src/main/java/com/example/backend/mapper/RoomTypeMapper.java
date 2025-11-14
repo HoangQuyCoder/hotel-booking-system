@@ -11,6 +11,7 @@ import org.mapstruct.Mapper;
         RoomMapper.class
 })
 public interface RoomTypeMapper extends BaseMapper<RoomType, RoomTypeResponse> {
+
     RoomTypeResponse toResponse(RoomType roomType);
 }
 

@@ -13,6 +13,7 @@ import java.util.List;
         ReviewMapper.class
 })
 public interface HotelMapper extends  BaseMapper<Hotel, HotelDetailResponse> {
+
     @Mapping(source = "manager", target = "manager")
     HotelDetailResponse toResponse(Hotel hotel);
 

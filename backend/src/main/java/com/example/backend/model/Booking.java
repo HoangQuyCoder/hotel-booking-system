@@ -71,7 +71,6 @@ public class Booking {
 
     // 1: N Relationship with BookingRoom
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<BookingRoom> bookingRooms = new ArrayList<>();
 
     // 1:1 Relationship with Transactions

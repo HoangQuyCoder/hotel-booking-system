@@ -6,5 +6,6 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface RoomMapper extends BaseMapper<Room, RoomResponse> {
+
     RoomResponse toResponse(Room room);
 }

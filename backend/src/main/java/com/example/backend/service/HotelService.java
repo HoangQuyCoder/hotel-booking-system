@@ -90,6 +90,7 @@ public class HotelService {
                     logger.error("[get] Hotel not found with ID: {}", id);
                     return new ResourceNotFoundException("Hotel not found");
                 });
+
         return hotelMapper.toResponse(hotel);
     }
 

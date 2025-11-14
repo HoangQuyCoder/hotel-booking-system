@@ -53,7 +53,6 @@ public class NotificationTemplate {
 
     // 1: N relationship with NotificationLog
     @OneToMany(mappedBy = "template", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<NotificationLog> logs = new ArrayList<>();
 
     @PrePersist

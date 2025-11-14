@@ -1,9 +1,11 @@
 package com.example.backend.model;
 
 import com.example.backend.common.UserStatus;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -82,7 +84,6 @@ public class User {
 
     // 1: N relationship with Hotel
     @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<Hotel> hotels;
 
     // N:1 relationship with Role
@@ -92,12 +93,10 @@ public class User {
 
     // 1: N relationship with Booking
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<Booking> bookings = new ArrayList<>();
 
     // 1: N relationship with NotificationLog
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<NotificationLog> notifications = new ArrayList<>();
 
     @PrePersist
