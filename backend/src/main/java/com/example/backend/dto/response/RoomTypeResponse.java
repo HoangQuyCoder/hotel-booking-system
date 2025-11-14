@@ -18,7 +18,7 @@ public class RoomTypeResponse {
     private LocalDateTime updatedAt;
     private Boolean isAvailable;
     private Boolean isActive;
-    private List<RoomResponse> room;
+    private List<RoomResponse> rooms;
     private List<RoomAmenityResponse> amenities;
     private List<BaseRateResponse> baseRates;
     private List<DailyOverrideResponse> dailyOverrides;

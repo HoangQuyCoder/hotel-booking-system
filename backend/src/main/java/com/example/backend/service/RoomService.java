@@ -51,15 +51,15 @@ public class RoomService {
                     return new ResourceNotFoundException("Room type not found");
                 });
 
-        try {
-            RoomStatus status = RoomStatus.valueOf(request.getStatus());
-            Room room = Room.builder()
-                    .roomNumber(request.getRoomNumber())
-                    .status(status)
-                    .roomType(roomType)
-                    .isActive(true)
-                    .build();
+        RoomStatus status = RoomStatus.valueOf(request.getStatus());
+        Room room = Room.builder()
+                .roomNumber(request.getRoomNumber())
+                .status(status)
+                .roomType(roomType)
+                .isActive(true)
+                .build();
 
+        try {
             Room saved = roomRepository.save(room);
             logger.info("Room created successfully with ID: {}", saved.getId());
             return roomMapper.toResponse(saved);

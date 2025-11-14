@@ -52,7 +52,6 @@ public class Promotion {
     private Boolean isActive = true;
 
     @OneToMany(mappedBy = "promotion")
-    @JsonIgnore
     private List<Booking> bookings = new ArrayList<>();
 
     @PrePersist

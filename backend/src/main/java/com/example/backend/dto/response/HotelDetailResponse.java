@@ -1,7 +1,5 @@
 package com.example.backend.dto.response;
 
-import com.example.backend.model.Review;
-import com.example.backend.model.RoomType;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -27,7 +25,7 @@ public class HotelDetailResponse {
     private String contactEmail;
     private String checkInTime;
     private String checkOutTime;
-    private List<RoomTypeResponse> roomType;
-    private List<ReviewResponse> review;
+    private List<RoomTypeResponse> roomTypes;
+    private List<ReviewResponse> reviews;
     private Boolean isActive;
 }

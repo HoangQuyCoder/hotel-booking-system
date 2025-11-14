@@ -1,8 +1,10 @@
 package com.example.backend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -55,22 +57,18 @@ public class RoomType {
 
     // 1: N relationship with RoomAmenity
     @OneToMany(mappedBy = "roomType", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<RoomAmenity> amenities = new ArrayList<>();
 
     // 1: N relationship with Room
     @OneToMany(mappedBy = "roomType", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<Room> rooms = new ArrayList<>();
 
     // 1: N relationship with BaseRate
     @OneToMany(mappedBy = "roomType", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<BaseRate> baseRates = new ArrayList<>();
 
     // 1: N relationship with DailyOverride
     @OneToMany(mappedBy = "roomType", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<DailyOverride> dailyOverrides = new ArrayList<>();
 
     // 1: N relationship with BookingRoom

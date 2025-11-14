@@ -12,5 +12,5 @@ public class RoomAmenityResponse {
     private String category;
     private Boolean isActive;
     private LocalDateTime createdAt;
-    private LocalDateTime updateAt;
+    private LocalDateTime updatedAt;
 }
