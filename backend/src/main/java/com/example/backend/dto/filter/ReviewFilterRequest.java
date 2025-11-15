@@ -5,19 +5,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class HotelFilterRequest extends BaseFilterRequest {
-    private String city;
+public class ReviewFilterRequest extends BaseFilterRequest{
     private String name;
-    private String address;
     private Double minRating;
     private Double maxRating;
-    private UUID managerId;
-    private String keyword;
+    private String hotelId;
+    private String userId;
 }
-

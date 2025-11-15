@@ -16,3 +16,4 @@ public class ReviewResponse {
     private LocalDateTime updatedAt;
     private Boolean isActive;
 }
+
