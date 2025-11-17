@@ -1,20 +1,18 @@
-// ...existing code...
 import type { Hotel } from "../../types";
 
 export default function Map({ hotel }: { hotel: Hotel }) {
-  // prefer coordinates if available
-  const lat = (hotel as any)?.lat;
-  const lng = (hotel as any)?.lng;
+  const lat = hotel.latitude;
+  const lng = hotel.longitude;
 
   const query =
-    lat && lng
+    lat != null && lng != null
       ? `${lat},${lng}`
       : encodeURIComponent(
           [hotel.name, hotel.address, hotel.city].filter(Boolean).join(", ")
         );
 
   const src =
-    lat && lng
+    lat != null && lng != null
       ? `https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d0!2d${lng}!3d${lat}`
       : `https://www.google.com/maps/embed/v1/place?key=YOUR_GOOGLE_MAPS_EMBED_KEY&q=${query}`;
 
@@ -34,4 +32,3 @@ export default function Map({ hotel }: { hotel: Hotel }) {
     </div>
   );
 }
-// ...existing code...

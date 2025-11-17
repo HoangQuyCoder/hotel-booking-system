@@ -7,4 +7,5 @@ export interface Room extends BaseEntity {
   roomType?: RoomType;
   roomNumber: string;
   status: RoomStatus;
+  desc: string;
 }

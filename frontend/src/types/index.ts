@@ -8,7 +8,7 @@ export * from "./dailyOverride";
 export * from "./notificationLog";
 export * from "./notificationTemplate";
 export * from "./room";
-export * from "./roomAmentity";
+export * from "./roomAmenity";
 export * from "./roomType";
 export * from "./transaction";
 export * from "./promotion";
