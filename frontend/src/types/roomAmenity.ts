@@ -6,4 +6,5 @@ export interface RoomAmenity extends BaseEntity {
   roomType?: RoomType;
   name: string;
   category: string;
+  icon?: string;
 }

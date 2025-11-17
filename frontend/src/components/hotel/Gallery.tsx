@@ -3,15 +3,15 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { Hotel } from "../../types";
 
 export default function Gallery({ hotel }: { hotel: Hotel }) {
-  const images =
-    hotel.images && hotel.images.length > 0
-      ? hotel.images
-      : [
-          "/src/assets/images/hotel-main.jpg",
-          "/src/assets/images/hotel-pool.jpg",
-          "/src/assets/images/hotel-room.jpg",
-          "/src/assets/images/hotel-restaurant.jpg",
-        ];
+const fallbackImages = [
+  "https://placehold.co/800x500?text=Hotel+Image+1",
+  "https://placehold.co/800x500?text=Hotel+Image+2",
+  "https://placehold.co/800x500?text=Hotel+Image+3",
+];
+
+const images =
+  hotel.images && hotel.images.length > 0 ? hotel.images : fallbackImages;
+
 
   const [current, setCurrent] = useState(0);
   const [lightbox, setLightbox] = useState(false);

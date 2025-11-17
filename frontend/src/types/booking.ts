@@ -20,8 +20,11 @@ export interface Booking extends BaseEntity {
 
 export interface BookingRequest {
   hotelId: string;
-  checkInDate: string;
-  checkOutDate: string;
+  roomTypeId: string;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  totalPrice: number;
 }
 
 export interface BookingResponse {

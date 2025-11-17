@@ -2,8 +2,7 @@ import api from "../services/apiClient";
 import type { BookingRequest, BookingResponse } from "../types";
 
 /**
- * 🟢 Tạo đặt phòng mới (CLIENT)
- * POST /bookings
+ * Tạo đặt phòng mới (CLIENT)
  */
 export const createBooking = async (data: BookingRequest) => {
   const response = await api.post<BookingResponse>("/bookings", data);
@@ -11,8 +10,7 @@ export const createBooking = async (data: BookingRequest) => {
 };
 
 /**
- * 🔍 Lấy chi tiết đặt phòng (CLIENT/ADMIN/STAFF)
- * GET /bookings/{id}
+ * Lấy chi tiết đặt phòng (CLIENT/ADMIN/STAFF)
  */
 export const getBookingById = async (id: string) => {
   const response = await api.get<BookingResponse>(`/bookings/${id}`);
@@ -20,8 +18,7 @@ export const getBookingById = async (id: string) => {
 };
 
 /**
- * ✏️ Cập nhật đặt phòng (CLIENT nếu PENDING, ADMIN)
- * PUT /bookings/{id}
+ * Cập nhật đặt phòng (CLIENT nếu PENDING, ADMIN)
  */
 export const updateBooking = async (
   id: string,
@@ -32,8 +29,7 @@ export const updateBooking = async (
 };
 
 /**
- * ❌ Hủy đặt phòng (CLIENT/ADMIN)
- * DELETE /bookings/{id}
+ * Hủy đặt phòng (CLIENT/ADMIN)
  */
 export const cancelBooking = async (id: string) => {
   const response = await api.delete(`/bookings/${id}`);
@@ -41,8 +37,7 @@ export const cancelBooking = async (id: string) => {
 };
 
 /**
- * 📋 Lấy danh sách đặt phòng (filter theo userId, hotelId)
- * GET /bookings?userId=...&hotelId=...
+ * Lấy danh sách đặt phòng (filter theo userId, hotelId)
  */
 export const getBookings = async (params?: {
   userId?: string;
@@ -53,8 +48,7 @@ export const getBookings = async (params?: {
 };
 
 /**
- * 🏨 Check-in đặt phòng (STAFF)
- * PUT /bookings/{id}/check-in
+ * Check-in đặt phòng (STAFF)
  */
 export const checkInBooking = async (id: string) => {
   const response = await api.put<BookingResponse>(`/bookings/${id}/check-in`);
@@ -62,8 +56,7 @@ export const checkInBooking = async (id: string) => {
 };
 
 /**
- * 🏁 Check-out đặt phòng (STAFF)
- * PUT /bookings/{id}/check-out
+ * Check-out đặt phòng (STAFF)
  */
 export const checkOutBooking = async (id: string) => {
   const response = await api.put<BookingResponse>(`/bookings/${id}/check-out`);
