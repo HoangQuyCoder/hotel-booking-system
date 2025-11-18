@@ -14,6 +14,7 @@ const ForgotPassword = lazy(() => import("./pages/ForgotPassword.tsx"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword.tsx"));
 const Home = lazy(() => import("./pages/Home.tsx"));
 const HotelDetail = lazy(() => import("./pages/HotelDetail.tsx"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 function App() {
   const { setLoading } = useLoadingStore();
@@ -44,6 +45,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/hotels/:id" element={<HotelDetail />} />
+           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
 
