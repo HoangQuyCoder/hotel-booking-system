@@ -4,7 +4,9 @@ import com.example.backend.dto.filter.BaseFilterRequest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PagingUtils {
 
     public static Pageable toPageable(BaseFilterRequest filter) {

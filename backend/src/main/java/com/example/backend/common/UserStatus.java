@@ -1,5 +1,10 @@
 package com.example.backend.common;
 
 public enum UserStatus {
-    ACTIVE, INACTIVE, BANNED
+    ACTIVE,
+    INACTIVE,
+    LOCKED_TEMP,
+    LOCKED_PERMANENT,
+    PENDING,
+    BANNED
 }

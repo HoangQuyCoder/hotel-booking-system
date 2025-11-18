@@ -66,7 +66,7 @@ public class TransactionService {
                     return new ResourceNotFoundException("Booking not found");
                 });
 
-        if (isClient && !booking.getUser().getUsername().equals(auth.getName())) {
+        if (isClient && !booking.getUser().getEmail().equals(auth.getName())) {
             logger.error("Client {} cannot create transaction for booking ID: {}", auth.getName(), request.getBookingId());
             throw new SecurityException("Unauthorized to create transaction for this booking");
         }
@@ -128,7 +128,7 @@ public class TransactionService {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_STAFF")) &&
-                !transaction.getBooking().getUser().getUsername().equals(auth.getName())) {
+                !transaction.getBooking().getUser().getEmail().equals(auth.getName())) {
             logger.error("Unauthorized access to transaction ID: {} by user: {}", id, auth.getName());
             throw new SecurityException("Unauthorized access to transaction");
         }

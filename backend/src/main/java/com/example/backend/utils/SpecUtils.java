@@ -4,11 +4,13 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 
+@Component
 public class SpecUtils {
 
     public static <T> Specification<T> empty() {

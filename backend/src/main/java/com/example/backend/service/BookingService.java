@@ -58,7 +58,7 @@ public class BookingService {
         }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByUsernameOrEmail(auth.getName())
+        User user = userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> {
                     logger.error("User not found with email: {}", auth.getName());
                     return new ResourceNotFoundException("User not found");
@@ -258,7 +258,7 @@ public class BookingService {
 
         // If you are a normal user, only see your booking
         if (!isAdminOrStaff) {
-            User user = userRepository.findByUsernameOrEmail(auth.getName())
+            User user = userRepository.findByEmail(auth.getName())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             filterRequest.setUserId(user.getId());
         }

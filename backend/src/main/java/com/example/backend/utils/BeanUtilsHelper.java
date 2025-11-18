@@ -1,10 +1,13 @@
 package com.example.backend.utils;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Component;
+
 import java.beans.PropertyDescriptor;
 import java.util.HashSet;
 import java.util.Set;
 
+@Component
 public class BeanUtilsHelper {
 
     /**

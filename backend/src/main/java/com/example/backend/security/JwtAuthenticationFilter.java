@@ -5,9 +5,9 @@ import com.example.backend.service.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
-import io.micrometer.common.lang.NonNullApi;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -20,8 +20,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
 
-@NonNullApi
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -38,18 +39,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        String token = null;
-        String username = null;
 
         logger.debug("Processing request for URI: {}", request.getRequestURI());
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
+        // --- Get token from cookie ---
+        Cookie[] cookies = request.getCookies();
+        String token = null;
+        if (cookies != null) {
+            Optional<Cookie> jwtCookie = Arrays.stream(cookies)
+                    .filter(c -> c.getName().equals("token"))
+                    .findFirst();
+            if (jwtCookie.isPresent()) {
+                token = jwtCookie.get().getValue();
+            }
+        }
 
+        if (token != null) {
+            String email;
             try {
-                username = jwtService.extractUsername(token);
-                logger.debug("Extracted username from token: {}", username);
+                email = jwtService.extractEmail(token);
+                logger.debug("Extracted email from token: {}", email);
             } catch (ExpiredJwtException e) {
                 logger.warn("Token expired: {}", e.getMessage());
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token has expired");
@@ -59,19 +68,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
                 return;
             }
-        }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            String role = jwtService.extractRole(token);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            // --- Set Spring Security Context ---
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                if (jwtService.isTokenValid(token, userDetails.getUsername())) {
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
 
-            if (jwtService.isTokenValid(token, userDetails.getUsername())) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    logger.debug("Set authentication for user: {}", email);
+                }
             }
-            logger.debug("Set authentication for user: {} with role: {}", username, role);
         }
 
         filterChain.doFilter(request, response);
@@ -80,8 +89,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        boolean bypass = path.startsWith("/api/v1/auth");
-
+        boolean bypass = path.startsWith("/auth");
         if (bypass) {
             logger.debug("Bypassing JWT filter for URI: {}", path);
         }
