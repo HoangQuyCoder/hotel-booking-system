@@ -50,7 +50,7 @@ public class NotificationLogService {
                 });
 
         if (auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN")) &&
-                !log.getUser().getUsername().equals(auth.getName())) {
+                !log.getUser().getEmail().equals(auth.getName())) {
             throw new SecurityException("Unauthorized access to log");
         }
 
@@ -62,7 +62,7 @@ public class NotificationLogService {
         boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
         if (!isAdmin && userId != null) {
-            User currentUser = userRepository.findByUsernameOrEmail(auth.getName())
+            User currentUser = userRepository.findByEmail(auth.getName())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             if (!currentUser.getId().equals(userId)) {
                 throw new SecurityException("Cannot view other user's logs");

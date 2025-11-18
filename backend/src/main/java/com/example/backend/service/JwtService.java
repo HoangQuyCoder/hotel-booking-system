@@ -44,10 +44,6 @@ public class JwtService {
                 .getBody();
     }
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
-
     public String extractEmail(String token) {
         return extractClaim(token, claims -> claims.get("email", String.class));
     }
@@ -56,8 +52,8 @@ public class JwtService {
         return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
-    public boolean isTokenValid(String token, String username) {
-        return username.equals(extractUsername(token)) && isTokenExpired(token);
+    public boolean isTokenValid(String token, String email) {
+        return email.equals(extractEmail(token)) && isTokenExpired(token);
     }
 
     public boolean isResetTokenValid(String token) {
@@ -70,11 +66,10 @@ public class JwtService {
         return expiration == null || !expiration.before(new Date());
     }
 
-    public String generateToken(String username, String email, String role) {
+    public String generateToken(String email, String role) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("email", email);
         claims.put("role", role);
-        return buildToken(claims, username, jwtExpiration);
+        return buildToken(claims, email, jwtExpiration);
     }
 
     public String generateResetPasswordToken(String email) {

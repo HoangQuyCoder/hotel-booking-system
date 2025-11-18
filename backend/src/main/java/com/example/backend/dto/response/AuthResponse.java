@@ -1,9 +1,11 @@
 package com.example.backend.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-public class LoginResponse {
+@AllArgsConstructor
+public class AuthResponse {
     private String token; // JWT token
     private UserResponse user;
 }

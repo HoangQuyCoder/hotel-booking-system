@@ -62,7 +62,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auths/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/users").hasAnyRole("ADMIN", "CLIENT", "STAFF")
                         .requestMatchers(HttpMethod.GET, "/api/v1/hotels/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/room-types/**").permitAll()

@@ -1,8 +1,6 @@
 package com.example.backend.security;
 
-import com.example.backend.common.RoleName;
 import com.example.backend.model.User;
-import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,21 +9,21 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString
-public class CustomUserDetails implements UserDetails {
-
-    private UUID id;
-    private String username;
-    private String email;
-    private String password;
-    private RoleName role;
+public record CustomUserDetails(User user) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().getRoleName()));
+    }
+
+    @Override
+    public String getPassword() {
+        return user.getPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return user.getEmail();
     }
 
     @Override
@@ -35,7 +33,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !user.isLocked();
     }
 
     @Override
@@ -45,16 +43,10 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return user.isEnabled();
     }
 
-    public static CustomUserDetails fromUser(User user) {
-        return new CustomUserDetails(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getPasswordHash(),
-                user.getRole().getRoleName()
-        );
+    public UUID getId() {
+        return user.getId();
     }
 }

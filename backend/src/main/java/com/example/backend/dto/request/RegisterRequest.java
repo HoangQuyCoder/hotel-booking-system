@@ -8,11 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class UserRequest {
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
-    private String username;
-
+public class RegisterRequest {
     @NotBlank(message = "Email is required")
     @Email(message = "Email must be valid")
     private String email;
@@ -27,11 +23,8 @@ public class UserRequest {
     @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
     private String lastName;
 
-    @Size(min = 10, max = 20, message = "Phone number must be between 10 and 20 characters")
     private String phoneNumber;
-
     private String address;
-
     private String preferredLanguage;
 
     @NotNull(message = "Role name is required for admin creation")

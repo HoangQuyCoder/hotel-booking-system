@@ -24,14 +24,11 @@ public class User {
     @Column(name = "user_id")
     private UUID id;
 
-    @Column(name = "username", unique = true, nullable = false, length = 50)
-    private String username;
-
     @Column(name = "email", unique = true, nullable = false, length = 100)
     private String email;
 
     @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
+    private String password;
 
     @Column(name = "first_name", length = 50)
     private String firstName;
@@ -42,22 +39,6 @@ public class User {
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 50)
-    private UserStatus status;
-
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @Column(name = "last_login_at")
-    private LocalDateTime lastLoginAt;
-
     @Column(name = "address")
     private String address;
 
@@ -67,11 +48,19 @@ public class User {
     @Column(name = "preferred_language", length = 10)
     private String preferredLanguage;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    @Builder.Default
+    private UserStatus status = UserStatus.PENDING;
+
     @Column(name = "failed_login_attempts")
     private Integer failedLoginAttempts = 0;
 
     @Column(name = "locked_until")
     private LocalDateTime lockedUntil;
+
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
 
     @Column(name = "reset_password_token")
     private String resetPasswordToken;
@@ -81,6 +70,16 @@ public class User {
 
     @Column(name = "reset_token_used", nullable = false)
     private Boolean resetTokenUsed = false;
+
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
 
     // 1: N relationship with Hotel
     @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -108,5 +107,25 @@ public class User {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isEnabled() {
+        if (status == UserStatus.LOCKED_TEMP && lockedUntil != null) {
+            if (LocalDateTime.now().isAfter(lockedUntil)) {
+                // Lock expired → auto unlock
+                this.status = UserStatus.ACTIVE;
+                this.lockedUntil = null;
+                this.failedLoginAttempts = 0;
+                return true;
+            }
+            return false;
+        }
+        return status == UserStatus.ACTIVE || status == UserStatus.PENDING;
+    }
+
+    public boolean isLocked() {
+        return status == UserStatus.LOCKED_TEMP
+                || status == UserStatus.LOCKED_PERMANENT
+                || status == UserStatus.BANNED;
     }
 }

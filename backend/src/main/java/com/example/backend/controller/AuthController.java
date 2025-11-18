@@ -1,13 +1,15 @@
 package com.example.backend.controller;
 
 import com.example.backend.dto.request.*;
-import com.example.backend.dto.response.LoginResponse;
+import com.example.backend.dto.response.AuthResponse;
 import com.example.backend.dto.response.PasswordResetResponse;
 import com.example.backend.dto.response.UserResponse;
-import com.example.backend.service.UserService;
+import com.example.backend.service.AuthService;
+import com.example.backend.service.JwtService;
+import com.example.backend.utils.JwtCookieUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,33 +18,59 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/auths")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    private final UserService userService;
+    private final AuthService authService;
+    private final JwtService jwtService;
+    private final JwtCookieUtil jwtCookieUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRequest request) {
-        return new ResponseEntity<>(userService.registerUser(request), HttpStatus.CREATED);
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request,
+                                      HttpServletResponse response) {
+
+        UserResponse newUser = authService.register(request);
+
+        // Registered → auto login
+        String token = jwtService.generateToken(
+                newUser.getEmail(),
+                newUser.getRoleName().name()
+        );
+
+        jwtCookieUtil.addJwtCookie(response, token);
+
+        return ResponseEntity.ok(newUser);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(userService.loginUser(request));
+    public ResponseEntity<?> login(@RequestBody LoginRequest request,
+                                   HttpServletResponse response) {
+
+        AuthResponse res = authService.login(request);
+
+        jwtCookieUtil.addJwtCookie(response, res.getToken());
+
+        return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        jwtCookieUtil.clearJwtCookie(response);
+        return ResponseEntity.ok("Logged out");
     }
 
     @PostMapping("/forgot-password")
     public ResponseEntity<PasswordResetResponse> requestPasswordReset(@Valid @RequestBody PasswordResetRequest request) {
-        return ResponseEntity.ok(userService.requestPasswordReset(request));
+        return ResponseEntity.ok(authService.requestPasswordReset(request));
     }
 
     @PostMapping("/validate-reset-token")
     public ResponseEntity<PasswordResetResponse> validateResetToken(@Valid @RequestBody ValidateResetTokenRequest request) {
-        return ResponseEntity.ok(userService.validateResetToken(request));
+        return ResponseEntity.ok(authService.validateResetToken(request));
     }
 
     @PostMapping("/reset-password")
     public ResponseEntity<PasswordResetResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
-        return ResponseEntity.ok(userService.resetPassword(request));
+        return ResponseEntity.ok(authService.resetPassword(request));
     }
 }
