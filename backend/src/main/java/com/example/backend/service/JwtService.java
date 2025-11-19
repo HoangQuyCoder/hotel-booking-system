@@ -1,7 +1,6 @@
 package com.example.backend.service;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -27,13 +26,21 @@ public class JwtService {
         return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        try {
-            final Claims claims = extractAllClaims(token);
-            return claimsResolver.apply(claims);
-        } catch (JwtException | IllegalArgumentException e) {
-            return null;
-        }
+    // ------------------------------
+    // Extract basic claims
+    // ------------------------------
+
+    public String extractEmail(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    public <T> T extractClaim(String token, Function<Claims, T> resolver) {
+        final Claims claims = extractAllClaims(token);
+        return resolver.apply(claims);
     }
 
     private Claims extractAllClaims(String token) {
@@ -44,16 +51,17 @@ public class JwtService {
                 .getBody();
     }
 
-    public String extractEmail(String token) {
-        return extractClaim(token, claims -> claims.get("email", String.class));
-    }
+    // ------------------------------
+    // VALIDATION
+    // ------------------------------
 
-    public String extractRole(String token) {
-        return extractClaim(token, claims -> claims.get("role", String.class));
+    private boolean isTokenExpired(String token) {
+        Date expiration = extractClaim(token, Claims::getExpiration);
+        return expiration.before(new Date());
     }
 
     public boolean isTokenValid(String token, String email) {
-        return email.equals(extractEmail(token)) && isTokenExpired(token);
+        return email.equals(extractEmail(token)) && !isTokenExpired(token);
     }
 
     public boolean isResetTokenValid(String token) {
@@ -61,14 +69,14 @@ public class JwtService {
         return !"reset_password".equals(type) || !isTokenExpired(token);
     }
 
-    private boolean isTokenExpired(String token) {
-        Date expiration = extractClaim(token, Claims::getExpiration);
-        return expiration == null || !expiration.before(new Date());
-    }
+    // ------------------------------
+    // GENERATION
+    // ------------------------------
 
     public String generateToken(String email, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
+
         return buildToken(claims, email, jwtExpiration);
     }
 
@@ -77,13 +85,14 @@ public class JwtService {
         return buildToken(claims, email, 15 * 60 * 1000L); // 15 minutes
     }
 
-    private String buildToken(Map<String, Object> extraClaims, String subject, long expiration) {
+    private String buildToken(Map<String, Object> claims, String subject, long expiration) {
         return Jwts.builder()
-                .setClaims(extraClaims)
-                .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setClaims(claims)
+                .setSubject(subject)   // email
+                .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 }
+

@@ -1,73 +1,70 @@
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { Link } from "react-router-dom";
 
-interface LoginForm {
-  email: string;
-  password: string;
-}
-
-const schema = yup
-  .object({
-    email: yup.string().email("Email không hợp lệ").required("Bắt buộc"),
-    password: yup
-      .string()
-      .min(6, "Mật khẩu ít nhất 6 ký tự")
-      .required("Bắt buộc"),
-  })
-  .required();
-
-const Login: React.FC = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginForm>({ resolver: yupResolver(schema) });
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
   const { login } = useAuth();
 
-  const onSubmit = (data: LoginForm) => login(data);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setError("");
+
+    try {
+      login({ email, password });
+
+      navigate("/");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Login failed";
+      setError(errorMessage);
+    }
+  };
 
   return (
-    <div className="container my-5">
-      <div className="card mx-auto" style={{ maxWidth: "400px" }}>
-        <div className="card-body">
-          <h3 className="card-title text-center">Đăng nhập</h3>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="mb-3">
-              <label className="form-label">Email/Username</label>
-              <input
-                type="text"
-                className="form-control"
-                {...register("email")}
-              />
-              {errors.email && (
-                <p className="text-danger">{errors.email.message}</p>
-              )}
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Mật khẩu</label>
-              <input
-                type="password"
-                className="form-control"
-                {...register("password")}
-              />
-              {errors.password && (
-                <p className="text-danger">{errors.password.message}</p>
-              )}
-            </div>
-            <button type="submit" className="btn btn-primary w-100">
-              Đăng nhập
-            </button>
-          </form>
-          <p className="text-center mt-3">
-            <Link to="/forgot-password">Quên mật khẩu?</Link>
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#1e1f2f] to-[#12131f] flex items-center justify-center">
+      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <h2 className="text-3xl font-bold text-center mb-8">Sign In</h2>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-4 py-3 bg-[#f8f9ff] text-gray-900 border rounded-lg
+             focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+         className="w-full px-4 py-3 bg-[#f8f9ff] text-gray-900 border rounded-lg
+             focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            required
+          />
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          <button
+            type="submit"
+            className="w-full bg-cyan-600 text-white py-3 rounded-lg font-semibold hover:bg-cyan-700 transition"
+          >
+            Sign In
+          </button>
+        </form>
+        <p className="text-center mt-6 text-sm text-gray-600">
+          Don't have an account?{" "}
+          <a
+            href="/register"
+            className="text-cyan-600 font-medium hover:underline"
+          >
+            Sign Up
+          </a>
+        </p>
       </div>
     </div>
   );
-};
-
-export default Login;
+}

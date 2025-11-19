@@ -13,3 +13,5 @@ export * from "./roomType";
 export * from "./transaction";
 export * from "./promotion";
 export * from "./role";
+export * from "./api";
+export * from "./auth";

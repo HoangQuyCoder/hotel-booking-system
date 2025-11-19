@@ -2,7 +2,6 @@ package com.example.backend.service;
 
 import com.example.backend.common.UserStatus;
 import com.example.backend.dto.request.*;
-import com.example.backend.dto.response.AuthResponse;
 import com.example.backend.dto.response.PasswordResetResponse;
 import com.example.backend.dto.response.UserResponse;
 import com.example.backend.exception.ResourceNotFoundException;
@@ -14,6 +13,7 @@ import com.example.backend.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -32,10 +32,11 @@ public class AuthService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final NotificationService notificationService;
+    private final EmailVerificationService emailVerificationService;
     private final UserMapper userMapper;
 
     @Transactional
-    public AuthResponse login(LoginRequest request) {
+    public UserResponse login(LoginRequest request) {
         logger.info("User attempting login: {}", request.getEmail());
 
         User user = userRepository.findByEmail(request.getEmail())
@@ -65,19 +66,15 @@ public class AuthService {
         user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
 
-        String token = jwtService.generateToken(
-                user.getEmail(),
-                user.getRole().getRoleName().name()
-        );
-
         logger.info("User logged in successfully: {}", user.getEmail());
 
-        return new AuthResponse(token, userMapper.toResponse(user));
+        return userMapper.toResponse(user);
     }
 
     @Transactional
-    public UserResponse register(RegisterRequest request) {
+    public UserResponse register(RegisterRequest request) throws BadRequestException {
         logger.info("Attempting to register new user: {}", request.getEmail());
+        emailVerificationService.validateEmailVerified(request.getEmail());
 
         if (userRepository.existsByEmail(request.getEmail())) {
             logger.warn("Username already exists: {}", request.getEmail());

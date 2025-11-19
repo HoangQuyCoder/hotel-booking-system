@@ -4,21 +4,14 @@ import { extractApiErrorMessage } from "./apiError";
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Interceptor: automatically add token to header
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
 
-// Interceptor: global error handling
+// Global error handler
 apiClient.interceptors.response.use(
   (res) => res,
   (error: AxiosError & { config?: { silent?: boolean } }) => {
