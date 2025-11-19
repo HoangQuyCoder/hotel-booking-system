@@ -2,9 +2,9 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.filter.UserFilterRequest;
 import com.example.backend.dto.request.UserUpdateRequest;
+import com.example.backend.dto.response.ApiResponse;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.dto.response.UserResponse;
-import com.example.backend.model.User;
 import com.example.backend.security.CustomUserDetails;
 import com.example.backend.service.UserService;
 import jakarta.validation.Valid;
@@ -25,30 +25,52 @@ public class UserController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('CLIENT') and #id == authentication.principal.id or hasRole('ADMIN')")
-    public ResponseEntity<UserResponse> getUser(@PathVariable UUID id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    public ResponseEntity<ApiResponse<UserResponse>> getUser(@PathVariable UUID id) {
+        UserResponse user = userService.getUserById(id);
+        return ResponseEntity.ok(
+                ApiResponse.success("Get user information successfully", user)
+        );
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(userService.getUserById(userDetails.getId()));
+    public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        UserResponse user = userService.getUserById(userDetails.getId());
+        return ResponseEntity.ok(
+                ApiResponse.success("Get personal information successfully", user)
+        );
     }
 
     @GetMapping
-    public ResponseEntity<PagedResponse<UserResponse>> getAllUsers(UserFilterRequest filterRequest) {
-        return ResponseEntity.ok(userService.getAllUsers(filterRequest));
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> getAllUsers(
+            UserFilterRequest filterRequest) {
+
+        PagedResponse<UserResponse> paged = userService.getAllUsers(filterRequest);
+        return ResponseEntity.ok(
+                ApiResponse.success("Get list of users successfully", paged)
+        );
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('CLIENT') and #id == authentication.principal.id or hasRole('ADMIN')")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable UUID id, @Valid @RequestBody UserUpdateRequest request) {
-        return ResponseEntity.ok(userService.updateUser(id, request));
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(
+            @PathVariable UUID id,
+            @Valid @RequestBody UserUpdateRequest request) {
+
+        UserResponse updated = userService.updateUser(id, request);
+        return ResponseEntity.ok(
+                ApiResponse.success("Information updated successfully", updated)
+        );
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(
+                ApiResponse.ok("User deleted successfully")
+        );
     }
 }

@@ -21,7 +21,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Optional;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -30,6 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
+
+    private static final String COOKIE_NAME = "token";
 
     public JwtAuthenticationFilter(JwtService jwtService, CustomUserDetailsService userDetailsService) {
         this.jwtService = jwtService;
@@ -42,57 +43,67 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         logger.debug("Processing request for URI: {}", request.getRequestURI());
 
-        // --- Get token from cookie ---
-        Cookie[] cookies = request.getCookies();
-        String token = null;
-        if (cookies != null) {
-            Optional<Cookie> jwtCookie = Arrays.stream(cookies)
-                    .filter(c -> c.getName().equals("token"))
-                    .findFirst();
-            if (jwtCookie.isPresent()) {
-                token = jwtCookie.get().getValue();
-            }
-        }
+        String token = extractJwtFromCookie(request);
 
         if (token != null) {
-            String email;
             try {
-                email = jwtService.extractEmail(token);
+                String email = jwtService.extractEmail(token);
                 logger.debug("Extracted email from token: {}", email);
+
+                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
+                    if (jwtService.isTokenValid(token, email)) {
+                        UsernamePasswordAuthenticationToken authToken =
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails, null, userDetails.getAuthorities());
+
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                        logger.debug("Successfully authenticated user: {}", email);
+                    }
+                }
             } catch (ExpiredJwtException e) {
-                logger.warn("Token expired: {}", e.getMessage());
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token has expired");
+                logger.warn("Expired token: {}", e.getMessage());
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token expired");
                 return;
             } catch (MalformedJwtException | SignatureException e) {
                 logger.warn("Invalid token: {}", e.getMessage());
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
                 return;
             }
-
-            // --- Set Spring Security Context ---
-            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                if (jwtService.isTokenValid(token, userDetails.getUsername())) {
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-
-                    logger.debug("Set authentication for user: {}", email);
-                }
-            }
         }
 
         filterChain.doFilter(request, response);
     }
 
+    private String extractJwtFromCookie(HttpServletRequest request) {
+        if (request.getCookies() == null) return null;
+
+        return Arrays.stream(request.getCookies())
+                .filter(c -> COOKIE_NAME.equals(c.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        boolean bypass = path.startsWith("/auth");
-        if (bypass) {
+        String method = request.getMethod();
+
+        // PUBLIC ENDPOINTS
+        boolean isPublic =
+                path.startsWith("/api/v1/auth") ||
+                        (method.equals("GET") && path.startsWith("/api/v1/hotels")) ||
+                        (method.equals("GET") && path.startsWith("/api/v1/rooms")) ||
+                        (method.equals("GET") && path.startsWith("/api/v1/reviews"));
+
+        if (isPublic) {
             logger.debug("Bypassing JWT filter for URI: {}", path);
         }
-        return bypass;
+
+        return isPublic;
     }
 }

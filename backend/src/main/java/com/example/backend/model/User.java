@@ -71,7 +71,6 @@ public class User {
     @Column(name = "reset_token_used", nullable = false)
     private Boolean resetTokenUsed = false;
 
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
