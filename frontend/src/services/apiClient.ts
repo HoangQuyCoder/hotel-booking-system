@@ -1,6 +1,7 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, type AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import { extractApiErrorMessage } from "./apiError";
+import type { CustomAxiosRequestConfig } from "../types";
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -10,14 +11,26 @@ const apiClient = axios.create({
   },
 });
 
-
-// Global error handler
+// Global response interceptor
 apiClient.interceptors.response.use(
-  (res) => res,
-  (error: AxiosError & { config?: { silent?: boolean } }) => {
-    if (!error.config?.silent) {
+  (response: AxiosResponse) => {
+    const config = response.config as CustomAxiosRequestConfig;
+
+    if (config.showSuccess) {
+      const message =
+        response.data?.message ?? "Operation successful!";
+      toast.success(message);
+    }
+
+    return response;
+  },
+  (error: AxiosError & { config?: CustomAxiosRequestConfig }) => {
+    const config = error.config as CustomAxiosRequestConfig;
+
+    if (!config?.silent) {
       toast.error(extractApiErrorMessage(error));
     }
+
     return Promise.reject(error);
   }
 );
