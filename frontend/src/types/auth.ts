@@ -3,10 +3,9 @@ import type { UserResponse } from "./user";
 
 export interface AuthContextType {
   user: UserResponse | null;
-  loading: boolean;
-  login: (data: LoginRequest) => Promise<void>;
-  register: (data: RegisterRequest) => Promise<void>;
-  logout: () => Promise<void>;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  logout: () => void;
 }
 
 export interface LoginRequest {

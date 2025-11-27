@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+
 import { LogIn, LogOut, Menu, X, User } from "lucide-react";
 
 export default function Navbar() {
@@ -9,16 +10,15 @@ export default function Navbar() {
   const [accountOpen, setAccountOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  // Support random scroll to change background color
+  // Scroll effect: change navbar background
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) setScrolled(true);
-      else setScrolled(false);
-    };
-
+    const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Close mobile menu on navigation
+  const handleLinkClick = () => setMenuOpen(false);
 
   return (
     <nav
@@ -39,10 +39,11 @@ export default function Navbar() {
           ACENDA
         </Link>
 
-        {/* Menu desktop */}
+        {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-8 font-medium">
           <Link
             to="/"
+            onClick={handleLinkClick}
             className={`transition no-underline hover:text-cyan-400 ${
               scrolled ? "text-gray-200" : "text-white"
             }`}
@@ -51,6 +52,7 @@ export default function Navbar() {
           </Link>
           <Link
             to="/destinations"
+            onClick={handleLinkClick}
             className={`transition no-underline hover:text-cyan-400 ${
               scrolled ? "text-gray-200" : "text-white"
             }`}
@@ -59,6 +61,7 @@ export default function Navbar() {
           </Link>
           <Link
             to="/news"
+            onClick={handleLinkClick}
             className={`transition no-underline hover:text-cyan-400 ${
               scrolled ? "text-gray-200" : "text-white"
             }`}
@@ -67,6 +70,7 @@ export default function Navbar() {
           </Link>
           <Link
             to="/contact"
+            onClick={handleLinkClick}
             className={`transition no-underline hover:text-cyan-400 ${
               scrolled ? "text-gray-200" : "text-white"
             }`}
@@ -75,7 +79,7 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Auth desktop */}
+        {/* Auth Desktop */}
         <div
           className={`hidden md:flex items-center gap-4 text-sm font-medium relative ${
             scrolled ? "text-gray-200" : "text-white"
@@ -96,12 +100,14 @@ export default function Navbar() {
                 <div className="absolute right-0 mt-2 w-40 bg-white text-gray-800 rounded-lg shadow-lg">
                   <Link
                     to="/profile"
+                    onClick={handleLinkClick}
                     className="block px-4 py-2 hover:bg-gray-100 no-underline"
                   >
                     Profile
                   </Link>
                   <Link
                     to="/bookings"
+                    onClick={handleLinkClick}
                     className="block px-4 py-2 hover:bg-gray-100 no-underline"
                   >
                     Booking
@@ -109,7 +115,7 @@ export default function Navbar() {
                   <hr />
                   <button
                     onClick={logout}
-                    className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 no-underline"
+                    className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
                   >
                     <LogOut size={16} className="inline mr-2" />
                     Sign out
@@ -123,20 +129,17 @@ export default function Navbar() {
                 to="/login"
                 className={`px-3 py-2 border rounded-full transition no-underline ${
                   scrolled
-                    ? "border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-gray-900 no-underline"
+                    ? "border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-gray-900"
                     : "border-white text-white hover:bg-cyan-400"
                 }`}
               >
                 <LogIn size={16} className="inline mr-2" />
                 Login
               </Link>
+
               <Link
                 to="/register"
-                className={`px-4 py-2 rounded-full transition no-underline ${
-                  scrolled
-                    ? "bg-cyan-500 hover:bg-cyan-400 text-white"
-                    : "bg-cyan-500 hover:bg-cyan-400 text-white"
-                }`}
+                className="px-4 py-2 rounded-full bg-cyan-500 hover:bg-cyan-400 text-white no-underline"
               >
                 Register
               </Link>
@@ -144,7 +147,7 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile toggle */}
+        {/* Mobile Toggle */}
         <button
           className={`md:hidden transition ${
             scrolled ? "text-cyan-400" : "text-white"
@@ -155,34 +158,34 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile dropdown */}
+      {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden mt-4 bg-gray-900/90 backdrop-blur-md rounded-lg p-4 text-white text-sm space-y-3">
           <Link
             to="/"
-            className="block hover:text-cyan-400 transition no-underline"
-            onClick={() => setMenuOpen(false)}
+            onClick={handleLinkClick}
+            className="block hover:text-cyan-400 no-underline"
           >
             Home
           </Link>
           <Link
             to="/destinations"
-            className="block hover:text-cyan-400 transition no-underline"
-            onClick={() => setMenuOpen(false)}
+            onClick={handleLinkClick}
+            className="block hover:text-cyan-400 no-underline"
           >
             Destinations
           </Link>
           <Link
             to="/news"
-            className="block hover:text-cyan-400 transition no-underline"
-            onClick={() => setMenuOpen(false)}
+            onClick={handleLinkClick}
+            className="block hover:text-cyan-400 no-underline"
           >
             News
           </Link>
           <Link
             to="/contact"
-            className="block hover:text-cyan-400 transition no-underline"
-            onClick={() => setMenuOpen(false)}
+            onClick={handleLinkClick}
+            className="block hover:text-cyan-400 no-underline"
           >
             Contact
           </Link>
@@ -193,23 +196,20 @@ export default function Navbar() {
             <>
               <Link
                 to="/profile"
-                className="block hover:text-cyan-400 transition no-underline"
-                onClick={() => setMenuOpen(false)}
+                onClick={handleLinkClick}
+                className="block hover:text-cyan-400 no-underline"
               >
                 Profile
               </Link>
               <Link
                 to="/bookings"
-                className="block hover:text-cyan-400 transition no-underline"
-                onClick={() => setMenuOpen(false)}
+                onClick={handleLinkClick}
+                className="block hover:text-cyan-400 no-underline"
               >
                 Booking
               </Link>
               <button
-                onClick={() => {
-                  logout();
-                  setMenuOpen(false);
-                }}
+                onClick={logout}
                 className="block w-full text-left text-red-400 hover:text-red-300 transition no-underline"
               >
                 <LogOut size={16} className="inline mr-2" />
@@ -220,16 +220,16 @@ export default function Navbar() {
             <>
               <Link
                 to="/login"
+                onClick={handleLinkClick}
                 className="block px-4 py-2 border border-white rounded-full text-center hover:bg-white hover:text-gray-900 transition no-underline"
-                onClick={() => setMenuOpen(false)}
               >
                 <LogIn size={16} className="inline mr-2" />
                 Login
               </Link>
               <Link
                 to="/register"
+                onClick={handleLinkClick}
                 className="block px-4 py-2 bg-cyan-500 rounded-full text-center hover:bg-cyan-400 transition no-underline"
-                onClick={() => setMenuOpen(false)}
               >
                 Register
               </Link>

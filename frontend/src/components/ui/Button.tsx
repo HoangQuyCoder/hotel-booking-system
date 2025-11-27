@@ -11,40 +11,54 @@ interface BaseButtonProps {
   block?: boolean;
   className?: string;
   disabled?: boolean;
+  children: React.ReactNode;
 }
 
-// Button HTML
-type ButtonAsButton = BaseButtonProps &
-  React.ButtonHTMLAttributes<HTMLButtonElement> & { as?: "button" };
+// Button normal
+type ButtonAsButtonProps = BaseButtonProps &
+  Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "disabled"> & {
+    to?: never; 
+  };
 
-// Button as Link
-type ButtonAsLink = BaseButtonProps & LinkProps & { as: typeof Link };
+// Button is Link (react-router)
+type ButtonAsLinkProps = BaseButtonProps &
+  LinkProps & {
+    disabled?: boolean;
+  };
 
-type ButtonProps = ButtonAsButton | ButtonAsLink;
+type ButtonProps = ButtonAsButtonProps | ButtonAsLinkProps;
 
-export const Button: React.FC<ButtonProps> = ({
-  children,
-  variant = "primary",
-  size = "md",
-  loading = false,
-  leftIcon,
-  rightIcon,
-  block = false,
-  className = "",
-  as,
-  disabled = false,
-  ...props
-}) => {
+export const Button = React.forwardRef<
+  HTMLButtonElement | HTMLAnchorElement,
+  ButtonProps
+>((props, ref) => {
+  const {
+    children,
+    variant = "primary",
+    size = "md",
+    loading = false,
+    leftIcon,
+    rightIcon,
+    block = false,
+    className = "",
+    disabled = false,
+    ...rest
+  } = props;
+
+  const isLink = "to" in props && props.to !== undefined;
+
   const base =
-    "inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed";
 
   const variants = {
-    primary: "bg-cyan-600 hover:bg-cyan-700 text-white focus:ring-cyan-500",
-    secondary: "bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500",
+    primary:
+      "bg-cyan-600 hover:bg-cyan-700 text-white focus-visible:ring-cyan-500",
+    secondary:
+      "bg-gray-600 hover:bg-gray-700 text-white focus-visible:ring-gray-500",
     outline:
-      "border border-cyan-600 text-cyan-600 hover:bg-cyan-50 focus:ring-cyan-500",
-    ghost: "text-gray-600 hover:bg-gray-100 focus:ring-gray-300",
-    danger: "bg-red-600 hover:bg-red-700 text-white focus:ring-red-500",
+      "border border-cyan-600 text-cyan-600 hover:bg-cyan-50 focus-visible:ring-cyan-500",
+    ghost: "text-gray-600 hover:bg-gray-100 focus-visible:ring-gray-300",
+    danger: "bg-red-600 hover:bg-red-700 text-white focus-visible:ring-red-500",
   };
 
   const sizes = {
@@ -54,14 +68,19 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const width = block ? "w-full" : "";
-  const allClasses = `${base} ${variants[variant]} ${sizes[size]} ${width} ${className}`;
+  const allClasses =
+    `${base} ${variants[variant]} ${sizes[size]} ${width} ${className}`.trim();
+
+  const isDisabled = disabled || loading;
 
   const content = (
     <>
       {loading ? (
         <Spinner
           size="sm"
-          color={variant === "outline" ? "primary" : "white"}
+          color={
+            variant === "outline" || variant === "ghost" ? "primary" : "white"
+          }
         />
       ) : (
         <>
@@ -73,19 +92,31 @@ export const Button: React.FC<ButtonProps> = ({
     </>
   );
 
-  if (as === Link) {
-    const { to, ...restProps } = props as LinkProps;
+  // Link (have prop to)
+  if (isLink) {
+    const { to, replace, ...linkProps } = rest as LinkProps;
 
-    if (disabled || loading) {
+    // When disabled or loading → render span instead of Link
+    if (isDisabled) {
       return (
-        <span className={`${allClasses} cursor-not-allowed opacity-60`}>
+        <span
+          className={`${allClasses} cursor-not-allowed opacity-60`}
+          aria-disabled="true"
+        >
           {content}
         </span>
       );
     }
 
     return (
-      <Link to={to} className={allClasses} {...restProps}>
+      <Link
+        to={to}
+        replace={replace}
+        {...linkProps}
+        className={allClasses}
+        ref={ref as React.ForwardedRef<HTMLAnchorElement>}
+        aria-disabled={isDisabled || undefined}
+      >
         {content}
       </Link>
     );
@@ -93,11 +124,16 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
+      {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}
+      ref={ref as React.ForwardedRef<HTMLButtonElement>}
       className={allClasses}
-      disabled={disabled || loading}
-      {...(props as React.ButtonHTMLAttributes<HTMLButtonElement>)}
+      disabled={isDisabled}
+      type={props.type ?? "button"}
+      aria-disabled={isDisabled || undefined}
     >
       {content}
     </button>
   );
-};
+});
+
+Button.displayName = "Button";
