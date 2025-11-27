@@ -19,6 +19,6 @@ public class UserResponse {
     private Boolean isActive;
     private String preferredLanguage;
     private LocalDateTime createdAt;
-    private LocalDateTime updateAt;
+    private LocalDateTime updatedAt;
     private LocalDateTime lastLoginAt;
 }

@@ -1,6 +1,6 @@
 package com.example.backend.service;
 
-import jakarta.mail.MessagingException;
+import com.example.backend.exception.EmailSendException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ public class EmailService {
     private String fromEmail;
 
     // Send emails synchronously
-    public void sendEmail(String toEmail, String subject, String content) throws MessagingException {
+    public void sendEmail(String toEmail, String subject, String content) {
         MimeMessage message = mailSender.createMimeMessage();
         try {
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -36,7 +36,7 @@ public class EmailService {
             logger.info("Email '{}' sent to {}", subject, toEmail);
         } catch (Exception e) {
             logger.error("Failed to send email to {}: {}", toEmail, e.getMessage());
-            throw new MessagingException("Failed to send email", e);
+            throw new EmailSendException("Failed to send email to " + toEmail, e);
         }
     }
 
@@ -45,8 +45,9 @@ public class EmailService {
     public void sendEmailAsync(String toEmail, String subject, String content) {
         try {
             sendEmail(toEmail, subject, content);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             logger.error("[ASYNC] Failed to send email to {}: {}", toEmail, e.getMessage());
+            throw new EmailSendException("Failed to send email to " + toEmail, e);
         }
     }
 }

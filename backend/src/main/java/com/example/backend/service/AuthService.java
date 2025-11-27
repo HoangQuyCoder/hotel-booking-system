@@ -13,7 +13,6 @@ import com.example.backend.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -72,7 +71,7 @@ public class AuthService {
     }
 
     @Transactional
-    public UserResponse register(RegisterRequest request) throws BadRequestException {
+    public UserResponse register(RegisterRequest request) {
         logger.info("Attempting to register new user: {}", request.getEmail());
         emailVerificationService.validateEmailVerified(request.getEmail());
 
@@ -98,12 +97,12 @@ public class AuthService {
                 .lastName(request.getLastName())
                 .role(role)
                 .status(UserStatus.ACTIVE)
+                .resetTokenUsed(false)
                 .isActive(true)
                 .build();
 
         try {
             User saved = userRepository.save(user);
-            notificationService.sendRegisterSuccessEmail(saved);
             logger.info("User registered successfully: {}", saved.getEmail());
             return userMapper.toResponse(saved);
         } catch (Exception e) {
