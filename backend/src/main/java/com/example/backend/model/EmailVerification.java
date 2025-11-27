@@ -17,7 +17,7 @@ public class EmailVerification {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String email;
 
     @Column(nullable = false, length = 6)
@@ -31,7 +31,7 @@ public class EmailVerification {
     public EmailVerification(String email, String code) {
         this.email = email;
         this.code = code;
-        this.expiryTime = LocalDateTime.now().plusMinutes(10); // expires in 10 minutes
+        this.expiryTime = LocalDateTime.now().plusMinutes(5); // expires in 5 minutes
     }
 
     public boolean isExpired() {

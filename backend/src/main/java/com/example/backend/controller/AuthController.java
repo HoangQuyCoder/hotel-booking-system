@@ -1,19 +1,22 @@
 package com.example.backend.controller;
 
 import com.example.backend.dto.request.*;
-import com.example.backend.dto.response.*;
+import com.example.backend.dto.response.ApiResponse;
+import com.example.backend.dto.response.PasswordResetResponse;
+import com.example.backend.dto.response.UserResponse;
 import com.example.backend.service.AuthService;
 import com.example.backend.service.EmailVerificationService;
 import com.example.backend.service.JwtService;
 import com.example.backend.utils.JwtCookieUtil;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,11 +32,11 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse>> register(
             @Valid @RequestBody RegisterRequest request,
-            HttpServletResponse response) throws BadRequestException {
+            HttpServletResponse response) {
 
         UserResponse newUser = authService.register(request);
 
-        // Auto login sau khi đăng ký
+        // Auto login after register
         String token = jwtService.generateToken(newUser.getEmail(), newUser.getRoleName().name());
         jwtCookieUtil.addJwtCookie(response, token);
 
@@ -45,7 +48,7 @@ public class AuthController {
     // SEND CODE
     @PostMapping("/send-code")
     public ResponseEntity<ApiResponse<Void>> sendCode(
-            @Valid @RequestBody EmailRequest request) throws MessagingException, BadRequestException {
+            @Valid @RequestBody EmailRequest request) {
 
         emailVerificationService.sendVerificationCode(request.getEmail());
 
@@ -57,7 +60,7 @@ public class AuthController {
     // VERIFY CODE
     @PostMapping("/verify-code")
     public ResponseEntity<ApiResponse<Void>> verifyCode(
-            @Valid @RequestBody VerifyCodeRequest request) throws BadRequestException {
+            @Valid @RequestBody VerifyCodeRequest request) {
 
         emailVerificationService.verifyCode(request.getEmail(), request.getCode());
 

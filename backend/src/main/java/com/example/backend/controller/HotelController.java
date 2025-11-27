@@ -23,7 +23,6 @@ public class HotelController {
 
     private final HotelService hotelService;
 
-    // CREATE HOTEL
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<HotelDetailResponse>> createHotel(
@@ -32,19 +31,17 @@ public class HotelController {
         HotelDetailResponse created = hotelService.createHotel(request);
         return ResponseEntity
                 .status(201)
-                .body(ApiResponse.success("Tạo khách sạn thành công!", created));
+                .body(ApiResponse.success("Create a successful hotel!", created));
     }
 
-    // GET HOTEL BY ID
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<HotelDetailResponse>> getHotel(@PathVariable UUID id) {
         HotelDetailResponse hotel = hotelService.getHotelById(id);
         return ResponseEntity.ok(
-                ApiResponse.success("Lấy thông tin khách sạn thành công", hotel)
+                ApiResponse.success("Get hotel information successfully", hotel)
         );
     }
 
-    // UPDATE HOTEL
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<HotelDetailResponse>> updateHotel(
@@ -53,37 +50,34 @@ public class HotelController {
 
         HotelDetailResponse updated = hotelService.updateHotel(id, request);
         return ResponseEntity.ok(
-                ApiResponse.success("Cập nhật khách sạn thành công", updated)
+                ApiResponse.success("Hotel update successful", updated)
         );
     }
 
-    // DELETE HOTEL
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteHotel(@PathVariable UUID id) {
         hotelService.deleteHotel(id);
         return ResponseEntity.ok(
-                ApiResponse.ok("Xóa khách sạn thành công")
+                ApiResponse.ok("Delete hotel successfully")
         );
     }
 
-    // GET ALL HOTELS (with pagination + filter)
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<HotelDetailResponse>>> getAllHotels(
             HotelFilterRequest filter) {
 
         PagedResponse<HotelDetailResponse> paged = hotelService.getAllHotels(filter);
         return ResponseEntity.ok(
-                ApiResponse.success("Lấy danh sách khách sạn thành công", paged)
+                ApiResponse.success("Get hotel list successfully", paged)
         );
     }
 
-    // SEARCH CITIES (autocomplete)
     @GetMapping("/cities")
     public ResponseEntity<ApiResponse<List<String>>> getCities(@RequestParam String q) {
         List<String> cities = hotelService.findDistinctCitiesContaining(q);
         return ResponseEntity.ok(
-                ApiResponse.success("Lấy danh sách thành phố thành công", cities)
+                ApiResponse.success("Get city list successfully", cities)
         );
     }
 }
