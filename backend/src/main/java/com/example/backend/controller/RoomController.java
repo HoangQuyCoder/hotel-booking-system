@@ -2,12 +2,12 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.filter.RoomFilterRequest;
 import com.example.backend.dto.request.RoomRequest;
+import com.example.backend.dto.response.ApiResponse;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.dto.response.RoomResponse;
 import com.example.backend.service.RoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -21,35 +21,60 @@ public class RoomController {
 
     private final RoomService roomService;
 
+    // CREATE ROOM
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<RoomResponse> createRoom(@Valid @RequestBody RoomRequest request) {
-        return new ResponseEntity<>(roomService.createRoom(request), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<RoomResponse>> createRoom(
+            @Valid @RequestBody RoomRequest request) {
+
+        RoomResponse created = roomService.createRoom(request);
+        return ResponseEntity
+                .status(201)
+                .body(ApiResponse.success("Room created successfully!", created));
     }
 
+    // GET ROOM BY ID
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public ResponseEntity<RoomResponse> getRoom(@PathVariable UUID id) {
-        return ResponseEntity.ok(roomService.getRoomById(id));
+    public ResponseEntity<ApiResponse<RoomResponse>> getRoom(@PathVariable UUID id) {
+        RoomResponse room = roomService.getRoomById(id);
+        return ResponseEntity.ok(
+                ApiResponse.success("Room information successfully retrieved", room)
+        );
     }
 
+    // UPDATE ROOM
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public ResponseEntity<RoomResponse> updateRoom(@PathVariable UUID id, @Valid @RequestBody RoomRequest request) {
-        return ResponseEntity.ok(roomService.updateRoom(id, request));
+    public ResponseEntity<ApiResponse<RoomResponse>> updateRoom(
+            @PathVariable UUID id,
+            @Valid @RequestBody RoomRequest request) {
+
+        RoomResponse updated = roomService.updateRoom(id, request);
+        return ResponseEntity.ok(
+                ApiResponse.success("Room information updated successfully", updated)
+        );
     }
 
+    // DELETE ROOM
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteRoom(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<Void>> deleteRoom(@PathVariable UUID id) {
         roomService.deleteRoom(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(
+                ApiResponse.ok("Room deleted successfully")
+        );
     }
 
+    // GET ALL ROOMS (with pagination and filter)
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public ResponseEntity<PagedResponse<RoomResponse>> getAllRooms(RoomFilterRequest filterRequest) {
-        return ResponseEntity.ok(roomService.getAllRooms(filterRequest));
-    }
+    public ResponseEntity<ApiResponse<PagedResponse<RoomResponse>>> getAllRooms(
+            RoomFilterRequest filterRequest) {
 
+        PagedResponse<RoomResponse> paged = roomService.getAllRooms(filterRequest);
+        return ResponseEntity.ok(
+                ApiResponse.success("Get room list successfully", paged)
+        );
+    }
 }

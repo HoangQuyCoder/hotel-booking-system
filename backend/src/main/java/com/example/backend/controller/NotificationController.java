@@ -3,14 +3,11 @@ package com.example.backend.controller;
 import com.example.backend.dto.filter.NotificationFilterRequest;
 import com.example.backend.dto.filter.NotificationLogFilterRequest;
 import com.example.backend.dto.request.NotificationTemplateRequest;
-import com.example.backend.dto.response.NotificationLogResponse;
-import com.example.backend.dto.response.NotificationTemplateResponse;
-import com.example.backend.dto.response.PagedResponse;
+import com.example.backend.dto.response.*;
 import com.example.backend.service.NotificationLogService;
 import com.example.backend.service.NotificationTemplateService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -23,63 +20,95 @@ import java.util.UUID;
 @RequestMapping("/api/v1/notifications")
 public class NotificationController {
 
-    private final NotificationLogService notificationLogService;
-    private final NotificationTemplateService notificationTemplateService;
+    private final NotificationTemplateService templateService;
+    private final NotificationLogService logService;
 
-    // === TEMPLATES ===
+    // ==================== TEMPLATES ====================
 
     @PostMapping("/templates")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<NotificationTemplateResponse> createTemplate(
+    public ResponseEntity<ApiResponse<NotificationTemplateResponse>> createTemplate(
             @Valid @RequestBody NotificationTemplateRequest request) {
-        return new ResponseEntity<>(notificationTemplateService.createTemplate(request), HttpStatus.CREATED);
+
+        NotificationTemplateResponse created = templateService.createTemplate(request);
+        return ResponseEntity
+                .status(201)
+                .body(ApiResponse.success("Notification template created successfully!", created));
     }
 
     @GetMapping("/templates/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<NotificationTemplateResponse> getTemplate(@PathVariable UUID id) {
-        return ResponseEntity.ok(notificationTemplateService.getTemplateById(id));
+    public ResponseEntity<ApiResponse<NotificationTemplateResponse>> getTemplate(@PathVariable UUID id) {
+        NotificationTemplateResponse template = templateService.getTemplateById(id);
+        return ResponseEntity.ok(
+                ApiResponse.success("Update notification template successfully", template)
+        );
     }
 
     @PutMapping("/templates/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<NotificationTemplateResponse> updateTemplate(
+    public ResponseEntity<ApiResponse<NotificationTemplateResponse>> updateTemplate(
             @PathVariable UUID id,
             @Valid @RequestBody NotificationTemplateRequest request) {
-        return ResponseEntity.ok(notificationTemplateService.updateTemplate(id, request));
+
+        NotificationTemplateResponse updated = templateService.updateTemplate(id, request);
+        return ResponseEntity.ok(
+                ApiResponse.success("Update notification template successfully", updated)
+        );
     }
 
     @DeleteMapping("/templates/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteTemplate(@PathVariable UUID id) {
-        notificationTemplateService.deleteTemplate(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ApiResponse<Void>> deleteTemplate(@PathVariable UUID id) {
+        templateService.deleteTemplate(id);
+        return ResponseEntity.ok(
+                ApiResponse.ok("Delete notification template successfully")
+        );
     }
 
     @GetMapping("/templates")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PagedResponse<NotificationTemplateResponse>> getAllTemplates(NotificationFilterRequest filterRequest) {
-        return ResponseEntity.ok(notificationTemplateService.getAllTemplates(filterRequest));
+    public ResponseEntity<ApiResponse<PagedResponse<NotificationTemplateResponse>>> getAllTemplates(
+            NotificationFilterRequest filter) {
+
+        PagedResponse<NotificationTemplateResponse> paged = templateService.getAllTemplates(filter);
+        return ResponseEntity.ok(
+                ApiResponse.success("Get list of successful notification samples", paged)
+        );
     }
 
-    // === LOGS ===
+    // ==================== LOGS ====================
 
     @GetMapping("/logs/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
-    public ResponseEntity<NotificationLogResponse> getLog(@PathVariable UUID id) {
-        return ResponseEntity.ok(notificationLogService.getLogById(id));
+    public ResponseEntity<ApiResponse<NotificationLogResponse>> getLog(@PathVariable UUID id) {
+        NotificationLogResponse log = logService.getLogById(id);
+        return ResponseEntity.ok(
+                ApiResponse.success("Lấy chi tiết thông báo thành công", log)
+        );
     }
 
+    // Get notifications by current user or by userId
     @GetMapping("/logs")
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
-    public ResponseEntity<List<NotificationLogResponse>> getLogs(
+    public ResponseEntity<ApiResponse<List<NotificationLogResponse>>> getMyLogs(
             @RequestParam(required = false) UUID userId) {
-        return ResponseEntity.ok(notificationLogService.getLogs(userId));
+
+        List<NotificationLogResponse> logs = logService.getLogs(userId);
+        return ResponseEntity.ok(
+                ApiResponse.success("Get list of successful notifications", logs)
+        );
     }
 
+    // ADMIN: View full system log (with paging and filtering)
     @GetMapping("/logs/all")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PagedResponse<NotificationLogResponse>> getAllLogs(NotificationLogFilterRequest filterRequest) {
-        return ResponseEntity.ok(notificationLogService.getAllLogs(filterRequest));
+    public ResponseEntity<ApiResponse<PagedResponse<NotificationLogResponse>>> getAllLogs(
+            NotificationLogFilterRequest filter) {
+
+        PagedResponse<NotificationLogResponse> paged = logService.getAllLogs(filter);
+        return ResponseEntity.ok(
+                ApiResponse.success("Get the entire notification history successfully", paged)
+        );
     }
 }

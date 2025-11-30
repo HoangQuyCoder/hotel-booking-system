@@ -2,12 +2,12 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.filter.BaseRateFilterRequest;
 import com.example.backend.dto.request.BaseRateRequest;
+import com.example.backend.dto.response.ApiResponse;
 import com.example.backend.dto.response.BaseRateResponse;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.service.BaseRateService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -21,33 +21,59 @@ public class BaseRateController {
 
     private final BaseRateService baseRateService;
 
+    // CREATE BASE RATE
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<BaseRateResponse> createBaseRate(@Valid @RequestBody BaseRateRequest request) {
-        return new ResponseEntity<>(baseRateService.createBaseRate(request), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<BaseRateResponse>> createBaseRate(
+            @Valid @RequestBody BaseRateRequest request) {
+
+        BaseRateResponse created = baseRateService.createBaseRate(request);
+        return ResponseEntity
+                .status(201)
+                .body(ApiResponse.success("Create a successful base price!", created));
     }
 
+    // GET BY ID
     @GetMapping("/{id}")
-    public ResponseEntity<BaseRateResponse> getBaseRate(@PathVariable UUID id) {
-        return ResponseEntity.ok(baseRateService.getBaseRateById(id));
+    public ResponseEntity<ApiResponse<BaseRateResponse>> getBaseRate(@PathVariable UUID id) {
+        BaseRateResponse baseRate = baseRateService.getBaseRateById(id);
+        return ResponseEntity.ok(
+                ApiResponse.success("Get price information successfully", baseRate)
+        );
     }
 
+    // UPDATE BASE RATE
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<BaseRateResponse> updateBaseRate(@PathVariable UUID id, @Valid @RequestBody BaseRateRequest request) {
-        return ResponseEntity.ok(baseRateService.updateBaseRate(id, request));
+    public ResponseEntity<ApiResponse<BaseRateResponse>> updateBaseRate(
+            @PathVariable UUID id,
+            @Valid @RequestBody BaseRateRequest request) {
+
+        BaseRateResponse updated = baseRateService.updateBaseRate(id, request);
+        return ResponseEntity.ok(
+                ApiResponse.success("Basic price update successful", updated)
+        );
     }
 
+    // DELETE BASE RATE
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteBaseRate(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<Void>> deleteBaseRate(@PathVariable UUID id) {
         baseRateService.deleteBaseRate(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(
+                ApiResponse.ok("Base price deleted successfully")
+        );
     }
 
+    // GET ALL (with pagination and filter)
     @GetMapping
-    public ResponseEntity<PagedResponse<BaseRateResponse>> getAllBaseRates(BaseRateFilterRequest filterRequest) {
-        PagedResponse<BaseRateResponse> result = baseRateService.getAllBaseRates(filterRequest);
-        return ResponseEntity.ok(result);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<PagedResponse<BaseRateResponse>>> getAllBaseRates(
+            BaseRateFilterRequest filterRequest) {
+
+        PagedResponse<BaseRateResponse> paged = baseRateService.getAllBaseRates(filterRequest);
+        return ResponseEntity.ok(
+                ApiResponse.success("Get basic price list successfully", paged)
+        );
     }
 }

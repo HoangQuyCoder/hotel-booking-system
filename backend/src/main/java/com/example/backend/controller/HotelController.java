@@ -23,6 +23,7 @@ public class HotelController {
 
     private final HotelService hotelService;
 
+    // CREATE A HOTEL
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<HotelDetailResponse>> createHotel(
@@ -34,6 +35,7 @@ public class HotelController {
                 .body(ApiResponse.success("Create a successful hotel!", created));
     }
 
+    // GET HOTEL BY ID
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<HotelDetailResponse>> getHotel(@PathVariable UUID id) {
         HotelDetailResponse hotel = hotelService.getHotelById(id);
@@ -42,6 +44,7 @@ public class HotelController {
         );
     }
 
+    // UPDATE HOTEL
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<HotelDetailResponse>> updateHotel(
@@ -54,6 +57,7 @@ public class HotelController {
         );
     }
 
+    // DELETE HOTEL
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteHotel(@PathVariable UUID id) {
@@ -63,6 +67,7 @@ public class HotelController {
         );
     }
 
+    // GET ALL HOTELS (with pagination and filter)
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<HotelDetailResponse>>> getAllHotels(
             HotelFilterRequest filter) {
@@ -73,6 +78,7 @@ public class HotelController {
         );
     }
 
+    // SEARCH CITIES
     @GetMapping("/cities")
     public ResponseEntity<ApiResponse<List<String>>> getCities(@RequestParam String q) {
         List<String> cities = hotelService.findDistinctCitiesContaining(q);
