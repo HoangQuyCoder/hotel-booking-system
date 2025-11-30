@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.config.OtpProperties;
 import com.example.backend.exception.*;
 import com.example.backend.model.EmailVerification;
 import com.example.backend.repository.EmailVerificationRepository;
@@ -8,6 +9,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Random;
 
 @Service
@@ -18,9 +20,7 @@ public class EmailVerificationService {
     private final EmailVerificationRepository verificationRepository;
     private final EmailService emailService;
     private final UserRepository userRepository;
-
-    private static final int OTP_LENGTH = 6;
-    private static final long EXPIRY_MINUTES = 5;
+    private final OtpProperties otpProperties;
 
     // Send OTP code
     public void sendVerificationCode(String email) {
@@ -31,8 +31,13 @@ public class EmailVerificationService {
         // Generate new code
         String code = generateOtp();
 
-        // Save new OTP
-        EmailVerification verification = new EmailVerification(email, code);
+        // Create OTP entry with dynamic expiry from config
+        EmailVerification verification = EmailVerification.builder()
+                .email(email)
+                .code(code)
+                .expiryTime(LocalDateTime.now().plusMinutes(otpProperties.getExpiryMinutes()))
+                .build();
+
         verificationRepository.save(verification);
 
         // Send email
@@ -63,7 +68,7 @@ public class EmailVerificationService {
         verificationRepository.save(verification);
     }
 
-    // Check if email is verified (used during registration)
+    // Check if email is verified
     public void validateEmailVerified(String email) {
         boolean verified = verificationRepository
                 .findTopByEmailOrderByExpiryTimeDesc(email)
@@ -77,8 +82,11 @@ public class EmailVerificationService {
 
     private String generateOtp() {
         Random random = new Random();
-        int min = (int) Math.pow(10, OTP_LENGTH - 1);
-        int max = (int) Math.pow(10, OTP_LENGTH) - 1;
+        int length = otpProperties.getLength();
+
+        int min = (int) Math.pow(10, length - 1);
+        int max = (int) Math.pow(10, length) - 1;
+
         return String.valueOf(random.nextInt(max - min + 1) + min);
     }
 
@@ -98,8 +106,7 @@ public class EmailVerificationService {
         
                 Best regards,
                 HotelBooking Team
-                """.formatted(code, EXPIRY_MINUTES)
+                """.formatted(code, otpProperties.getExpiryMinutes())
         );
     }
 }
-
