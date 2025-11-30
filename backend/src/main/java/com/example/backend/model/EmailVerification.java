@@ -28,12 +28,6 @@ public class EmailVerification {
 
     private boolean used = false;
 
-    public EmailVerification(String email, String code) {
-        this.email = email;
-        this.code = code;
-        this.expiryTime = LocalDateTime.now().plusMinutes(5); // expires in 5 minutes
-    }
-
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(expiryTime);
     }
