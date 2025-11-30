@@ -1,11 +1,11 @@
 package com.example.backend.controller;
 
 import com.example.backend.dto.request.RoleRequest;
+import com.example.backend.dto.response.ApiResponse;
 import com.example.backend.dto.response.RoleResponse;
 import com.example.backend.service.RoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,34 +19,58 @@ public class RoleController {
 
     private final RoleService roleService;
 
+    // CREATE NEW ROLE
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<RoleResponse> createRole(@Valid @RequestBody RoleRequest request) {
-        return new ResponseEntity<>(roleService.createRole(request), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<RoleResponse>> createRole(
+            @Valid @RequestBody RoleRequest request) {
+
+        RoleResponse created = roleService.createRole(request);
+        return ResponseEntity
+                .status(201)
+                .body(ApiResponse.success("Create new role successfully!", created));
     }
 
+    // GET BY ID
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<RoleResponse> getRole(@PathVariable Long id) {
-        return ResponseEntity.ok(roleService.getRoleById(id));
+    public ResponseEntity<ApiResponse<RoleResponse>> getRole(@PathVariable Long id) {
+        RoleResponse role = roleService.getRoleById(id);
+        return ResponseEntity.ok(
+                ApiResponse.success("Get role information successfully", role)
+        );
     }
 
+    // UPDATE ROLE
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<RoleResponse> updateRole(@PathVariable Long id, @Valid @RequestBody RoleRequest request) {
-        return ResponseEntity.ok(roleService.updateRole(id, request));
+    public ResponseEntity<ApiResponse<RoleResponse>> updateRole(
+            @PathVariable Long id,
+            @Valid @RequestBody RoleRequest request) {
+
+        RoleResponse updated = roleService.updateRole(id, request);
+        return ResponseEntity.ok(
+                ApiResponse.success("Role update successful", updated)
+        );
     }
 
+    // DELETE ROLE BY ID
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteRole(@PathVariable Long id) {
         roleService.deleteRole(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(
+                ApiResponse.ok("Role deletion successful")
+        );
     }
 
+    // TAKE ALL ROLES
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<RoleResponse>> getAllRoles() {
-        return ResponseEntity.ok(roleService.getAllRoles());
+    public ResponseEntity<ApiResponse<List<RoleResponse>>> getAllRoles() {
+        List<RoleResponse> roles = roleService.getAllRoles();
+        return ResponseEntity.ok(
+                ApiResponse.success("Get list of successful roles", roles)
+        );
     }
 }

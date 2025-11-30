@@ -23,6 +23,7 @@ public class UserController {
 
     private final UserService userService;
 
+    // GET USER BY ID
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('CLIENT') and #id == authentication.principal.id or hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<UserResponse>> getUser(@PathVariable UUID id) {
@@ -32,6 +33,7 @@ public class UserController {
         );
     }
 
+    // GET CURRENT USER
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -42,6 +44,7 @@ public class UserController {
         );
     }
 
+    // GET ALL USERS (with pagination and filter)
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> getAllUsers(
@@ -53,6 +56,7 @@ public class UserController {
         );
     }
 
+    // UPDATE USER
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('CLIENT') and #id == authentication.principal.id or hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
@@ -65,6 +69,7 @@ public class UserController {
         );
     }
 
+    // DELETE USER
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable UUID id) {

@@ -2,12 +2,12 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.filter.RoomAmenityFilterRequest;
 import com.example.backend.dto.request.RoomAmenityRequest;
+import com.example.backend.dto.response.ApiResponse;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.dto.response.RoomAmenityResponse;
 import com.example.backend.service.RoomAmenityService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -21,32 +21,58 @@ public class RoomAmenityController {
 
     private final RoomAmenityService roomAmenityService;
 
+    // CREATE
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<RoomAmenityResponse> createRoomAmenity(@Valid @RequestBody RoomAmenityRequest request) {
-        return new ResponseEntity<>(roomAmenityService.createRoomAmenity(request), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<RoomAmenityResponse>> createRoomAmenity(
+            @Valid @RequestBody RoomAmenityRequest request) {
+
+        RoomAmenityResponse created = roomAmenityService.createRoomAmenity(request);
+        return ResponseEntity
+                .status(201)
+                .body(ApiResponse.success("Room widget created successfully!", created));
     }
 
+    // GET BY ID
     @GetMapping("/{id}")
-    public ResponseEntity<RoomAmenityResponse> getRoomAmenity(@PathVariable UUID id) {
-        return ResponseEntity.ok(roomAmenityService.getRoomAmenityById(id));
+    public ResponseEntity<ApiResponse<RoomAmenityResponse>> getRoomAmenity(@PathVariable UUID id) {
+        RoomAmenityResponse amenity = roomAmenityService.getRoomAmenityById(id);
+        return ResponseEntity.ok(
+                ApiResponse.success("Get utility information successfully", amenity)
+        );
     }
 
+    // UPDATE
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<RoomAmenityResponse> updateRoomAmenity(@PathVariable UUID id, @Valid @RequestBody RoomAmenityRequest request) {
-        return ResponseEntity.ok(roomAmenityService.updateRoomAmenity(id, request));
+    public ResponseEntity<ApiResponse<RoomAmenityResponse>> updateRoomAmenity(
+            @PathVariable UUID id,
+            @Valid @RequestBody RoomAmenityRequest request) {
+
+        RoomAmenityResponse updated = roomAmenityService.updateRoomAmenity(id, request);
+        return ResponseEntity.ok(
+                ApiResponse.success("Room amenities updated successfully", updated)
+        );
     }
 
+    // DELETE
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteRoomAmenity(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<Void>> deleteRoomAmenity(@PathVariable UUID id) {
         roomAmenityService.deleteRoomAmenity(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(
+                ApiResponse.ok("Room add-on deleted successfully")
+        );
     }
 
+    // GET ALL (pagination + filter)
     @GetMapping
-    public ResponseEntity<PagedResponse<RoomAmenityResponse>> getAllRoomAmenities(RoomAmenityFilterRequest filterRequest) {
-        return ResponseEntity.ok(roomAmenityService.getAllRoomAmenities(filterRequest));
+    public ResponseEntity<ApiResponse<PagedResponse<RoomAmenityResponse>>> getAllRoomAmenities(
+            RoomAmenityFilterRequest filterRequest) {
+
+        PagedResponse<RoomAmenityResponse> paged = roomAmenityService.getAllRoomAmenities(filterRequest);
+        return ResponseEntity.ok(
+                ApiResponse.success("Get room amenities list successfully", paged)
+        );
     }
 }
