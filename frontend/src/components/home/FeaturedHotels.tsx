@@ -1,29 +1,16 @@
-import { useEffect, useState } from "react";
-import type { Hotel } from "../../types";
-import { searchHotels } from "../../api/hotelApi";
 import HotelCard from "../hotel/HotelCard";
 import HotelCardSkeleton from "../hotel/HotelCardSkeleton";
+import { useHotelApi } from "../../hooks/useHotelApi";
 
 export default function FeaturedHotels() {
-  const [hotels, setHotels] = useState<Hotel[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { useAllHotels } = useHotelApi();
 
-  useEffect(() => {
-    const fetchHotels = async () => {
-      try {
-        setLoading(true);
-        const response = await searchHotels({}, 0, 9);
-        setHotels(response.data.content || []);
-      } catch {
-        setError("Something went wrong");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { data, isLoading, isError } = useAllHotels({
+    page: 0,
+    size: 9,
+  });
 
-    fetchHotels();
-  }, []);
+  const hotels = data?.content ?? [];
 
   return (
     <section className="pb-16 md:pb-24 bg-gray-50">
@@ -34,10 +21,12 @@ export default function FeaturedHotels() {
           </h2>
         </div>
 
-        {error && <p className="text-center py-8 text-red-500">{error}</p>}
+        {isError && (
+          <p className="text-center py-8 text-red-500">Something went wrong</p>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {loading
+          {isLoading
             ? Array.from({ length: 6 }).map((_, i) => (
                 <HotelCardSkeleton key={i} />
               ))

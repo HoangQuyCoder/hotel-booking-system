@@ -4,7 +4,7 @@ import type { RoomAmenity } from "./roomAmenity";
 import type { Room } from "./room";
 import type { DailyOverride } from "./dailyOverride";
 
-export interface RoomType extends BaseEntity {
+export interface RoomTypeResponse extends BaseEntity {
   name: string;
   capacity: number;
   sizeSqm: number;

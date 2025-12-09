@@ -1,13 +1,12 @@
-import type { PagedResponse } from "./common";
-import type { BaseEntity } from "./common";
+import type { BaseEntity, BaseFilterRequest } from "./common";
 import type { LanguageCode, RoleName, UserStatus } from "./enum";
 
 export interface UserResponse extends BaseEntity {
   email: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  address: string;
+  firstName: string | null;
+  lastName: string | null;
+  phoneNumber: string | null;
+  address: string | null;
   roleName: RoleName;
   status: UserStatus;
   profilePictureUrl: string | null;
@@ -17,15 +16,22 @@ export interface UserResponse extends BaseEntity {
   lockedUntil?: string;
 }
 
-export interface UpdateUserRequest {
+export interface UserUpdateRequest {
   firstName?: string;
   lastName?: string;
   phoneNumber?: string;
   address?: string;
-  roleId?: number;
   preferredLanguage?: string;
-  isActive?: boolean;
-  status?: UserStatus;
+  roleName?: RoleName;
 }
 
-export type GetAllUsersResponse = PagedResponse<UserResponse>;
+export interface UserFilterRequest extends BaseFilterRequest{
+  username?: string;
+  email?: string;
+  phoneNumber?: string;
+  firstName?: string;
+  lastName?: string;
+  roleId?: string;
+  status?: UserStatus;
+  keyword?: string;
+}
