@@ -10,39 +10,50 @@ interface ApiError {
 export const useAuthApi = () => {
   const queryClient = useQueryClient();
 
-  const handleError = (err: AxiosError<ApiError>) =>
+  // ---------------- COMMON HANDLERS ----------------
+  const notifySuccess = (message?: string) => {
+    if (message) toast.success(message);
+  };
+
+  const notifyError = (err: AxiosError<ApiError>) => {
     toast.error(err.response?.data?.message ?? "Something went wrong");
+  };
 
   // ---------------- LOGIN ----------------
   const login = useMutation({
+    mutationKey: ["auth", "login"],
     mutationFn: authApi.login,
     onSuccess: (res) => {
-      toast.success(res.message);
+      notifySuccess(res.message);
       queryClient.setQueryData(["user"], res.data);
     },
-    onError: handleError,
+    onError: notifyError,
   });
 
   // ---------------- LOGOUT ----------------
   const logout = useMutation({
+    mutationKey: ["auth", "logout"],
     mutationFn: authApi.logout,
     onSuccess: () => {
       toast.info("Signed out successfully");
-      queryClient.removeQueries(); // clear all cache
+
+      queryClient.removeQueries({ queryKey: ["user"], exact: true });
+
       queryClient.setQueryData(["user"], null);
     },
-    onError: handleError,
+    onError: notifyError,
   });
 
   // ---------------- REGISTER ----------------
   const register = useMutation({
+    mutationKey: ["auth", "register"],
     mutationFn: authApi.register,
     onSuccess: async (res, variables) => {
-      toast.success(res.message);
+      notifySuccess(res.message);
 
       if (res.data) queryClient.setQueryData(["user"], res.data);
 
-      // Auto login after registration
+      // Auto login
       try {
         const loginRes = await authApi.login({
           email: variables.email,
@@ -54,21 +65,23 @@ export const useAuthApi = () => {
         toast.error("Registered but failed to login automatically.");
       }
     },
-    onError: handleError,
+    onError: notifyError,
   });
 
   // ---------------- SEND VERIFICATION CODE ----------------
   const sendVerificationCode = useMutation({
+    mutationKey: ["auth", "send-code"],
     mutationFn: authApi.sendVerificationCode,
-    onSuccess: (res) => toast.success(res.message),
-    onError: handleError,
+    onSuccess: (res) => notifySuccess(res.message),
+    onError: notifyError,
   });
 
   // ---------------- VERIFY CODE ----------------
   const verifyCode = useMutation({
+    mutationKey: ["auth", "verify-code"],
     mutationFn: authApi.verifyCode,
-    onSuccess: (res) => toast.success(res.message),
-    onError: handleError,
+    onSuccess: (res) => notifySuccess(res.message),
+    onError: notifyError,
   });
 
   return {

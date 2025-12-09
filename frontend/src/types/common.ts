@@ -10,18 +10,7 @@ export interface PagedResponse<T> {
 }
 
 /**
- * Interface: Dạng response chuẩn từ API (có thể dùng cho non-paged)
- */
-export interface ApiResponse<T> {
-  data: T;
-  message?: string;
-  status?: number;
-  timestamp?: string;
-}
-
-/**
  * Interface: Request filter cơ bản
- * Dùng để truyền params phân trang và sắp xếp.
  */
 export interface BaseFilterRequest {
   page?: number;
@@ -44,5 +33,5 @@ export interface Auditable {
  */
 export interface BaseEntity extends Auditable {
   id: string;
-  isActive: boolean;
+  isActive?: boolean | null;
 }
