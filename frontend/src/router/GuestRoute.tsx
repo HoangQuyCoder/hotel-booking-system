@@ -1,0 +1,16 @@
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+
+export default function GuestRoute() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div className="p-10 text-center">Loading...</div>;
+  }
+
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <Outlet />;
+}
