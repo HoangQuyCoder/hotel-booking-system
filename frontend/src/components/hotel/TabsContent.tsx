@@ -17,7 +17,7 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import type { BaseRate, DailyOverride, Hotel } from "../../types";
+import type { BaseRate, DailyOverride, HotelDetailResponse } from "../../types";
 
 interface AmenityItem {
   icon: JSX.Element;
@@ -41,7 +41,7 @@ function getCurrentPrice(
   return activeRate?.basePrice ?? 0;
 }
 
-export default function TabsContent({ hotel }: { hotel: Hotel }) {
+export default function TabsContent({ hotel }: { hotel: HotelDetailResponse }) {
   const [activeTab, setActiveTab] = useState("overview");
 
   // Map icon based on amenity name

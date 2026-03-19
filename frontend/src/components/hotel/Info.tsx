@@ -1,8 +1,8 @@
 import { MapPin, Share2, Heart } from "lucide-react";
-import type { Hotel } from "../../types";
+import type { HotelDetailResponse } from "../../types";
 import RatingStars from "../ui/RatingStars";
 
-export default function Info({ hotel }: { hotel: Hotel }) {
+export default function Info({ hotel }: { hotel: HotelDetailResponse }) {
   const rating = hotel?.rating ?? 0;
   const reviewsCount = hotel?.reviews?.length ?? 0;
   const location = hotel?.address ?? "";

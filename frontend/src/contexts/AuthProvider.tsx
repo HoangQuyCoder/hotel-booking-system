@@ -8,7 +8,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { useCurrentUser } = useUserApi();
 
   const { data: user, isLoading } = useCurrentUser();
-
+  console.log("Current user:", user);
+  
   const logout = async () => {
     await logoutMutation.mutateAsync();
   };

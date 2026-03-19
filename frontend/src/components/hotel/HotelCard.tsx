@@ -1,12 +1,8 @@
 import { Star, MapPin } from "lucide-react";
-import type { Hotel } from "../../types";
+import type { HotelDetailResponse } from "../../types";
 import { Link } from "react-router-dom";
 
-interface HotelCardProps {
-  hotel: Hotel;
-}
-
-export default function HotelCard({ hotel }: HotelCardProps) {
+export default function HotelCard({ hotel }: { hotel: HotelDetailResponse }) {
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden group hover:shadow-xl transition-shadow">
       <div className="relative h-48 overflow-hidden">
@@ -18,7 +14,7 @@ export default function HotelCard({ hotel }: HotelCardProps) {
         {hotel.rating !== undefined && (
           <div className="absolute top-3 right-3 bg-white px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
             <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-            {hotel.rating.toFixed(1)}
+            {hotel.rating?.toFixed(1)}
           </div>
         )}
       </div>
