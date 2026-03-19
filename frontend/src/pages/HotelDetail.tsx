@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Gallery from "../components/hotel/Gallery";
 import Info from "../components/hotel/Info";
@@ -6,32 +5,16 @@ import TabsContent from "../components/hotel/TabsContent";
 import Reviews from "../components/hotel/Reviews";
 import BookingCard from "../components/hotel/BookingCard";
 import Map from "../components/hotel/Map";
-import { getHotelById } from "../api/hotelApi";
-import type { Hotel } from "../types";
+import { useHotelApi } from "../hooks/useHotelApi";
 
 export default function HotelDetail() {
   const { id } = useParams();
-  const [hotel, setHotel] = useState<Hotel | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { useHotel } = useHotelApi();
 
-  useEffect(() => {
-    if (!id) return;
-    setLoading(true);
-    setError(null);
+  const { data: hotel, isLoading, isError, error } = useHotel(id);
 
-    getHotelById(id)
-      .then((res) => {
-        setHotel(res.data);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError(err?.message ?? "Không thể tải dữ liệu khách sạn.");
-      })
-      .finally(() => setLoading(false));
-  }, [id]);
-
-  if (loading) {
+  // LOADING UI
+  if (isLoading) {
     return (
       <div className="min-h-screen font-sans bg-gray-50 overflow-x-hidden">
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-8">
@@ -56,26 +39,28 @@ export default function HotelDetail() {
     );
   }
 
-  if (error) {
+  // ERROR UI
+  if (isError) {
     return (
       <div className="min-h-screen font-sans bg-gray-50 overflow-x-hidden">
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-8">
-          <div className="text-red-600">Lỗi: {error}</div>
+          <div className="text-red-600">
+            Lỗi: {(error as Error)?.message ?? "Không thể tải dữ liệu"}
+          </div>
         </div>
       </div>
     );
   }
 
-  if (!hotel) {
-    return null;
-  }
+  // Không có data
+  if (!hotel) return null;
 
   return (
     <div className="min-h-screen font-sans bg-gray-50 overflow-x-hidden">
-      <div className="">
+      <div>
         <Gallery hotel={hotel} />
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8 a">
+          <div className="lg:col-span-2 space-y-8">
             <Info hotel={hotel} />
             <TabsContent hotel={hotel} />
             <Reviews hotel={hotel} />

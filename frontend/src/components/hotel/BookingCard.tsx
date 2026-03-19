@@ -1,11 +1,11 @@
 import { useState, useRef, useMemo } from "react";
 import { Calendar, Users, Loader2 } from "lucide-react";
 import { Button } from "../ui/Button";
-import type { Hotel } from "../../types";
+import type { HotelDetailResponse } from "../../types";
 import { calculateTotalPrice } from "../../utils/pricing";
 import { createBooking } from "../../api/bookingApi";
 
-export default function BookingCard({ hotel }: { hotel: Hotel }) {
+export default function BookingCard({ hotel }: { hotel: HotelDetailResponse }) {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState("2");

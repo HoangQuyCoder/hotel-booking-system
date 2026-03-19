@@ -1,5 +1,5 @@
 /**
- * Interface: Cấu trúc phân trang chung cho API response
+ * Interface: Common paging structure for API responses
  */
 export interface PagedResponse<T> {
   content: T[];

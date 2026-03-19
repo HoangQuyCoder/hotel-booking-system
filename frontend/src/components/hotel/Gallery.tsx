@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import type { Hotel } from "../../types";
+import type { HotelDetailResponse } from "../../types";
 
-export default function Gallery({ hotel }: { hotel: Hotel }) {
+export default function Gallery({ hotel }: { hotel: HotelDetailResponse }) {
 const fallbackImages = [
   "https://placehold.co/800x500?text=Hotel+Image+1",
   "https://placehold.co/800x500?text=Hotel+Image+2",

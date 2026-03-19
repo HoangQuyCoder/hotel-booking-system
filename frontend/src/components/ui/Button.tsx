@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, type LinkProps } from "react-router-dom";
+import { Slot } from "@radix-ui/react-slot";
 import { Spinner } from "./Spinner";
 
 interface BaseButtonProps {
@@ -12,12 +13,13 @@ interface BaseButtonProps {
   className?: string;
   disabled?: boolean;
   children: React.ReactNode;
+  asChild?: boolean;
 }
 
 // Button normal
 type ButtonAsButtonProps = BaseButtonProps &
   Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "disabled"> & {
-    to?: never; 
+    to?: never;
   };
 
 // Button is Link (react-router)
@@ -42,10 +44,12 @@ export const Button = React.forwardRef<
     block = false,
     className = "",
     disabled = false,
+    asChild = false,
     ...rest
   } = props;
 
   const isLink = "to" in props && props.to !== undefined;
+  const Comp = asChild ? Slot : isLink ? Link : "button";
 
   const base =
     "inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed";
@@ -91,6 +95,19 @@ export const Button = React.forwardRef<
       )}
     </>
   );
+
+  if (asChild) {
+    return (
+      <Slot
+        className={allClasses}
+        ref={ref}
+        {...rest}
+        aria-disabled={isDisabled || undefined}
+      >
+        {content}
+      </Slot>
+    );
+  }
 
   // Link (have prop to)
   if (isLink) {

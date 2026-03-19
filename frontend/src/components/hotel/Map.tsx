@@ -1,6 +1,6 @@
-import type { Hotel } from "../../types";
+import type { HotelDetailResponse } from "../../types";
 
-export default function Map({ hotel }: { hotel: Hotel }) {
+export default function Map({ hotel }: { hotel: HotelDetailResponse }) {
   const lat = hotel.latitude;
   const lng = hotel.longitude;
 

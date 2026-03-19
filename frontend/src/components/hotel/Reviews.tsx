@@ -1,9 +1,9 @@
-import type { Hotel } from "../../types";
-import type { Review } from "../../types/review";
+import type { HotelDetailResponse } from "../../types";
+import type { ReviewResponse } from "../../types/review";
 import RatingStars from "../ui/RatingStars";
 
-export default function Reviews({ hotel }: { hotel: Hotel }) {
-  const reviews: Review[] = hotel?.reviews ?? [];
+export default function Reviews({ hotel }: { hotel: HotelDetailResponse }) {
+  const reviews: ReviewResponse[] = hotel?.reviews ?? [];
 
   const avg =
     reviews.length > 0
@@ -31,7 +31,7 @@ export default function Reviews({ hotel }: { hotel: Hotel }) {
 
       {/* Danh sách review */}
       <div className="space-y-6">
-        {reviews.map((r: Review) => (
+        {reviews.map((r: ReviewResponse) => (
           <div key={r.id} className="border-b pb-6">
             <div className="flex items-center justify-between mb-2">
               <p className="font-semibold">{r.name}</p>
