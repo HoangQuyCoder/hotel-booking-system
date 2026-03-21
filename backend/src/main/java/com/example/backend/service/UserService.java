@@ -113,8 +113,7 @@ public class UserService {
             logger.debug("Updated role for user {} to {}", user.getId(), role.getRoleName());
         }
 
-        // Update fields only when data is available
-        BeanUtilsHelper.copyNonNullProperties(request, user);
+        userMapper.updateEntityFromRequest(request, user);
 
         try {
             User updated = userRepository.save(user);

@@ -54,7 +54,9 @@ public class NotificationTemplateService {
 
         try {
             NotificationTemplate saved = notificationTemplateRepository.save(template);
+            logger.info("Created notification template: {}", saved);
             logger.info("Template created with ID: {}", saved.getId());
+            logger.info("To response created with name: {}", notificationTemplateMapper.toResponse(saved));
             return notificationTemplateMapper.toResponse(saved);
         } catch (Exception e) {
             logger.error("Failed to create template {}: {}", request.getName(), e.getMessage(), e);

@@ -2,6 +2,7 @@ package com.example.backend.service;
 
 import com.example.backend.dto.request.RoleRequest;
 import com.example.backend.dto.response.RoleResponse;
+import com.example.backend.exception.BadRequestException;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.mapper.RoleMapper;
 import com.example.backend.model.Role;
@@ -30,23 +31,14 @@ public class RoleService {
         logger.info("Creating role with name: {}", request.getRoleName());
 
         if (roleRepository.existsByRoleName(request.getRoleName())) {
-            logger.error("[create] Role name already exists: {}", request.getRoleName());
-            throw new IllegalArgumentException("Role name already exists");
+            logger.warn("Role name already exists: {}", request.getRoleName());
+            throw new BadRequestException("Role name already exists");
         }
 
-        Role role = Role.builder()
-                .roleName(request.getRoleName())
-                .description(request.getDescription())
-                .build();
+        Role role = roleMapper.toEntity(request);
 
-        try {
-            Role saved = roleRepository.save(role);
-            logger.info("Role created successfully with ID: {}", saved.getId());
-            return roleMapper.toResponse(saved);
-        } catch (Exception e) {
-            logger.error("Failed to create role: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to create role", e);
-        }
+        Role saved = roleRepository.save(role);
+        return roleMapper.toResponse(saved);
     }
 
     public RoleResponse getRoleById(Long id) {
@@ -62,30 +54,17 @@ public class RoleService {
 
     @Transactional
     public RoleResponse updateRole(Long id, RoleRequest request) {
-        logger.info("Updating role with ID: {}", id);
-
         Role role = roleRepository.findById(id)
-                .orElseThrow(() -> {
-                    logger.error("[update] Role not found with ID: {}", id);
-                    return new ResourceNotFoundException("Role not found");
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
-        if (roleRepository.existsByRoleName(request.getRoleName())) {
-            logger.error("[update] Role name already exists: {}", request.getRoleName());
-            throw new IllegalArgumentException("Role name already exists");
+        if (roleRepository.existsByRoleName(request.getRoleName())
+                && !role.getRoleName().equals(request.getRoleName())) {
+            throw new BadRequestException("Role name already exists");
         }
 
-        // Update fields only when data is available
-        BeanUtilsHelper.copyNonNullProperties(request, role);
+        roleMapper.updateEntityFromRequest(request, role);
 
-        try {
-            Role updated = roleRepository.save(role);
-            logger.info("Role updated successfully with ID: {}", id);
-            return roleMapper.toResponse(updated);
-        } catch (Exception e) {
-            logger.error("Failed to update role: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to update role", e);
-        }
+        return roleMapper.toResponse(roleRepository.save(role));
     }
 
     @Transactional
