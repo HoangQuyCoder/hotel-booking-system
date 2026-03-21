@@ -24,7 +24,6 @@ public class TransactionController {
 
     // CREATE NEW TRANSACTION
     @PostMapping
-    @PreAuthorize("hasAnyRole('CLIENT', 'STAFF', 'ADMIN')")
     public ResponseEntity<ApiResponse<TransactionResponse>> createTransaction(
             @Valid @RequestBody TransactionRequest request) {
 
@@ -36,7 +35,6 @@ public class TransactionController {
 
     // GET TRANSACTION DETAILS
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN', 'STAFF')")
     public ResponseEntity<ApiResponse<TransactionResponse>> getTransaction(@PathVariable UUID id) {
         TransactionResponse transaction = transactionService.getTransactionById(id);
         return ResponseEntity.ok(

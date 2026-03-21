@@ -80,7 +80,6 @@ public class NotificationController {
     // ==================== LOGS ====================
 
     @GetMapping("/logs/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     public ResponseEntity<ApiResponse<NotificationLogResponse>> getLog(@PathVariable UUID id) {
         NotificationLogResponse log = logService.getLogById(id);
         return ResponseEntity.ok(
@@ -90,7 +89,6 @@ public class NotificationController {
 
     // Get notifications by current user or by userId
     @GetMapping("/logs")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     public ResponseEntity<ApiResponse<List<NotificationLogResponse>>> getMyLogs(
             @RequestParam(required = false) UUID userId) {
 

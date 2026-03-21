@@ -9,7 +9,6 @@ import com.example.backend.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -23,7 +22,6 @@ public class ReviewController {
 
     // CREATE REVIEW
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     public ResponseEntity<ApiResponse<ReviewResponse>> createReview(
             @Valid @RequestBody ReviewRequest request) {
 
@@ -35,7 +33,6 @@ public class ReviewController {
 
     // UPDATE REVIEW
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     public ResponseEntity<ApiResponse<ReviewResponse>> updateReview(
             @PathVariable UUID id,
             @Valid @RequestBody ReviewRequest request) {
@@ -48,7 +45,6 @@ public class ReviewController {
 
     // DELETE REVIEW
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     public ResponseEntity<ApiResponse<Void>> deleteReview(@PathVariable UUID id) {
         reviewService.delete(id);
         return ResponseEntity.ok(
@@ -67,7 +63,6 @@ public class ReviewController {
 
     // GET ALL REVIEWS (admin + filter)
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<PagedResponse<ReviewResponse>>> getAllReviews(
             ReviewFilterRequest filter) {
 
