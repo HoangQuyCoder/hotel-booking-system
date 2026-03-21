@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,20 +43,23 @@ public class Booking {
     @Column(name = "confirmation_code", nullable = false, unique = true, length = 20)
     private String confirmationCode;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
     @Column(name = "guest_count")
     private Integer guestCount;
 
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
+    @Builder.Default
     @Column(name = "is_active")
     private Boolean isActive = true;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     // N:1 Relationship with Hotel
     @ManyToOne(fetch = FetchType.LAZY)
@@ -78,18 +83,4 @@ public class Booking {
     // 1:1 Relationship with Transactions
     @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private Transaction transaction;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-        if (confirmationCode == null) {
-            confirmationCode = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }

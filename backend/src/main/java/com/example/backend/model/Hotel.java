@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,7 +40,7 @@ public class Hotel {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "thumbnailUrl")
+    @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
     @Column(name = "images")
@@ -62,12 +64,15 @@ public class Hotel {
     @Column(name = "check_out_time")
     private String checkOutTime;
 
+    @Builder.Default
     @Column(name = "is_active")
     private Boolean isActive = true;
 
-    @Column(name = "created_at")
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -83,15 +88,4 @@ public class Hotel {
     // 1: N relationship with Review
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }

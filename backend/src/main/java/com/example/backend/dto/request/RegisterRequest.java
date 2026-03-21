@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class RegisterRequest {
     @NotBlank(message = "Email is required")
@@ -29,4 +31,7 @@ public class RegisterRequest {
 
     @NotNull(message = "Role name is required for admin creation")
     private RoleName roleName = RoleName.valueOf("CLIENT");
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

@@ -1,10 +1,8 @@
 <#include "layout/header.ftl">
 
-<p>Xin chào ${userName}!</p>
+<p>Xin chào ${email}!</p>
 <p>Chào mừng bạn đến với Hotelify 🎉</p>
-<p>Tài khoản của bạn đã được tạo thành công.</p>
-
-<p>Bạn có thể đăng nhập bằng email <b>${userEmail}</b> để bắt đầu đặt phòng ngay hôm nay!</p>
-<p>Chúc bạn có những trải nghiệm tuyệt vời cùng Hotelify!</p>
+<p>Mã xác thực: ${code}</p>
+<p>Nó sẽ hết hạn sau ${expiryTime} phút.</p>
 
 <#include "layout/footer.ftl">

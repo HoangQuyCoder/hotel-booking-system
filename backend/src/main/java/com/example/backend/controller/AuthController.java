@@ -5,8 +5,9 @@ import com.example.backend.dto.response.ApiResponse;
 import com.example.backend.dto.response.PasswordResetResponse;
 import com.example.backend.dto.response.UserResponse;
 import com.example.backend.service.AuthService;
-import com.example.backend.service.EmailVerificationService;
+import com.example.backend.service.EmailService;
 import com.example.backend.service.JwtService;
+import com.example.backend.service.NotificationService;
 import com.example.backend.utils.JwtCookieUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -24,7 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
-    private final EmailVerificationService emailVerificationService;
+    private final NotificationService notificationService;
+    private final EmailService emailService;
     private final JwtService jwtService;
     private final JwtCookieUtil jwtCookieUtil;
 
@@ -50,7 +52,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> sendCode(
             @Valid @RequestBody EmailRequest request) {
 
-        emailVerificationService.sendVerificationCode(request.getEmail());
+        notificationService.sendEmailVerificationCode(request.getEmail());
 
         return ResponseEntity.ok(
                 ApiResponse.ok("Verification code has been sent to your email")
@@ -62,7 +64,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> verifyCode(
             @Valid @RequestBody VerifyCodeRequest request) {
 
-        emailVerificationService.verifyCode(request.getEmail(), request.getCode());
+        emailService.verifyCode(request.getEmail(), request.getCode());
 
         return ResponseEntity.ok(
                 ApiResponse.ok("Verification successful! You can continue.")

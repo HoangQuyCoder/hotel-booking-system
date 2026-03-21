@@ -72,19 +72,13 @@ public class BookingService {
 
         BookingCalculationResponse calc = bookingCalc.calculateBookingTotal(request);
 
-        Booking booking = Booking.builder()
-                .checkInDate(request.getCheckInDate())
-                .checkOutDate(request.getCheckOutDate())
-                .status(BookingStatus.PENDING)
-                .guestCount(request.getGuestCount())
-                .notes(request.getNotes())
-                .user(user)
-                .hotel(hotel)
-                .promotion(calc.getPromotion())
-                .bookingRooms(calc.getBookingRooms())
-                .totalAmount(calc.getTotalAmount())
-                .isActive(true)
-                .build();
+        Booking booking = bookingMapper.toEntity(request);
+        booking.setStatus(BookingStatus.PENDING);
+        booking.setHotel(hotel);
+        booking.setUser(user);
+        booking.setPromotion(calc.getPromotion());
+        booking.setBookingRooms(calc.getBookingRooms());
+        booking.setTotalAmount(calc.getTotalAmount());
 
         booking.getBookingRooms().forEach(br -> br.setBooking(booking));
 
@@ -131,9 +125,7 @@ public class BookingService {
             throw new IllegalArgumentException("Check-out date cannot be before check-in date");
         }
 
-        // Update basic fields
-        booking.setGuestCount(request.getGuestCount());
-        booking.setNotes(request.getNotes());
+        bookingMapper.updateEntityFromRequest(request, booking);
 
         // Determine whether recalculation is needed
         boolean shouldRecalculate =

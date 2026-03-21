@@ -7,7 +7,6 @@ import com.example.backend.service.RoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,9 +18,8 @@ public class RoleController {
 
     private final RoleService roleService;
 
-    // CREATE NEW ROLE
+    // CREATE A NEW ROLE
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<RoleResponse>> createRole(
             @Valid @RequestBody RoleRequest request) {
 
@@ -33,7 +31,6 @@ public class RoleController {
 
     // GET BY ID
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<RoleResponse>> getRole(@PathVariable Long id) {
         RoleResponse role = roleService.getRoleById(id);
         return ResponseEntity.ok(
@@ -43,7 +40,6 @@ public class RoleController {
 
     // UPDATE ROLE
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<RoleResponse>> updateRole(
             @PathVariable Long id,
             @Valid @RequestBody RoleRequest request) {
@@ -56,17 +52,13 @@ public class RoleController {
 
     // DELETE ROLE BY ID
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteRole(@PathVariable Long id) {
         roleService.deleteRole(id);
-        return ResponseEntity.ok(
-                ApiResponse.ok("Role deletion successful")
-        );
+        return ResponseEntity.noContent().build();
     }
 
     // TAKE ALL ROLES
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<RoleResponse>>> getAllRoles() {
         List<RoleResponse> roles = roleService.getAllRoles();
         return ResponseEntity.ok(

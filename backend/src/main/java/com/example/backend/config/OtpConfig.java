@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 @Configuration
 @ConfigurationProperties(prefix = "otp")
-public class OtpProperties {
+public class OtpConfig {
     private int length;
     private long expiryMinutes;
 }

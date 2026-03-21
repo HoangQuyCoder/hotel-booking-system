@@ -1,11 +1,11 @@
 package com.example.backend.service;
 
 import com.example.backend.common.NotificationStatus;
+import com.example.backend.dto.response.EmailVerificationResponse;
 import com.example.backend.model.*;
 import com.example.backend.repository.NotificationLogRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,27 +30,45 @@ public class NotificationService {
     private String resetPasswordUrl;
 
     // ------------------------------
+    // REGISTER RELATED
+    // ------------------------------
+
+    public void sendEmailVerificationCode(String toEmail) {
+        EmailVerificationResponse verificationResponse = emailService.requestEmailVerification(toEmail);
+        sendNotification(
+                "VERIFICATION_CODE",
+                toEmail,
+                "VerificationCode",
+                Map.of(
+                        "email", toEmail,
+                        "code", verificationResponse.getCode(),
+                        "expiryTime", verificationResponse.getExpiryTime()
+                )
+        );
+    }
+
+    // ------------------------------
     // PASSWORD RELATED
     // ------------------------------
 
-    public void sendPasswordResetEmail(String toEmail, String resetToken) throws MessagingException {
+    public void sendPasswordResetEmail(String toEmail, String resetToken) {
         sendNotification(
                 "PASSWORD_RESET",
                 toEmail,
                 "PasswordReset",
                 Map.of(
-                        "userName", toEmail,
+                        "email", toEmail,
                         "resetLink", resetPasswordUrl + "?token=" + resetToken
                 )
         );
     }
 
-    public void sendPasswordChangedEmail(String toEmail) throws MessagingException {
+    public void sendPasswordChangedEmail(String toEmail) {
         sendNotification(
                 "PASSWORD_CHANGED",
                 toEmail,
                 "PasswordChanged",
-                Map.of("userName", toEmail, "loginUrl", "https://hotelify.com/login")
+                Map.of("email", toEmail, "loginUrl", "https://hotelify.com/login")
         );
     }
 
@@ -114,19 +132,6 @@ public class NotificationService {
     }
 
     // ------------------------------
-    // USER REGISTER RELATED
-    // ------------------------------
-
-    public void sendRegisterSuccessEmail(User user) {
-        Map<String, Object> model = Map.of(
-                "userName", user.getFirstName() + " " + user.getLastName(),
-                "userEmail", user.getEmail()
-        );
-
-        sendNotification("REGISTER_SUCCESS", user.getEmail(), "RegisterSuccess", model);
-    }
-
-    // ------------------------------
     // CORE SENDING LOGIC
     // ------------------------------
 
@@ -150,7 +155,7 @@ public class NotificationService {
 
         try {
             String content = templateService.buildContent(template.getTemplateFile(), placeholders);
-            emailService.sendEmailAsync(recipient, template.getSubject(), content);
+            emailService.sendEmail(recipient, template.getSubject(), content);
 
             log.setStatus(NotificationStatus.SENT);
             log.setSentAt(LocalDateTime.now());
@@ -162,9 +167,6 @@ public class NotificationService {
             log.setErrorMessage(e.getMessage());
             log.setRetryCount(log.getRetryCount() + 1);
             logger.error("Failed to send notification '{}' to {}: {}", template.getName(), recipient, e.getMessage());
-        } finally {
-            log.setUpdatedAt(LocalDateTime.now());
-            notificationLogRepository.save(log);
         }
     }
 
