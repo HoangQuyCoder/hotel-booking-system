@@ -11,7 +11,7 @@ public class BookingRoomResponse {
     private UUID id;
     private Integer quantity;
     private UUID roomTypeId;
-    private List<UUID> specificRoomIds;
+    private List<BookingRoomDetailResponse> bookingRoomDetails;
     private Double pricePerNight;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

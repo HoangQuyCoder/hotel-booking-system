@@ -83,7 +83,7 @@ public class NotificationController {
     public ResponseEntity<ApiResponse<NotificationLogResponse>> getLog(@PathVariable UUID id) {
         NotificationLogResponse log = logService.getLogById(id);
         return ResponseEntity.ok(
-                ApiResponse.success("Lấy chi tiết thông báo thành công", log)
+                ApiResponse.success("Get details of the success notification.", log)
         );
     }
 

@@ -9,12 +9,10 @@ import com.example.backend.dto.response.BookingResponse;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.mapper.BookingMapper;
-import com.example.backend.model.Booking;
-import com.example.backend.model.BookingRoom;
-import com.example.backend.model.Hotel;
-import com.example.backend.model.User;
+import com.example.backend.model.*;
 import com.example.backend.repository.BookingRepository;
 import com.example.backend.repository.HotelRepository;
+import com.example.backend.repository.RoomTypeRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.specification.BookingSpecification;
 import com.example.backend.utils.PagingUtils;
@@ -29,10 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,6 +40,7 @@ public class BookingService {
     private final BookingCalculationService bookingCalc;
     private final UserRepository userRepository;
     private final HotelRepository hotelRepository;
+    private final RoomTypeRepository roomTypeRepository;
     private final NotificationService notificationService;
     private final BookingMapper bookingMapper;
 
@@ -70,6 +66,20 @@ public class BookingService {
                     return new ResourceNotFoundException("Hotel not found");
                 });
 
+        List<UUID> roomTypeIds = request.getBookingRooms()
+                .stream()
+                .map(BookingRoomRequest::getRoomTypeId)
+                .toList();
+
+        List<RoomType> roomTypes = roomTypeRepository
+                .findAllByIdInAndHotelId(roomTypeIds, request.getHotelId());
+
+        if (roomTypes.size() != roomTypeIds.size()) {
+            logger.error("Some room types do not belong to hotel {}", request.getHotelId());
+            throw new IllegalArgumentException("One or more room types are invalid for this hotel");
+        }
+
+        Random random = new Random();
         BookingCalculationResponse calc = bookingCalc.calculateBookingTotal(request);
 
         Booking booking = bookingMapper.toEntity(request);
@@ -79,7 +89,7 @@ public class BookingService {
         booking.setPromotion(calc.getPromotion());
         booking.setBookingRooms(calc.getBookingRooms());
         booking.setTotalAmount(calc.getTotalAmount());
-
+        booking.setConfirmationCode(String.valueOf(100000 + random.nextInt(900000)));
         booking.getBookingRooms().forEach(br -> br.setBooking(booking));
 
         try {

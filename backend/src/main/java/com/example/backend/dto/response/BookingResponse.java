@@ -23,5 +23,6 @@ public class BookingResponse {
     private Boolean isActive;
     private UUID userId;
     private UUID promoId;
+    private UUID hotelId;
     private List<BookingRoomResponse> bookingRooms;
 }

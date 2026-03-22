@@ -13,7 +13,5 @@ public class BookingRoomRequest {
 
     @NotNull
     private Integer quantity;
-
-    private List<UUID> specificRoomIds;
 }
 

@@ -40,6 +40,7 @@ public class Promotion {
     @Column(name = "max_uses")
     private Integer maxUses;
 
+    @Builder.Default
     @Column(name = "used_count")
     private Integer usedCount = 0;
 
@@ -59,5 +60,5 @@ public class Promotion {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "promotion")
-    private List<Booking> bookings = new ArrayList<>();
+    private List<Booking> bookings;
 }

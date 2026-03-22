@@ -55,6 +55,7 @@ public class User {
     @Builder.Default
     private UserStatus status = UserStatus.PENDING;
 
+    @Builder.Default
     @Column(name = "failed_login_attempts")
     private Integer failedLoginAttempts = 0;
 
@@ -70,6 +71,7 @@ public class User {
     @Column(name = "reset_password_expiry")
     private LocalDateTime resetPasswordExpiry;
 
+    @Builder.Default
     @Column(name = "reset_token_used", nullable = false)
     private Boolean resetTokenUsed = false;
 
@@ -96,11 +98,11 @@ public class User {
 
     // 1: N relationship with Booking
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Booking> bookings = new ArrayList<>();
+    private List<Booking> bookings;
 
     // 1: N relationship with NotificationLog
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<NotificationLog> notifications = new ArrayList<>();
+    private List<NotificationLog> notifications;
 
     public boolean isEnabled() {
         if (status == UserStatus.LOCKED_TEMP && lockedUntil != null) {

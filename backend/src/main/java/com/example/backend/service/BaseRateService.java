@@ -8,7 +8,6 @@ import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.mapper.BaseRateMapper;
 import com.example.backend.model.BaseRate;
 import com.example.backend.model.RoomType;
-import com.example.backend.model.User;
 import com.example.backend.repository.BaseRateRepository;
 import com.example.backend.repository.RoomTypeRepository;
 import com.example.backend.specification.BaseRateSpecification;

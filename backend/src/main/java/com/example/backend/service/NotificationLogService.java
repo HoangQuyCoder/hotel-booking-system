@@ -11,9 +11,6 @@ import com.example.backend.repository.NotificationLogRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.specification.NotificationLogSpecification;
 import com.example.backend.utils.PagingUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -38,7 +34,6 @@ public class NotificationLogService {
 
     private final NotificationLogRepository logRepository;
     private final UserRepository userRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final NotificationLogMapper notificationLogMapper;
 
     public NotificationLogResponse getLogById(UUID id) {
@@ -94,15 +89,5 @@ public class NotificationLogService {
                 pageResult.getTotalElements(),
                 pageResult.getTotalPages()
         );
-    }
-
-    private Map<String, Object> fromJson(String json) {
-        try {
-            return json != null ? objectMapper.readValue(json, new TypeReference<>() {
-            }): null;
-        } catch (JsonProcessingException e) {
-            logger.warn("Failed to deserialize metadata", e);
-            return null;
-        }
     }
 }

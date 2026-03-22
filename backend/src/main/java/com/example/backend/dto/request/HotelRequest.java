@@ -31,7 +31,6 @@ public class HotelRequest {
     private UUID managerId;
 
     private Double latitude;
-
     private Double longitude;
 
     @Size(max = 20, message = "Contact phone must not exceed 20 characters")
@@ -42,6 +41,5 @@ public class HotelRequest {
     private String contactEmail;
 
     private String checkInTime;
-
     private String checkOutTime;
 }
