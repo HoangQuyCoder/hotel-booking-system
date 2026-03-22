@@ -37,14 +37,8 @@ public class BookingRoom {
     @Column(name = "price_per_night", nullable = false)
     private Double pricePerNight;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "booking_specific_rooms",
-            joinColumns = @JoinColumn(name = "booking_room_id")
-    )
-    @Column(name = "specific_room_id", nullable = false)
-    private List<UUID> specificRoomIds;
-
+    @OneToMany(mappedBy = "bookingRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookingRoomDetail> bookingRoomDetails;
 
     @Builder.Default
     @Column(name = "is_active")

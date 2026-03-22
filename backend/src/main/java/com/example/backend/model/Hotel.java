@@ -83,7 +83,7 @@ public class Hotel {
 
     // 1: N relationship with RoomType
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RoomType> roomTypes = new ArrayList<>();
+    private List<RoomType> roomTypes;
 
     // 1: N relationship with Review
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)

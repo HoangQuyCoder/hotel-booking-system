@@ -40,6 +40,7 @@ public class RoomType {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    @Builder.Default
     @Column(name = "is_available")
     private Boolean isAvailable = true;
 
@@ -62,21 +63,21 @@ public class RoomType {
 
     // 1: N relationship with RoomAmenity
     @OneToMany(mappedBy = "roomType", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RoomAmenity> amenities = new ArrayList<>();
+    private List<RoomAmenity> amenities;
 
     // 1: N relationship with Room
     @OneToMany(mappedBy = "roomType", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Room> rooms = new ArrayList<>();
+    private List<Room> rooms;
 
     // 1: N relationship with BaseRate
     @OneToMany(mappedBy = "roomType", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BaseRate> baseRates = new ArrayList<>();
+    private List<BaseRate> baseRates;
 
     // 1: N relationship with DailyOverride
     @OneToMany(mappedBy = "roomType", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DailyOverride> dailyOverrides = new ArrayList<>();
+    private List<DailyOverride> dailyOverrides;
 
     // 1: N relationship with BookingRoom
     @OneToMany(mappedBy = "roomType", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BookingRoom> bookingRooms = new ArrayList<>();
+    private List<BookingRoom> bookingRooms;
 }

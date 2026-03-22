@@ -12,7 +12,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class UserFilterRequest extends BaseFilterRequest {
-    private String username;
     private String email;
     private String phoneNumber;
     private String firstName;

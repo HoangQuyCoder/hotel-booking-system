@@ -27,6 +27,7 @@ public class Room {
     @Column(name = "room_number", nullable = false, length = 50)
     private String roomNumber;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private RoomStatus status = RoomStatus.AVAILABLE;

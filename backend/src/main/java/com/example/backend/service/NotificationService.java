@@ -4,8 +4,7 @@ import com.example.backend.common.NotificationStatus;
 import com.example.backend.dto.response.EmailVerificationResponse;
 import com.example.backend.model.*;
 import com.example.backend.repository.NotificationLogRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,17 +23,29 @@ public class NotificationService {
     private final EmailService emailService;
     private final NotificationTemplateService templateService;
     private final NotificationLogRepository notificationLogRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final UserRepository userRepository;
 
     @Value("${frontend.reset-password-url}")
     private String resetPasswordUrl;
+
+    // ------------------------------
+    // HELPER
+    // ------------------------------
+
+    private User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+    }
 
     // ------------------------------
     // REGISTER RELATED
     // ------------------------------
 
     public void sendEmailVerificationCode(String toEmail) {
+        User user = getUserByEmail(toEmail);
+
         EmailVerificationResponse verificationResponse = emailService.requestEmailVerification(toEmail);
+
         sendNotification(
                 "VERIFICATION_CODE",
                 toEmail,
@@ -43,7 +54,8 @@ public class NotificationService {
                         "email", toEmail,
                         "code", verificationResponse.getCode(),
                         "expiryTime", verificationResponse.getExpiryTime()
-                )
+                ),
+                user
         );
     }
 
@@ -52,6 +64,8 @@ public class NotificationService {
     // ------------------------------
 
     public void sendPasswordResetEmail(String toEmail, String resetToken) {
+        User user = getUserByEmail(toEmail);
+
         sendNotification(
                 "PASSWORD_RESET",
                 toEmail,
@@ -59,16 +73,23 @@ public class NotificationService {
                 Map.of(
                         "email", toEmail,
                         "resetLink", resetPasswordUrl + "?token=" + resetToken
-                )
+                ),
+                user
         );
     }
 
     public void sendPasswordChangedEmail(String toEmail) {
+        User user = getUserByEmail(toEmail);
+
         sendNotification(
                 "PASSWORD_CHANGED",
                 toEmail,
                 "PasswordChanged",
-                Map.of("email", toEmail, "loginUrl", "https://hotelify.com/login")
+                Map.of(
+                        "email", toEmail,
+                        "loginUrl", "https://hotelify.com/login"
+                ),
+                user
         );
     }
 
@@ -87,7 +108,13 @@ public class NotificationService {
                 "checkOut", booking.getCheckOutDate().toString()
         );
 
-        sendNotification("BOOKING_CONFIRMATION", user.getEmail(), "BookingConfirmation", model);
+        sendNotification(
+                "BOOKING_CONFIRMATION",
+                user.getEmail(),
+                "BookingConfirmation",
+                model,
+                user
+        );
     }
 
     public void sendBookingCancelledEmail(Booking booking) {
@@ -101,7 +128,13 @@ public class NotificationService {
                 "checkOut", booking.getCheckOutDate().toString()
         );
 
-        sendNotification("BOOKING_CANCELLED", user.getEmail(), "BookingCancelled", model);
+        sendNotification(
+                "BOOKING_CANCELLED",
+                user.getEmail(),
+                "BookingCancelled",
+                model,
+                user
+        );
     }
 
     // ------------------------------
@@ -128,7 +161,13 @@ public class NotificationService {
                 "paymentDate", transaction.getProcessedAt().toString()
         );
 
-        sendNotification(templateName, user.getEmail(), event, model);
+        sendNotification(
+                templateName,
+                user.getEmail(),
+                event,
+                model,
+                user
+        );
     }
 
     // ------------------------------
@@ -138,7 +177,9 @@ public class NotificationService {
     private void sendNotification(String templateName,
                                   String recipient,
                                   String event,
-                                  Map<String, Object> placeholders) {
+                                  Map<String, Object> placeholders,
+                                  User user) {
+
         NotificationTemplate template = templateService.getTemplate(templateName);
 
         NotificationLog log = NotificationLog.builder()
@@ -146,12 +187,10 @@ public class NotificationService {
                 .template(template)
                 .status(NotificationStatus.PENDING)
                 .sourceEvent(event)
-                .metadata(toJson(placeholders))
-                .retryCount(0)
+                .metadata(placeholders)
+                .user(user)
                 .isActive(true)
                 .build();
-
-        notificationLogRepository.save(log);
 
         try {
             String content = templateService.buildContent(template.getTemplateFile(), placeholders);
@@ -160,22 +199,18 @@ public class NotificationService {
             log.setStatus(NotificationStatus.SENT);
             log.setSentAt(LocalDateTime.now());
             log.setErrorMessage(null);
+
             logger.info("Notification '{}' sent to {}", template.getName(), recipient);
 
         } catch (Exception e) {
             log.setStatus(NotificationStatus.FAILED);
             log.setErrorMessage(e.getMessage());
             log.setRetryCount(log.getRetryCount() + 1);
-            logger.error("Failed to send notification '{}' to {}: {}", template.getName(), recipient, e.getMessage());
-        }
-    }
 
-    private String toJson(Map<String, Object> map) {
-        try {
-            return objectMapper.writeValueAsString(map);
-        } catch (JsonProcessingException e) {
-            logger.warn("Failed to serialize metadata", e);
-            return null;
+            logger.error("Failed to send notification '{}' to {}: {}",
+                    template.getName(), recipient, e.getMessage());
+        } finally {
+            notificationLogRepository.save(log);
         }
     }
 }

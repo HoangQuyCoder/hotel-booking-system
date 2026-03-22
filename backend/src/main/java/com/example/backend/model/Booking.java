@@ -11,7 +11,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -78,7 +77,7 @@ public class Booking {
 
     // 1: N Relationship with BookingRoom
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BookingRoom> bookingRooms = new ArrayList<>();
+    private List<BookingRoom> bookingRooms;
 
     // 1:1 Relationship with Transactions
     @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)

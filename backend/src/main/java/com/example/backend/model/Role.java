@@ -46,5 +46,5 @@ public class Role {
 
     // 1: N relationship with User
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<User> users = new ArrayList<>();
+    private List<User> users;
 }
