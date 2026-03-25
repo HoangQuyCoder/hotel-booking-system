@@ -1,6 +1,6 @@
 package com.example.backend.service;
 
-import com.example.backend.dto.filter.NotificationFilterRequest;
+import com.example.backend.dto.filter.NotificationTemplateFilterRequest;
 import com.example.backend.dto.request.NotificationTemplateRequest;
 import com.example.backend.dto.response.NotificationTemplateResponse;
 import com.example.backend.dto.response.PagedResponse;
@@ -123,7 +123,7 @@ public class NotificationTemplateService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<NotificationTemplateResponse> getAllTemplates(NotificationFilterRequest filterRequest) {
+    public PagedResponse<NotificationTemplateResponse> getAllTemplates(NotificationTemplateFilterRequest filterRequest) {
         logger.info("Fetching notification template with filters: {}", filterRequest);
 
         Pageable pageable = PagingUtils.toPageable(filterRequest);

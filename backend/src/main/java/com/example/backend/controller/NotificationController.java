@@ -1,6 +1,6 @@
 package com.example.backend.controller;
 
-import com.example.backend.dto.filter.NotificationFilterRequest;
+import com.example.backend.dto.filter.NotificationTemplateFilterRequest;
 import com.example.backend.dto.filter.NotificationLogFilterRequest;
 import com.example.backend.dto.request.NotificationTemplateRequest;
 import com.example.backend.dto.response.*;
@@ -69,7 +69,7 @@ public class NotificationController {
     @GetMapping("/templates")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<PagedResponse<NotificationTemplateResponse>>> getAllTemplates(
-            NotificationFilterRequest filter) {
+            NotificationTemplateFilterRequest filter) {
 
         PagedResponse<NotificationTemplateResponse> paged = templateService.getAllTemplates(filter);
         return ResponseEntity.ok(
@@ -98,7 +98,7 @@ public class NotificationController {
         );
     }
 
-    // ADMIN: View full system log (with paging and filtering)
+    // ADMIN: View the full system log (with paging and filtering)
     @GetMapping("/logs/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<PagedResponse<NotificationLogResponse>>> getAllLogs(

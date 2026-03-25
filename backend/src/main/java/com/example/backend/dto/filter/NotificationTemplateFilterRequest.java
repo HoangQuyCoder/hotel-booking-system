@@ -10,11 +10,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class NotificationFilterRequest extends BaseFilterRequest {
+public class NotificationTemplateFilterRequest extends BaseFilterRequest {
     private String name;
     private NotificationType type;
     private String subject;
-    private String content;
     private String defaultLanguage;
     private Integer priorityMin;
     private Integer priorityMax;

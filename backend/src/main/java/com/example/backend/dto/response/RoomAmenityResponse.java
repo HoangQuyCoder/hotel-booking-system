@@ -1,16 +1,11 @@
 package com.example.backend.dto.response;
 
 import lombok.Data;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
+import lombok.EqualsAndHashCode;
 
 @Data
-public class RoomAmenityResponse {
-    private UUID id;
+@EqualsAndHashCode(callSuper = true)
+public class RoomAmenityResponse extends BaseResponse{
     private String name;
     private String category;
-    private Boolean isActive;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

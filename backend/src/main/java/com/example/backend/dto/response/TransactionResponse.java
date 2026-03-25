@@ -4,13 +4,14 @@ import com.example.backend.common.PaymentMethod;
 import com.example.backend.common.TransactionStatus;
 import com.example.backend.common.TransactionType;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
-public class TransactionResponse {
-    private UUID id;
+@EqualsAndHashCode(callSuper = true)
+public class TransactionResponse extends BaseResponse{
     private UUID bookingId;
     private Double amount;
     private String currency;
@@ -19,7 +20,4 @@ public class TransactionResponse {
     private String gatewayRef;
     private LocalDateTime processedAt;
     private TransactionType transactionType;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private Boolean isActive;
 }

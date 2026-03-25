@@ -2,14 +2,11 @@ package com.example.backend.dto.response;
 
 import com.example.backend.common.RoleName;
 import lombok.Data;
-
-import java.time.LocalDateTime;
+import lombok.EqualsAndHashCode;
 
 @Data
-public class RoleResponse {
-    private Long id;
+@EqualsAndHashCode(callSuper = true)
+public class RoleResponse extends BaseResponse{
     private RoleName roleName;
     private String description;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }
