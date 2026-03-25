@@ -1,34 +1,53 @@
-import type { BaseEntity } from "./common";
-import type { Promotion } from "./promotion";
-import type { BookingRoom } from "./bookingRoom";
-import type { Transaction } from "./transaction";
+import type { BaseEntity, BaseFilterRequest } from "./common";
+import type { BookingRoomRequest, BookingRoomResponse } from "./bookingRoom";
 import type { BookingStatus } from "./enum";
+import type { PromotionResponse } from "./promotion";
+import type { HotelListResponse } from "./hotel";
+import type { UserListResponse } from "./user";
 
-export interface Booking extends BaseEntity {
-  checkInDate: string; // YYYY-MM-DD
-  checkOutDate: string; // YYYY-MM-DD
+export interface BookingResponse extends BaseEntity {
+  checkInDate: string;
+  checkOutDate: string;
   totalAmount: number;
   status: BookingStatus;
   confirmationCode: string;
-  promotionId?: string;
-  promotion?: Promotion;
   guestCount: number;
-  notes?: string;
-  bookingRooms?: BookingRoom[];
-  transaction?: Transaction;
+  notes: string;
+  hotel: HotelListResponse;
+  user: UserListResponse;
+  promotion: PromotionResponse;
+  bookingRooms: BookingRoomResponse[]
+}
+
+export interface BookingListResponse extends BaseEntity {
+  checkInDate: string;
+  checkOutDate: string;
+  totalAmount: number;
+  status: BookingStatus;
+  confirmationCode: string;
+  guestCount: number;
+  hoteName: string;
 }
 
 export interface BookingRequest {
   hotelId: string;
-  roomTypeId: string;
-  checkIn: string;
-  checkOut: string;
-  guests: number;
-  totalPrice: number;
+  checkInDate: string;
+  checkOutDate: string;
+  guestCount: number;
+  bookingRooms: BookingRoomRequest[];
+  notes?: string;
+  promoCode?: string;
 }
 
-export interface BookingResponse {
-  id: string;
-  message: string;
-  booking: Booking;
+export interface BookingFilterRequest extends BaseFilterRequest {
+  userId?: string;
+  hotelId?: string;
+  promotionId?: string;
+  status?: BookingStatus;
+  checkInFrom?: string;
+  checkInTo?: string;
+  checkOutFrom?: string;
+  checkOutTo?: string;
+  minTotalAmount?: number;
+  maxTotalAmount?: number;
 }

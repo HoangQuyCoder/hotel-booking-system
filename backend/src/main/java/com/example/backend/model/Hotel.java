@@ -76,7 +76,7 @@ public class Hotel {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // N: 1 relationship with User
+    // N: 1 relationship with a User
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id", nullable = false)
     private User manager;

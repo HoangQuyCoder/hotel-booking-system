@@ -1,6 +1,7 @@
 package com.example.backend.mapper;
 
 import com.example.backend.dto.request.BookingRequest;
+import com.example.backend.dto.response.BookingListResponse;
 import com.example.backend.dto.response.BookingResponse;
 import com.example.backend.dto.response.BookingRoomDetailResponse;
 import com.example.backend.dto.response.BookingRoomResponse;
@@ -11,18 +12,22 @@ import org.mapstruct.*;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses ={
+        UserMapper.class,
+        HotelMapper.class,
+        PromotionMapper.class,
+        RoomTypeMapper.class,
+        RoomMapper.class,
+})
 public interface BookingMapper extends BaseMapper<Booking, BookingResponse> {
 
     // ===== BOOKING =====
-    @Mapping(source = "user.id", target = "userId")
-    @Mapping(source = "hotel.id", target = "hotelId")
-    @Mapping(source = "promotion.id", target = "promoId")
-    @Mapping(source = "bookingRooms", target = "bookingRooms")
     BookingResponse toResponse(Booking booking);
 
+    @Mapping(source = "hotel.name", target = "hotelName")
+    BookingListResponse toListResponse(Booking booking);
+
     // ===== BOOKING ROOM =====
-    @Mapping(source = "roomType.id", target = "roomTypeId")
     @Mapping(source = "bookingRoomDetails", target = "bookingRoomDetails")
     BookingRoomResponse toBookingRoomResponse(BookingRoom bookingRoom);
 

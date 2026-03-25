@@ -12,7 +12,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotificationLogFilterRequest extends BaseFilterRequest {
-
     private String recipient;
     private UUID templateId;
     private NotificationStatus status;
@@ -22,7 +21,6 @@ public class NotificationLogFilterRequest extends BaseFilterRequest {
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime sentFrom;
-
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime sentTo;
 

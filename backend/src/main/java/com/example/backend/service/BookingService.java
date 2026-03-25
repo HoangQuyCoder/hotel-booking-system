@@ -5,6 +5,7 @@ import com.example.backend.dto.filter.BookingFilterRequest;
 import com.example.backend.dto.request.BookingRequest;
 import com.example.backend.dto.request.BookingRoomRequest;
 import com.example.backend.dto.response.BookingCalculationResponse;
+import com.example.backend.dto.response.BookingListResponse;
 import com.example.backend.dto.response.BookingResponse;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.exception.ResourceNotFoundException;
@@ -251,7 +252,7 @@ public class BookingService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<BookingResponse> getAllBookings(BookingFilterRequest filterRequest) {
+    public PagedResponse<BookingListResponse> getAllBookings(BookingFilterRequest filterRequest) {
         logger.info("Filtering bookings with: {}", filterRequest);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -271,8 +272,8 @@ public class BookingService {
 
         Page<Booking> pageResult = bookingRepository.findAll(spec, pageable);
 
-        List<BookingResponse> content = pageResult.getContent().stream()
-                .map(bookingMapper::toResponse)
+        List<BookingListResponse> content = pageResult.getContent().stream()
+                .map(bookingMapper::toListResponse)
                 .collect(Collectors.toList());
 
         return new PagedResponse<>(

@@ -1,13 +1,32 @@
-import type { BaseEntity } from "./common";
-import type { CurrencyCode, TransactionStatus, TransactionType } from "./enum";
+import type { BaseEntity, BaseFilterRequest } from "./common";
+import type { CurrencyCode, PaymentMethod, TransactionStatus, TransactionType } from "./enum";
 
-export interface Transaction extends BaseEntity {
+export interface TransactionResponse extends BaseEntity {
   bookingId: string;
   amount: number;
   currency: CurrencyCode;
-  paymentMethod: string; // VISA, VNPAY, etc.
+  paymentMethod: PaymentMethod;
   status: TransactionStatus;
   gatewayRef?: string;
   processedAt?: string;
   transactionType: TransactionType;
+}
+
+export interface TransactionRequest {
+  bookingId: string;
+  amount: number;
+  currency: CurrencyCode;
+  paymentMethod: PaymentMethod;
+  gatewayRef?: string;
+}
+
+export interface TransactionFilterRequest extends BaseFilterRequest {
+  bookingId?: string;
+  currency?: CurrencyCode;
+  paymentMethod?: PaymentMethod;
+  status?: TransactionStatus;
+  transactionType?: TransactionType;
+  gatewayRef?: string;
+  processedFrom?: string;
+  processedTo?: string;
 }

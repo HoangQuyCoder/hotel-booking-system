@@ -14,9 +14,11 @@ public class DailyOverrideRequest {
     @NotNull(message = "Date is required")
     private LocalDate date;
 
+    @NotNull(message = "Price adjustment is required")
     @PositiveOrZero(message = "Price adjustment must be non-negative")
     private Double priceAdjustment;
 
+    @NotNull(message = "Available rooms is required")
     @PositiveOrZero(message = "Available rooms must be non-negative")
     private Integer availableRooms;
 

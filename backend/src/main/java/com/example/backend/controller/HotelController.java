@@ -5,6 +5,7 @@ import com.example.backend.dto.request.HotelRequest;
 import com.example.backend.dto.request.HotelUpdateRequest;
 import com.example.backend.dto.response.ApiResponse;
 import com.example.backend.dto.response.HotelDetailResponse;
+import com.example.backend.dto.response.HotelListResponse;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.service.HotelService;
 import jakarta.validation.Valid;
@@ -69,10 +70,10 @@ public class HotelController {
 
     // GET ALL HOTELS (with pagination and filter)
     @GetMapping
-    public ResponseEntity<ApiResponse<PagedResponse<HotelDetailResponse>>> getAllHotels(
+    public ResponseEntity<ApiResponse<PagedResponse<HotelListResponse>>> getAllHotels(
             HotelFilterRequest filter) {
 
-        PagedResponse<HotelDetailResponse> paged = hotelService.getAllHotels(filter);
+        PagedResponse<HotelListResponse> paged = hotelService.getAllHotels(filter);
         return ResponseEntity.ok(
                 ApiResponse.success("Get hotel list successfully", paged)
         );

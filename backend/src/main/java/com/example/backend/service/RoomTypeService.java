@@ -4,6 +4,7 @@ import com.example.backend.dto.filter.RoomTypeFilterRequest;
 import com.example.backend.dto.request.RoomTypeRequest;
 import com.example.backend.dto.request.RoomTypeUpdateRequest;
 import com.example.backend.dto.response.PagedResponse;
+import com.example.backend.dto.response.RoomTypeListResponse;
 import com.example.backend.dto.response.RoomTypeResponse;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.mapper.RoomTypeMapper;
@@ -158,7 +159,7 @@ public class RoomTypeService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<RoomTypeResponse> getAllRoomTypes(RoomTypeFilterRequest filterRequest) {
+    public PagedResponse<RoomTypeListResponse> getAllRoomTypes(RoomTypeFilterRequest filterRequest) {
         logger.info("Filtering room types with: {}", filterRequest);
 
         Pageable pageable = PagingUtils.toPageable(filterRequest);
@@ -168,9 +169,9 @@ public class RoomTypeService {
         Page<RoomType> roomTypePage = roomTypeRepository.findAll(spec, pageable);
 
         // Switch to DTO
-        List<RoomTypeResponse> content = roomTypePage.getContent()
+        List<RoomTypeListResponse> content = roomTypePage.getContent()
                 .stream()
-                .map(roomTypeMapper::toResponse)
+                .map(roomTypeMapper::toListResponse)
                 .collect(Collectors.toList());
 
         return new PagedResponse<>(

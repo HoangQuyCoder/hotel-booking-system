@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.common.RoleName;
 import com.example.backend.common.UserStatus;
 import com.example.backend.dto.request.*;
 import com.example.backend.dto.response.PasswordResetResponse;
@@ -93,6 +94,7 @@ public class AuthService {
     @Transactional
     public UserResponse register(RegisterRequest request) {
         logger.info("Attempting to register new user: {}", request.getEmail());
+
         emailService.validateEmailVerified(request.getEmail());
 
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -100,9 +102,13 @@ public class AuthService {
             throw new BadRequestException("Email already exists");
         }
 
-        Role role = roleRepository.findByRoleName(request.getRoleName())
+        RoleName roleName = request.getRoleName() != null
+                ? request.getRoleName()
+                : RoleName.CLIENT;
+
+        Role role = roleRepository.findByRoleName(roleName)
                 .orElseThrow(() -> {
-                    logger.error("Role not found for name: {}", request.getRoleName());
+                    logger.error("Role not found for name: {}", roleName);
                     return new ResourceNotFoundException("Role not found");
                 });
 

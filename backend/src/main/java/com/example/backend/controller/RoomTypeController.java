@@ -5,6 +5,7 @@ import com.example.backend.dto.request.RoomTypeRequest;
 import com.example.backend.dto.request.RoomTypeUpdateRequest;
 import com.example.backend.dto.response.ApiResponse;
 import com.example.backend.dto.response.PagedResponse;
+import com.example.backend.dto.response.RoomTypeListResponse;
 import com.example.backend.dto.response.RoomTypeResponse;
 import com.example.backend.service.RoomTypeService;
 import jakarta.validation.Valid;
@@ -85,10 +86,10 @@ public class RoomTypeController {
 
     // GET ALL ROOM TYPES (with pagination and filter)
     @GetMapping
-    public ResponseEntity<ApiResponse<PagedResponse<RoomTypeResponse>>> getAllRoomTypes(
+    public ResponseEntity<ApiResponse<PagedResponse<RoomTypeListResponse>>> getAllRoomTypes(
             RoomTypeFilterRequest filterRequest) {
 
-        PagedResponse<RoomTypeResponse> paged = roomTypeService.getAllRoomTypes(filterRequest);
+        PagedResponse<RoomTypeListResponse> paged = roomTypeService.getAllRoomTypes(filterRequest);
         return ResponseEntity.ok(
                 ApiResponse.success("Get room type list successfully", paged)
         );

@@ -151,7 +151,7 @@ public class HotelService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<HotelDetailResponse> getAllHotels(HotelFilterRequest filterRequest) {
+    public PagedResponse<HotelListResponse> getAllHotels(HotelFilterRequest filterRequest) {
         logger.info("Fetching hotels with filters: {}", filterRequest);
 
         Pageable pageable = PagingUtils.toPageable(filterRequest);
@@ -160,8 +160,8 @@ public class HotelService {
 
         Page<Hotel> hotels = hotelRepository.findAll(spec, pageable);
 
-        List<HotelDetailResponse> content = hotels.getContent().stream()
-                .map(hotelMapper::toResponse)
+        List<HotelListResponse> content = hotels.getContent().stream()
+                .map(hotelMapper::toListResponse)
                 .collect(Collectors.toList());
 
         return new PagedResponse<>(

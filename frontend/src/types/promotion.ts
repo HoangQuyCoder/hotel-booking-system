@@ -1,6 +1,6 @@
-import type { BaseEntity } from "./common";
+import type { BaseEntity, BaseFilterRequest } from "./common";
 
-export interface Promotion extends BaseEntity {
+export interface PromotionResponse extends BaseEntity {
   code: string;
   discountPercent: number;
   validFrom: string;
@@ -8,4 +8,20 @@ export interface Promotion extends BaseEntity {
   maxUses: number;
   usedCount: number;
   minBookingAmount: number;
+}
+
+export interface PromotionRequest {
+  code: string;
+  discountPercent: number;
+  validFrom: string;
+  validTo: string;
+  maxUses: number;
+  minBookingAmount: number;
+}
+
+export interface PromotionFilterRequest extends BaseFilterRequest {
+  code?: string;
+  validFrom?: string;
+  validTo?: string;
+  minBookingAmount?: number;
 }

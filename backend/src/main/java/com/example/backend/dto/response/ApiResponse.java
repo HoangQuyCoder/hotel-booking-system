@@ -15,7 +15,7 @@ public record ApiResponse<T>(
     }
 
     public static <T> ApiResponse<T> success(T data) {
-        return success("Thành công", data);
+        return success("Successful", data);
     }
 
     public static ApiResponse<Void> ok(String message) {
