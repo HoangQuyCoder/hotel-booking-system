@@ -1,6 +1,6 @@
-import type { AxiosRequestConfig } from "axios";
 export interface FieldError {
   field: string;
+  code: string;
   message: string;
 }
 
@@ -17,9 +17,4 @@ export interface ApiResponse<T> {
   data?: T;
   error?: ApiError;
   timestamp: string;
-}
-
-export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
-  silent?: boolean;
-  showSuccess?: boolean;
 }

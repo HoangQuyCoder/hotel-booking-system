@@ -1,15 +1,27 @@
-import type { BaseEntity } from "./common";
+import type { BaseEntity, BaseFilterRequest } from "./common";
 import type { NotificationStatus } from "./enum";
-import type { NotificationTemplate } from "./notificationTemplate";
 
 export interface NotificationLog extends BaseEntity {
-  recipient: string; // email hoặc số điện thoại
+  recipient: string;
   templateId: string;
-  template?: NotificationTemplate;
+  templateName: string;
   status: NotificationStatus;
-  sourceEvent?: string;
-  metadata?: Record<string, unknown>; // JSON placeholder
-  sentAt?: string;
+  sourceEvent: string;
+  metadata: Record<string, unknown>; // JSON placeholder
+  sentAt: string;
+  userId: string;
+  bookingId: string;
   retryCount: number;
-  errorMessage?: string;
+  errorMessage: string;
+}
+
+export interface NotificationLogFilterRequest extends BaseFilterRequest {
+  recipient?: string;
+  templateId?: string;
+  status?: NotificationStatus;
+  sourceEvent?: string;
+  retryCount?: number;
+  sentFrom?: string;
+  sentTo?: string;
+  keyword?: string;
 }

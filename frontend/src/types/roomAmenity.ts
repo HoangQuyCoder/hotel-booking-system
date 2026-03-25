@@ -1,10 +1,17 @@
-import type { BaseEntity } from "./common";
-import type { RoomTypeResponse } from "./roomType";
+import type { BaseEntity, BaseFilterRequest } from "./common";
 
-export interface RoomAmenity extends BaseEntity {
-  roomTypeId: string;
-  roomType?: RoomTypeResponse;
+export interface RoomAmenityResponse extends BaseEntity {
   name: string;
   category: string;
-  icon?: string;
+}
+
+export interface RoomAmenityRequest {
+  roomTypeId: string;
+  name: string;
+  category: string;
+}
+
+export interface RoomAmenityFilterRequest extends BaseFilterRequest {
+  name?: string;
+  category?: string;
 }
