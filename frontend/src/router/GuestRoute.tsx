@@ -1,16 +1,16 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { Spinner } from "../components/ui/Spinner";
 
 export default function GuestRoute() {
-  const { user, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div className="p-10 text-center">Loading...</div>;
+    return <Spinner fullscreen />;
   }
 
-  if (user) {
+  if (isAuthenticated) {
     return <Navigate to="/" replace />;
   }
-
   return <Outlet />;
 }

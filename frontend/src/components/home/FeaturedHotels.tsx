@@ -3,9 +3,9 @@ import HotelCardSkeleton from "../hotel/HotelCardSkeleton";
 import { useHotelApi } from "../../hooks/useHotelApi";
 
 export default function FeaturedHotels() {
-  const { useAllHotels } = useHotelApi();
+  const { useHotels } = useHotelApi();
 
-  const { data, isLoading, isError } = useAllHotels({
+  const { data, isLoading, isError } = useHotels({
     page: 0,
     size: 9,
   });
@@ -28,8 +28,8 @@ export default function FeaturedHotels() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {isLoading
             ? Array.from({ length: 6 }).map((_, i) => (
-                <HotelCardSkeleton key={i} />
-              ))
+              <HotelCardSkeleton key={i} />
+            ))
             : hotels.map((hotel) => <HotelCard key={hotel.id} hotel={hotel} />)}
         </div>
       </div>

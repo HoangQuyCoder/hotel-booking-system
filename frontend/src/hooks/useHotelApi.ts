@@ -1,99 +1,97 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import { hotelApi } from "../api/hotelApi";
 import type {
-  HotelDetailResponse,
-  HotelRequest,
   HotelUpdateRequest,
-  HotelFilter,
-} from "../types/hotel";
-import { toast } from "react-toastify";
-import type { PagedResponse } from "../types/common";
+  HotelFilterRequest,
+} from "../types";
 
-const KEY = {
-  HOTELS: ["hotels"] as const,
-  HOTEL: (id: string) => ["hotels", id] as const,
-  CITIES: (q: string) => ["hotels", "cities", q] as const,
-};
+const HOTELS_KEY = ["hotels"];
+const HOTEL_KEY = ["hotel"];
+const CITIES_KEY = ["cities"];
 
 export const useHotelApi = () => {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
 
-  // ========== GET ALL HOTELS =============
-  const useAllHotels = (filter: HotelFilter = {}) =>
+  // ================= GET ALL =================
+  const useHotels = (params: HotelFilterRequest) =>
     useQuery({
-      queryKey: [...KEY.HOTELS, filter],
-      queryFn: () => hotelApi.getAllHotels(filter),
-      select: (res) => res.data as PagedResponse<HotelDetailResponse>,
+      queryKey: [...HOTELS_KEY, params],
+      queryFn: () => hotelApi.getAll(params),
+      select: (res) => res.data,
     });
 
-  // ========= GET HOTEL DETAIL =============
-  const useHotel = (id?: string) =>
+  // ================= GET BY ID =================
+  const useHotelById = (id: string) =>
     useQuery({
-      queryKey: id ? KEY.HOTEL(id) : ["hotels", "hotel", "null"],
-      queryFn: () => {
-        if (!id) throw new Error("id required");
-        return hotelApi.getHotel(id);
-      },
+      queryKey: [...HOTEL_KEY, id],
+      queryFn: () => hotelApi.getById(id),
       enabled: !!id,
-      select: (res) => res.data as HotelDetailResponse,
+      select: (res) => res.data,
     });
 
-  // ========= CREATE HOTEL ============
-  const createHotel = useMutation({
-    mutationFn: (payload: HotelRequest) => hotelApi.createHotel(payload),
-    onSuccess: (res) => {
-      toast.success(res.message || "Create hotel successfully");
-      qc.invalidateQueries({ queryKey: KEY.HOTELS });
-    },
-    onError: () => toast.error("Create hotel failed"),
-  });
-
-  // ========== UPDATE HOTEL ===========
-  const updateHotel = useMutation({
-    mutationFn: ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: HotelUpdateRequest;
-    }) => hotelApi.updateHotel(id, payload),
-    onSuccess: (res) => {
-      toast.success(res.message || "Update hotel successfully");
-      qc.invalidateQueries({ queryKey: KEY.HOTELS });
-
-      if (res.data?.id) {
-        qc.invalidateQueries({ queryKey: KEY.HOTEL(res.data.id) });
-      }
-    },
-    onError: () => toast.error("Update hotel failed"),
-  });
-
-  // ============= DELETE HOTEL ==============
-  const deleteHotel = useMutation({
-    mutationFn: (id: string) => hotelApi.deleteHotel(id),
-    onSuccess: (res) => {
-      toast.success(res.message || "Delete hotel successfully");
-      qc.invalidateQueries({ queryKey: KEY.HOTELS });
-    },
-    onError: () => toast.error("Delete hotel failed"),
-  });
-
-  // ========= GET CITIES =========== 
+  // ================= SEARCH CITIES =================
   const useCities = (q: string) =>
     useQuery({
-      queryKey: KEY.CITIES(q),
+      queryKey: [...CITIES_KEY, q],
       queryFn: () => hotelApi.getCities(q),
-      enabled: q.length > 0,
-      select: (res) => res.data as string[],
+      enabled: !!q,
+      select: (res) => res.data,
     });
 
-  return {
-    // Queries
-    useAllHotels,
-    useHotel,
-    useCities,
+  // ================= CREATE =================
+  const createHotel = useMutation({
+    mutationFn: hotelApi.create,
 
-    // Mutations
+    onSuccess: (res) => {
+      toast.success(res.message);
+
+      // refetch list
+      queryClient.invalidateQueries({ queryKey: HOTELS_KEY });
+    },
+  });
+
+  // ================= UPDATE =================
+  const updateHotel = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: HotelUpdateRequest }) => hotelApi.update(id, data),
+
+    onSuccess: (res, variables) => {
+      toast.success(res.message);
+
+      // update cache detail
+      queryClient.setQueryData(
+        [...HOTEL_KEY, variables.id],
+        res.data
+      );
+
+      // refetch list
+      queryClient.invalidateQueries({ queryKey: HOTELS_KEY });
+    },
+  });
+
+  // ================= DELETE =================
+  const deleteHotel = useMutation({
+    mutationFn: (id: string) => hotelApi.delete(id),
+
+    onSuccess: (res, id) => {
+      toast.success(res.message);
+
+      // remove cache
+      queryClient.removeQueries({ queryKey: [...HOTEL_KEY, id] });
+
+      // refetch list
+      queryClient.invalidateQueries({ queryKey: HOTELS_KEY });
+    },
+  });
+
+  return {
+    useHotels,
+    useHotelById,
+    useCities,
     createHotel,
     updateHotel,
     deleteHotel,

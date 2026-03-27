@@ -1,5 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { getApiErrorMessage } from "../utils/error";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,6 +24,12 @@ export const queryClient = new QueryClient({
       gcTime: 10 * 60 * 1000,   // 10 minutes (old cacheTime)
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
+    },
+
+    mutations: {
+      onError: (error) => {
+        toast.error(getApiErrorMessage(error));
+      },
     },
   },
 });

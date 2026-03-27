@@ -3,7 +3,7 @@ import { Calendar, Users, Loader2 } from "lucide-react";
 import { Button } from "../ui/Button";
 import type { HotelDetailResponse } from "../../types";
 import { calculateTotalPrice } from "../../utils/pricing";
-import { createBooking } from "../../api/bookingApi";
+import { useBookingApi } from "../../hooks/useBookingApi";
 
 export default function BookingCard({ hotel }: { hotel: HotelDetailResponse }) {
   const [checkIn, setCheckIn] = useState("");
@@ -17,6 +17,8 @@ export default function BookingCard({ hotel }: { hotel: HotelDetailResponse }) {
 
   const checkInRef = useRef<HTMLInputElement>(null);
   const checkOutRef = useRef<HTMLInputElement>(null);
+
+  const { createBooking } = useBookingApi();
 
   // Auto-select first room type
   useMemo(() => {
@@ -74,19 +76,19 @@ export default function BookingCard({ hotel }: { hotel: HotelDetailResponse }) {
       totalPrice: total,
     };
 
-    try {
-      const result = await createBooking(payload);
-      alert(`Booking successful! ID: ${result.id}`);
-      // Optional: redirect or reset form
-    } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "Something went wrong. Please try again.";
-      setError(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
+    // try {
+    //   const result = await createBooking(payload);
+    //   alert(`Booking successful! ID: ${result.id}`);
+    //   // Optional: redirect or reset form
+    // } catch (err: unknown) {
+    //   const errorMessage =
+    //     err instanceof Error
+    //       ? err.message
+    //       : "Something went wrong. Please try again.";
+    //   setError(errorMessage);
+    // } finally {
+    //   setIsSubmitting(false);
+    // }
   };
 
   return (

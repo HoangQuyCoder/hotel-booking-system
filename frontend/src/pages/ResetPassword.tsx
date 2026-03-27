@@ -3,13 +3,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
-import apiClient from "../services/apiClient";
 import { toast } from "react-toastify";
-
-interface ResetForm {
-  newPassword: string;
-  confirmPassword: string;
-}
+import { useAuthApi } from "../hooks/useAuthApi";
+import type { ResetPasswordRequest } from "../types";
+import { apiClient } from "../services/apiClient";
 
 const schema = yup
   .object({
@@ -28,7 +25,7 @@ const ResetPassword: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ResetForm>({ resolver: yupResolver(schema) });
+  } = useForm<ResetPasswordRequest>();
 
   useEffect(() => {
     if (token) {
@@ -38,7 +35,7 @@ const ResetPassword: React.FC = () => {
     }
   }, [token]);
 
-  const onSubmit = async (data: ResetForm) => {
+  const onSubmit = async (data: ResetPasswordRequest) => {
     try {
       await apiClient.post("/auth/reset-password", { ...data, token });
       toast.success("Mật khẩu đã được đặt lại!");

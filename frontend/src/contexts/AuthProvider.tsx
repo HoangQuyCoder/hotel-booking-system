@@ -8,8 +8,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { useCurrentUser } = useUserApi();
 
   const { data: user, isLoading } = useCurrentUser();
-  console.log("Current user:", user);
-  
+
   const logout = async () => {
     await logoutMutation.mutateAsync();
   };
@@ -17,7 +16,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider
       value={{
-        user: user?.data || null,
+        user: user || null,
         isAuthenticated: !!user,
         isLoading,
         logout,

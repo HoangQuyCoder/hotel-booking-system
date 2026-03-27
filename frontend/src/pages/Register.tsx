@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useAuthApi } from "../hooks/useAuthApi";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { ArrowLeft, RefreshCw } from "lucide-react";
@@ -11,11 +10,10 @@ type Step = 1 | 2 | 3;
 
 export default function Register() {
   const [step, setStep] = useState<Step>(1);
-  const [loading, setLoading] = useState(false);
- const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const {
-    sendVerificationCode,
+    sendCode,
     verifyCode,
     register: registerMutation,
   } = useAuthApi();
@@ -30,7 +28,6 @@ export default function Register() {
   });
 
   const [countdown, setCountdown] = useState(0);
-  const [resending, setResending] = useState(false);
 
   // Countdown for OTP
   useEffect(() => {
@@ -46,52 +43,38 @@ export default function Register() {
 
     if (!email.trim()) return toast.error("Please enter your email");
 
-    setLoading(true);
-    try {
-      await sendVerificationCode.mutateAsync(
-        { email },
-        {
-          onSuccess: () => {
-            setCountdown(60);
-            setStep(2);
-          },
-        }
-      );
-    } finally {
-      setLoading(false);
-    }
+    await sendCode.mutateAsync(
+      { email },
+      {
+        onSuccess: () => {
+          setCountdown(60);
+          setStep(2);
+        },
+      }
+    );
   };
 
   // Resend code
   const handleResendCode = async () => {
-    setResending(true);
-    try {
-      await sendVerificationCode.mutateAsync({ email });
-      setCountdown(60);
-      setVerificationCode("");
-    } finally {
-      setResending(false);
-    }
+    await sendCode.mutateAsync({ email });
+    setCountdown(60);
+    setVerificationCode("");
   };
 
   // ========== STEP 2: Verify code ==========
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (verificationCode.length !== 6) {
       return toast.error("Please enter the full 6-digit code");
     }
 
-    setLoading(true);
-    try {
-      await verifyCode.mutateAsync(
-        { email, code: verificationCode },
-        {
-          onSuccess: () => setStep(3),
-        }
-      );
-    } finally {
-      setLoading(false);
-    }
+    await verifyCode.mutateAsync(
+      { email, code: verificationCode },
+      {
+        onSuccess: () => setStep(3),
+      }
+    );
   };
 
   // ========== STEP 3: Register ==========
@@ -101,33 +84,27 @@ export default function Register() {
     if (!formData.firstName || !formData.lastName || !formData.password) {
       return toast.error("Please fill in all fields");
     }
+
     if (formData.password.length < 6) {
       return toast.error("Password must be at least 6 characters");
     }
 
-    setLoading(true);
-    try {
-      await registerMutation.mutateAsync(
-        {
-          email,
-          password: formData.password,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-        },
-        {
-          onSuccess: () => {
-            navigate("/");
-          },
-        }
-      );
-    } finally {
-      setLoading(false);
-    }
+    await registerMutation.mutateAsync(
+      {
+        email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+      },
+      {
+        onSuccess: () => navigate("/"),
+      }
+    );
   };
 
   const goBack = () =>
     setStep((prev) => (prev > 1 ? ((prev - 1) as Step) : prev));
-  
+
   return (
     <div className="min-h-screen font-sans overflow-x-hidden">
       <section
@@ -145,9 +122,8 @@ export default function Register() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className={`h-2 w-20 rounded-full transition-all duration-300 ${
-                    i <= step ? "bg-cyan-600" : "bg-gray-300"
-                  }`}
+                  className={`h-2 w-20 rounded-full transition-all duration-300 ${i <= step ? "bg-cyan-600" : "bg-gray-300"
+                    }`}
                 />
               ))}
             </div>
@@ -166,7 +142,7 @@ export default function Register() {
                 required
               />
 
-              <Button type="submit" loading={loading} block>
+              <Button type="submit" loading={sendCode.isPending} block>
                 Continue
               </Button>
             </form>
@@ -213,6 +189,12 @@ export default function Register() {
                     id={`otp-${i}`}
                     className="w-12 h-14 text-2xl font-bold text-center border-2 rounded-lg outline-none transition-all focus:border-cyan-600 focus:ring-4 focus:ring-cyan-100 bg-gray-50"
                     autoFocus={i === 0}
+                    onPaste={(e) => {
+                      const paste = e.clipboardData.getData("text").replace(/\D/g, "");
+                      if (paste.length === 6) {
+                        setVerificationCode(paste);
+                      }
+                    }}
                   />
                 ))}
               </div>
@@ -230,7 +212,7 @@ export default function Register() {
                   <Button
                     variant="ghost"
                     onClick={handleResendCode}
-                    loading={resending}
+                    loading={sendCode.isPending}
                     leftIcon={<RefreshCw className="w-4 h-4" />}
                   >
                     Resend verification code
@@ -250,7 +232,7 @@ export default function Register() {
                 </Button>
                 <Button
                   type="submit"
-                  loading={loading}
+                  loading={verifyCode.isPending}
                   disabled={verificationCode.length !== 6}
                   block
                 >
@@ -305,7 +287,7 @@ export default function Register() {
                 >
                   Back
                 </Button>
-                <Button type="submit" loading={loading} block>
+                <Button type="submit" loading={registerMutation.isPending} block>
                   Complete Registration
                 </Button>
               </div>

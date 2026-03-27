@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import apiClient from "../services/apiClient";
+import { apiClient } from "../services/apiClient";
 import { toast } from "react-toastify";
 
 interface ForgotForm {

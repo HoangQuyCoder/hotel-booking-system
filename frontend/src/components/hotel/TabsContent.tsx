@@ -17,7 +17,7 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import type { BaseRate, DailyOverride, HotelDetailResponse } from "../../types";
+import type { BaseRateResponse, DailyOverrideResponse, HotelDetailResponse } from "../../types";
 
 interface AmenityItem {
   icon: JSX.Element;
@@ -25,8 +25,8 @@ interface AmenityItem {
 }
 
 function getCurrentPrice(
-  baseRates: BaseRate[],
-  dailyOverrides: DailyOverride[] = [],
+  baseRates: BaseRateResponse[],
+  dailyOverrides: DailyOverrideResponse[] = [],
   date: Date = new Date()
 ): number {
   const today = date.toISOString().split("T")[0]; // YYYY-MM-DD
@@ -86,10 +86,9 @@ export default function TabsContent({ hotel }: { hotel: HotelDetailResponse }) {
             onClick={() => setActiveTab(tab)}
             className={`
               pb-3 capitalize font-medium transition-colors border-b-2 -mb-px
-              ${
-                activeTab === tab
-                  ? "text-cyan-600 border-cyan-600"
-                  : "text-gray-500 hover:text-cyan-600 border-transparent"
+              ${activeTab === tab
+                ? "text-cyan-600 border-cyan-600"
+                : "text-gray-500 hover:text-cyan-600 border-transparent"
               }
             `}
           >
@@ -276,10 +275,10 @@ export default function TabsContent({ hotel }: { hotel: HotelDetailResponse }) {
                             (o) =>
                               o.date === new Date().toISOString().split("T")[0]
                           ) && (
-                            <p className="text-xs text-amber-600 font-medium">
-                              Special rate today!
-                            </p>
-                          )}
+                              <p className="text-xs text-amber-600 font-medium">
+                                Special rate today!
+                              </p>
+                            )}
                         </div>
                       </div>
                     </div>
@@ -310,9 +309,9 @@ export default function TabsContent({ hotel }: { hotel: HotelDetailResponse }) {
                                 <span className="font-semibold text-gray-800">
                                   Room {room.roomNumber}
                                 </span>
-                                {room.desc && (
+                                {room.status && (
                                   <span className="text-xs text-gray-600 ml-2 italic">
-                                    – {room.desc}
+                                    – {room.status}
                                   </span>
                                 )}
                               </div>

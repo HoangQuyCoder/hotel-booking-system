@@ -1,94 +1,104 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { authApi } from "../api/authApi";
-import type { AxiosError } from "axios";
+import type {
+  UserResponse
+} from "../types";
 
-interface ApiError {
-  message: string;
-}
+const USER_KEY = ["user"];
 
 export const useAuthApi = () => {
   const queryClient = useQueryClient();
 
-  // ---------------- COMMON HANDLERS ----------------
-  const notifySuccess = (message?: string) => {
-    if (message) toast.success(message);
+  const setUser = (user: UserResponse | null) => {
+    queryClient.setQueryData(USER_KEY, user);
   };
 
-  const notifyError = (err: AxiosError<ApiError>) => {
-    toast.error(err.response?.data?.message ?? "Something went wrong");
+  const clearUser = () => {
+    queryClient.removeQueries({ queryKey: USER_KEY });
+    setUser(null);
   };
 
-  // ---------------- LOGIN ----------------
+  // ================= LOGIN =================
   const login = useMutation({
-    mutationKey: ["auth", "login"],
     mutationFn: authApi.login,
+
     onSuccess: (res) => {
-      notifySuccess(res.message);
-      queryClient.setQueryData(["user"], res.data);
+      setUser(res.data);
+      if (res.message) toast.success(res.message);
     },
-    onError: notifyError,
   });
 
-  // ---------------- LOGOUT ----------------
+  // ================= LOGOUT =================
   const logout = useMutation({
-    mutationKey: ["auth", "logout"],
     mutationFn: authApi.logout,
+
     onSuccess: () => {
+      clearUser();
       toast.info("Signed out successfully");
-
-      queryClient.removeQueries({ queryKey: ["user"], exact: true });
-
-      queryClient.setQueryData(["user"], null);
     },
-    onError: notifyError,
   });
 
-  // ---------------- REGISTER ----------------
+  // ================= REGISTER =================
   const register = useMutation({
-    mutationKey: ["auth", "register"],
     mutationFn: authApi.register,
-    onSuccess: async (res, variables) => {
-      notifySuccess(res.message);
 
-      if (res.data) queryClient.setQueryData(["user"], res.data);
-
-      // Auto login
-      try {
-        const loginRes = await authApi.login({
-          email: variables.email,
-          password: variables.password,
-        });
-        queryClient.setQueryData(["user"], loginRes.data);
-        toast.success("Logged in automatically!");
-      } catch {
-        toast.error("Registered but failed to login automatically.");
-      }
+    onSuccess: (res) => {
+      setUser(res.data);
+      if (res.message) toast.success(res.message);
     },
-    onError: notifyError,
   });
 
-  // ---------------- SEND VERIFICATION CODE ----------------
-  const sendVerificationCode = useMutation({
-    mutationKey: ["auth", "send-code"],
+  // ================= SEND CODE =================
+  const sendCode = useMutation({
     mutationFn: authApi.sendVerificationCode,
-    onSuccess: (res) => notifySuccess(res.message),
-    onError: notifyError,
+
+    onSuccess: (res) => {
+      if (res.message) toast.success(res.message);
+    },
   });
 
-  // ---------------- VERIFY CODE ----------------
+  // ================= VERIFY =================
   const verifyCode = useMutation({
-    mutationKey: ["auth", "verify-code"],
     mutationFn: authApi.verifyCode,
-    onSuccess: (res) => notifySuccess(res.message),
-    onError: notifyError,
+
+    onSuccess: (res) => {
+      if (res.message) toast.success(res.message);
+    },
+  });
+
+  const forgotPassword = useMutation({
+    mutationFn: authApi.forgotPassword,
+
+    onSuccess: (res) => {
+      if (res.message) toast.success(res.message);
+    },
+  });
+
+  const validateResetToken = useMutation({
+    mutationFn: authApi.validateResetToken,
+
+    onSuccess: (res) => {
+      if (res.message) toast.success(res.message);
+    },
+  });
+
+  const resetPassword = useMutation({
+    mutationFn: authApi.resetPassword,
+
+    onSuccess: (res) => {
+      if (res.message) toast.success(res.message);
+    },
   });
 
   return {
     login,
     logout,
     register,
-    sendVerificationCode,
+    sendCode,
     verifyCode,
+    forgotPassword,
+    validateResetToken,
+    resetPassword,
   };
 };
