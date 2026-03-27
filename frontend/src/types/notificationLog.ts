@@ -1,7 +1,7 @@
 import type { BaseEntity, BaseFilterRequest } from "./common";
 import type { NotificationStatus } from "./enum";
 
-export interface NotificationLog extends BaseEntity {
+export interface NotificationLogResponse extends BaseEntity {
   recipient: string;
   templateId: string;
   templateName: string;
