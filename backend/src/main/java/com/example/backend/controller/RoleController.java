@@ -54,7 +54,9 @@ public class RoleController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteRole(@PathVariable Long id) {
         roleService.deleteRole(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(
+                ApiResponse.ok("User deleted successfully")
+        );
     }
 
     // TAKE ALL ROLES

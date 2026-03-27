@@ -2,7 +2,7 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.request.*;
 import com.example.backend.dto.response.ApiResponse;
-import com.example.backend.dto.response.PasswordResetResponse;
+import com.example.backend.dto.response.ResetPasswordResponse;
 import com.example.backend.dto.response.UserResponse;
 import com.example.backend.service.AuthService;
 import com.example.backend.service.EmailService;
@@ -98,10 +98,10 @@ public class AuthController {
 
     // REQUEST PASSWORD RESET
     @PostMapping("/forgot-password")
-    public ResponseEntity<ApiResponse<PasswordResetResponse>> requestPasswordReset(
-            @Valid @RequestBody PasswordResetRequest request) {
+    public ResponseEntity<ApiResponse<ResetPasswordResponse>> requestPasswordReset(
+            @Valid @RequestBody ForgotPasswordRequest request) {
 
-        PasswordResetResponse res = authService.requestPasswordReset(request);
+        ResetPasswordResponse res = authService.requestPasswordReset(request);
 
         return ResponseEntity.ok(
                 ApiResponse.success("Password recovery email has been sent", res)
@@ -110,10 +110,10 @@ public class AuthController {
 
     // VALIDATE RESET TOKEN
     @PostMapping("/validate-reset-token")
-    public ResponseEntity<ApiResponse<PasswordResetResponse>> validateResetToken(
+    public ResponseEntity<ApiResponse<ResetPasswordResponse>> validateResetToken(
             @Valid @RequestBody ValidateResetTokenRequest request) {
 
-        PasswordResetResponse res = authService.validateResetToken(request);
+        ResetPasswordResponse res = authService.validateResetToken(request);
 
         return ResponseEntity.ok(
                 ApiResponse.success("Valid tokens", res)
@@ -122,10 +122,10 @@ public class AuthController {
 
     // RESET PASSWORD
     @PostMapping("/reset-password")
-    public ResponseEntity<ApiResponse<PasswordResetResponse>> resetPassword(
+    public ResponseEntity<ApiResponse<ResetPasswordResponse>> resetPassword(
             @Valid @RequestBody ResetPasswordRequest request) {
 
-        PasswordResetResponse res = authService.resetPassword(request);
+        ResetPasswordResponse res = authService.resetPassword(request);
 
         return ResponseEntity.ok(
                 ApiResponse.success("Password reset successful", res)

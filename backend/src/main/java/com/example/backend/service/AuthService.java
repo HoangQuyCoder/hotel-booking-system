@@ -3,7 +3,7 @@ package com.example.backend.service;
 import com.example.backend.common.RoleName;
 import com.example.backend.common.UserStatus;
 import com.example.backend.dto.request.*;
-import com.example.backend.dto.response.PasswordResetResponse;
+import com.example.backend.dto.response.ResetPasswordResponse;
 import com.example.backend.dto.response.UserResponse;
 import com.example.backend.exception.BadRequestException;
 import com.example.backend.exception.ResourceNotFoundException;
@@ -125,7 +125,7 @@ public class AuthService {
     // ============================= PASSWORD RESET =============================
 
     @Transactional
-    public PasswordResetResponse requestPasswordReset(PasswordResetRequest request) {
+    public ResetPasswordResponse requestPasswordReset(ForgotPasswordRequest request) {
         logger.info("Password reset request for: {}", request.getEmail());
 
         User user = userRepository.findByEmail(request.getEmail())
@@ -142,11 +142,11 @@ public class AuthService {
         userRepository.save(user);
         notificationService.sendPasswordResetEmail(user.getEmail(), resetToken);
         logger.info("Password reset email sent to: {}", user.getEmail());
-        return new PasswordResetResponse("Password reset email sent successfully");
+        return new ResetPasswordResponse("Password reset email sent successfully");
     }
 
     @Transactional
-    public PasswordResetResponse resetPassword(ResetPasswordRequest request) {
+    public ResetPasswordResponse resetPassword(ResetPasswordRequest request) {
         logger.info("Resetting password using token");
 
         if (!request.getPassword().equals(request.getConfirmPassword())) {
@@ -163,14 +163,14 @@ public class AuthService {
         userRepository.save(user);
         notificationService.sendPasswordChangedEmail(user.getEmail());
         logger.info("Password reset completed successfully for user: {}", user.getEmail());
-        return new PasswordResetResponse("Password reset successfully");
+        return new ResetPasswordResponse("Password reset successfully");
     }
 
-    public PasswordResetResponse validateResetToken(ValidateResetTokenRequest request) {
+    public ResetPasswordResponse validateResetToken(ValidateResetTokenRequest request) {
         logger.debug("Validating reset token: {}", request.getToken());
         User user = getUserByValidResetToken(request.getToken());
         logger.info("Reset token is valid for user: {}", user.getEmail());
-        return new PasswordResetResponse("Reset token is valid");
+        return new ResetPasswordResponse("Reset token is valid");
     }
 
     private User getUserByValidResetToken(String token) {
