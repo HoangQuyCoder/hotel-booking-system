@@ -1,11 +1,12 @@
-import apiClient from "../services/apiClient";
-import type { ApiResponse } from "../types/api";
+import { apiClient } from "../services/apiClient";
+import { apiCall } from "../services/apiCall";
 import type {
+  ApiResponse,
   LoginRequest,
   RegisterRequest,
-  UserResponse,
+  ResetPasswordRequest,
+  UserResponse
 } from "../types";
-import { apiCall } from "../services/apiCall";
 
 export const authApi = {
   login: (data: LoginRequest) =>
@@ -32,5 +33,19 @@ export const authApi = {
     apiCall<ApiResponse<void>>(
       apiClient.post("/auth/verify-code", data)
     ),
-};
 
+  forgotPassword: (data: { email: string }) =>
+    apiCall<ApiResponse<any>>(
+      apiClient.post("/auth/forgot-password", data)
+    ),
+
+  resetPassword: (data: ResetPasswordRequest) =>
+    apiCall<ApiResponse<any>>(
+      apiClient.post("/auth/reset-password", data)
+    ),
+
+  validateResetToken: (data: { token: string }) =>
+    apiCall<ApiResponse<any>>(
+      apiClient.get("/auth/validate-reset-token", { params: data })
+    ),
+};

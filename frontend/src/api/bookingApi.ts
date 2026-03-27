@@ -1,64 +1,54 @@
-import api from "../services/apiClient";
-import type { BookingRequest, BookingResponse } from "../types";
+import { apiClient } from "../services/apiClient";
+import { apiCall } from "../services/apiCall";
+import type {
+  ApiResponse,
+  PagedResponse,
+  BookingRequest,
+  BookingResponse,
+  BookingListResponse,
+  BookingFilterRequest,
+} from "../types";
 
-/**
- * Tạo đặt phòng mới (CLIENT)
- */
-export const createBooking = async (data: BookingRequest) => {
-  const response = await api.post<BookingResponse>("/bookings", data);
-  return response.data;
-};
+export const bookingApi = {
+  // CREATE BOOKING
+  create: (data: BookingRequest) =>
+    apiCall<ApiResponse<BookingResponse>>(
+      apiClient.post("/bookings", data)
+    ),
 
-/**
- * Lấy chi tiết đặt phòng (CLIENT/ADMIN/STAFF)
- */
-export const getBookingById = async (id: string) => {
-  const response = await api.get<BookingResponse>(`/bookings/${id}`);
-  return response.data;
-};
+  // GET BY ID
+  getById: (id: string) =>
+    apiCall<ApiResponse<BookingResponse>>(
+      apiClient.get(`/bookings/${id}`)
+    ),
 
-/**
- * Cập nhật đặt phòng (CLIENT nếu PENDING, ADMIN)
- */
-export const updateBooking = async (
-  id: string,
-  data: Partial<BookingRequest>
-) => {
-  const response = await api.put<BookingResponse>(`/bookings/${id}`, data);
-  return response.data;
-};
+  // UPDATE
+  update: (id: string, data: BookingRequest) =>
+    apiCall<ApiResponse<BookingResponse>>(
+      apiClient.put(`/bookings/${id}`, data)
+    ),
 
-/**
- * Hủy đặt phòng (CLIENT/ADMIN)
- */
-export const cancelBooking = async (id: string) => {
-  const response = await api.delete(`/bookings/${id}`);
-  return response.status === 204;
-};
+  // CANCEL
+  cancel: (id: string) =>
+    apiCall<ApiResponse<void>>(
+      apiClient.delete(`/bookings/${id}`)
+    ),
 
-/**
- * Lấy danh sách đặt phòng (filter theo userId, hotelId)
- */
-export const getBookings = async (params?: {
-  userId?: string;
-  hotelId?: string;
-}) => {
-  const response = await api.get<BookingResponse[]>("/bookings", { params });
-  return response.data;
-};
+  // GET ALL (pagination + filter)
+  getAll: (params: BookingFilterRequest) =>
+    apiCall<ApiResponse<PagedResponse<BookingListResponse>>>(
+      apiClient.get("/bookings", { params })
+    ),
 
-/**
- * Check-in đặt phòng (STAFF)
- */
-export const checkInBooking = async (id: string) => {
-  const response = await api.put<BookingResponse>(`/bookings/${id}/check-in`);
-  return response.data;
-};
+  // CHECK-IN
+  checkIn: (id: string) =>
+    apiCall<ApiResponse<BookingResponse>>(
+      apiClient.put(`/bookings/${id}/check-in`)
+    ),
 
-/**
- * Check-out đặt phòng (STAFF)
- */
-export const checkOutBooking = async (id: string) => {
-  const response = await api.put<BookingResponse>(`/bookings/${id}/check-out`);
-  return response.data;
+  // CHECK-OUT
+  checkOut: (id: string) =>
+    apiCall<ApiResponse<BookingResponse>>(
+      apiClient.put(`/bookings/${id}/check-out`)
+    ),
 };

@@ -1,25 +1,35 @@
-import apiClient from "../services/apiClient";
-import type { RoleRequest, RoleResponse } from "../types/role";
+import { apiClient } from "../services/apiClient";
 import { apiCall } from "../services/apiCall";
-import type { ApiResponse } from "../types";
-
-const BASE_URL = "roles";
+import type { ApiResponse, RoleRequest, RoleResponse } from "../types";
 
 export const roleApi = {
-  createRole: (payload: RoleRequest) =>
-    apiCall<ApiResponse<RoleResponse>>(apiClient.post(BASE_URL, payload)),
-
-  getRole: (id: string) =>
-    apiCall<ApiResponse<RoleResponse>>(apiClient.get(`${BASE_URL}/${id}`)),
-
-  updateRole: (id: number, payload: RoleRequest) =>
+  // CREATE ROLE
+  create: (data: RoleRequest) =>
     apiCall<ApiResponse<RoleResponse>>(
-      apiClient.put(`${BASE_URL}/${id}`, payload)
+      apiClient.post("/roles", data)
     ),
 
-  deleteRole: (id: number) =>
-    apiCall<ApiResponse<void>>(apiClient.delete(`${BASE_URL}/${id}`)),
+  // GET BY ID
+  getById: (id: number) =>
+    apiCall<ApiResponse<RoleResponse>>(
+      apiClient.get(`/roles/${id}`)
+    ),
 
-  getAllRoles: () =>
-    apiCall<ApiResponse<RoleResponse[]>>(apiClient.get(BASE_URL)),
+  // UPDATE
+  update: (id: number, data: RoleRequest) =>
+    apiCall<ApiResponse<RoleResponse>>(
+      apiClient.put(`/roles/${id}`, data)
+    ),
+
+  // DELETE
+  delete: (id: number) =>
+    apiCall<ApiResponse<void>>(
+      apiClient.delete(`/roles/${id}`)
+    ),
+
+  // GET ALL
+  getAll: () =>
+    apiCall<ApiResponse<RoleResponse[]>>(
+      apiClient.get("/roles")
+    ),
 };
