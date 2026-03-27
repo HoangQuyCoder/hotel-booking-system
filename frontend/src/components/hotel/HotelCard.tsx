@@ -1,8 +1,8 @@
 import { Star, MapPin } from "lucide-react";
-import type { HotelDetailResponse } from "../../types";
+import type { HotelListResponse } from "../../types";
 import { Link } from "react-router-dom";
 
-export default function HotelCard({ hotel }: { hotel: HotelDetailResponse }) {
+export default function HotelCard({ hotel }: { hotel: HotelListResponse }) {
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden group hover:shadow-xl transition-shadow">
       <div className="relative h-48 overflow-hidden">
@@ -35,13 +35,15 @@ export default function HotelCard({ hotel }: { hotel: HotelDetailResponse }) {
             View Deal
           </Link>
         </div>
-        {hotel.contactPhone && (
+        {hotel.checkInTime && (
           <p className="text-xs text-gray-500 mt-2">
-            Phone: {hotel.contactPhone}
+            Check-in: {hotel.checkInTime}
           </p>
         )}
-        {hotel.contactEmail && (
-          <p className="text-xs text-gray-500">{hotel.contactEmail}</p>
+        {hotel.checkOutTime && (
+          <p className="text-xs text-gray-500 mt-2">
+            Check-out: {hotel.checkOutTime}
+          </p>
         )}
       </div>
     </div>
