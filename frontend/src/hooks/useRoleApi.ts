@@ -1,82 +1,79 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { roleApi } from "../api/roleApi";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import { roleApi } from "../api/roleApi";
 import type { RoleRequest } from "../types";
 
-export const ROLE_KEYS = {
-  ALL: ["roles"] as const,
-  DETAIL: (id: string) => ["roles", id] as const,
-};
+const ROLES_KEY = ["roles"];
 
 export const useRoleApi = () => {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
 
-  // =========== GET ALL ROLES ===============
-  const useAllRoles = () =>
+  // ================= GET ALL =================
+  const useRoles = () =>
     useQuery({
-      queryKey: ROLE_KEYS.ALL,
-      queryFn: roleApi.getAllRoles,
+      queryKey: ROLES_KEY,
+      queryFn: roleApi.getAll,
       select: (res) => res.data,
     });
 
-  // =========== GET ROLE BY ID ===============
-  const useRole = (id: string) =>
+  // ================= GET BY ID =================
+  const useRoleById = (id: number) =>
     useQuery({
-      queryKey: ROLE_KEYS.DETAIL(id),
-      queryFn: () => roleApi.getRole(id),
+      queryKey: ["role", id],
+      queryFn: () => roleApi.getById(id),
       enabled: !!id,
       select: (res) => res.data,
     });
 
-  // =========== CREATE ROLE =============
+  // ================= CREATE =================
   const createRole = useMutation({
-    mutationFn: roleApi.createRole,
+    mutationFn: roleApi.create,
+
     onSuccess: (res) => {
       toast.success(res.message);
-      qc.invalidateQueries({ queryKey: ROLE_KEYS.ALL });
-    },
-    onError: () => {
-      toast.error("Create role failed");
+
+      // refetch list
+      queryClient.invalidateQueries({ queryKey: ROLES_KEY });
     },
   });
 
-  // =========== UPDATE ROLE ===============
+  // ================= UPDATE =================
   const updateRole = useMutation({
-    mutationFn: (vars: { id: number; data: RoleRequest }) =>
-      roleApi.updateRole(vars.id, vars.data),
+    mutationFn: ({ id, data }: { id: number; data: RoleRequest }) => roleApi.update(id, data),
 
-    onSuccess: (res) => {
+    onSuccess: (res, variables) => {
       toast.success(res.message);
-      qc.invalidateQueries({ queryKey: ROLE_KEYS.ALL });
-      // invalidate detail if needed
-      if (res.data?.id) {
-        qc.invalidateQueries({ queryKey: ROLE_KEYS.DETAIL(res.data.id) });
-      }
-    },
-    onError: () => {
-      toast.error("Update role failed");
+
+      // update cache detail
+      queryClient.setQueryData(["role", variables.id], res.data);
+
+      // refetch list
+      queryClient.invalidateQueries({ queryKey: ROLES_KEY });
     },
   });
 
-  // ========= DELETE ROLE ============
+  // ================= DELETE =================
   const deleteRole = useMutation({
-    mutationFn: (id: number) => roleApi.deleteRole(id),
+    mutationFn: (id: number) => roleApi.delete(id),
 
-    onSuccess: (res) => {
-      toast.success(res.message);
-      qc.invalidateQueries({ queryKey: ROLE_KEYS.ALL });
-    },
-    onError: () => {
-      toast.error("Delete role failed");
+    onSuccess: (_, id) => {
+      toast.success("Role deleted successfully");
+
+      // remove cache
+      queryClient.removeQueries({ queryKey: ["role", id] });
+
+      // refetch list
+      queryClient.invalidateQueries({ queryKey: ROLES_KEY });
     },
   });
 
   return {
-    // queries
-    useAllRoles,
-    useRole,
-
-    // mutations
+    useRoles,
+    useRoleById,
     createRole,
     updateRole,
     deleteRole,

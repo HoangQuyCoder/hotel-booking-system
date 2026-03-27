@@ -1,82 +1,83 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { userApi } from "../api/userApi";
-import type { UserFilterRequest, UserUpdateRequest } from "../types";
+import type {
+  UserUpdateRequest,
+  UserFilterRequest,
+} from "../types";
 
-export const USER_KEYS = {
-  ALL: ["users"] as const,
-  LIST: (f: UserFilterRequest) => [...USER_KEYS.ALL, "list", f] as const,
-  DETAIL: (id: string) => [...USER_KEYS.ALL, "detail", id] as const,
-  CURRENT: ["users", "me"] as const,
-};
+const USER_KEY = ["user"];
+const USERS_KEY = ["users"];
 
 export const useUserApi = () => {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
 
-  // ========= GET CURRENT USER ===============
+  // ================= GET CURRENT USER =================
   const useCurrentUser = () =>
     useQuery({
-      queryKey: USER_KEYS.CURRENT,
-      queryFn: userApi.getCurrentUser,
-      retry: false,
-      refetchInterval: 15 * 60 * 1000,
-      staleTime: 1000 * 60 * 10,
+      queryKey: USER_KEY,
+      queryFn: userApi.getMe,
+      select: (res) => res.data, // unwrap
     });
 
-  // ========= GET USER BY ID ============
+  // ================= GET USER BY ID =================
   const useUserById = (id: string) =>
     useQuery({
-      queryKey: USER_KEYS.DETAIL(id),
-      queryFn: () => userApi.getUserById(id),
+      queryKey: ["user", id],
+      queryFn: () => userApi.getById(id),
       enabled: !!id,
+      select: (res) => res.data,
     });
 
-  // ======== GET ALL USERS ===========
-  const useUsers = (filter: UserFilterRequest) =>
+  // ================= GET ALL USERS =================
+  const useUsers = (params: UserFilterRequest) =>
     useQuery({
-      queryKey: USER_KEYS.LIST(filter),
-      queryFn: () => userApi.getAllUsers(filter),
+      queryKey: [...USERS_KEY, params],
+      queryFn: () => userApi.getAll(params),
+      select: (res) => res.data,
     });
 
-  // ========= UPDATE USER ============
+  // ================= UPDATE USER =================
   const updateUser = useMutation({
-    mutationFn: (vars: { id: string; body: UserUpdateRequest }) =>
-      userApi.updateUser(vars.id, vars.body),
+    mutationFn: ({ id, data }: { id: string; data: UserUpdateRequest }) => userApi.update(id, data),
 
-    onSuccess: (res, vars) => {
+    onSuccess: (res, variables) => {
       toast.success(res.message);
 
-      qc.invalidateQueries({ queryKey: USER_KEYS.DETAIL(vars.id) });
-      qc.invalidateQueries({ queryKey: USER_KEYS.ALL });
-      qc.invalidateQueries({ queryKey: USER_KEYS.CURRENT });
-    },
+      // update cache user detail
+      queryClient.setQueryData(["user", variables.id], res.data);
 
-    onError: () => {
-      toast.error("Update failed");
+      // update current user nếu chính mình
+      queryClient.setQueryData(USER_KEY, res.data);
+
+      // invalidate list
+      queryClient.invalidateQueries({ queryKey: USERS_KEY });
     },
   });
 
-  // ======== DELETE USER =========
+  // ================= DELETE USER =================
   const deleteUser = useMutation({
-    mutationFn: (id: string) => userApi.deleteUser(id),
+    mutationFn: (id: string) => userApi.delete(id),
 
-    onSuccess: () => {
-      toast.success("User deleted!");
-      qc.invalidateQueries({ queryKey: USER_KEYS.ALL });
-    },
+    onSuccess: (res, id) => {
+      toast.success(res.message);
 
-    onError: () => {
-      toast.error("Delete failed");
+      // remove cache
+      queryClient.removeQueries({ queryKey: ["user", id] });
+
+      // refetch list
+      queryClient.invalidateQueries({ queryKey: USERS_KEY });
     },
   });
 
   return {
-    // Queries
     useCurrentUser,
     useUserById,
     useUsers,
-
-    // Mutations
     updateUser,
     deleteUser,
   };
