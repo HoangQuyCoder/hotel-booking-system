@@ -50,15 +50,8 @@ public class PromotionService {
             throw new IllegalArgumentException("Max uses must be positive");
         }
 
-        Promotion promotion = Promotion.builder()
-                .code(request.getCode())
-                .discountPercent(request.getDiscountPercent())
-                .validFrom(request.getValidFrom())
-                .validTo(request.getValidTo())
-                .maxUses(request.getMaxUses())
-                .minBookingAmount(request.getMinBookingAmount())
-                .usedCount(0)
-                .build();
+        Promotion promotion = promotionMapper.toEntity(request);
+        promotion.setUsedCount(0); // Ensure used count starts at 0
 
         try {
             Promotion saved = promotionRepository.save(promotion);
@@ -111,16 +104,12 @@ public class PromotionService {
 
         // If you decrease maxUses, make sure usedCount does not exceed
         if (request.getMaxUses() != null && promotion.getUsedCount() > request.getMaxUses()) {
-            logger.error("[update] Used count {} exceeds new max uses {}", promotion.getUsedCount(), request.getMaxUses());
+            logger.error("[update] Used count {} exceeds new max uses {}", promotion.getUsedCount(),
+                    request.getMaxUses());
             throw new IllegalArgumentException("Used count exceeds new max uses");
         }
 
-        promotion.setCode(request.getCode());
-        promotion.setDiscountPercent(request.getDiscountPercent());
-        promotion.setValidFrom(request.getValidFrom());
-        promotion.setValidTo(request.getValidTo());
-        promotion.setMaxUses(request.getMaxUses());
-        promotion.setMinBookingAmount(request.getMinBookingAmount());
+        promotionMapper.updateEntity(request, promotion);
 
         try {
             Promotion updated = promotionRepository.save(promotion);
@@ -176,7 +165,6 @@ public class PromotionService {
                 pageResult.getNumber(),
                 pageResult.getSize(),
                 pageResult.getTotalElements(),
-                pageResult.getTotalPages()
-        );
+                pageResult.getTotalPages());
     }
 }

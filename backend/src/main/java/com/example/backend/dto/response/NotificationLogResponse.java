@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class NotificationLogResponse extends BaseResponse{
+public class NotificationLogResponse extends BaseResponse {
     private String recipient;
     private UUID templateId;
     private String templateName;
@@ -19,7 +19,6 @@ public class NotificationLogResponse extends BaseResponse{
     private Map<String, Object> metadata;
     private LocalDateTime sentAt;
     private UUID userId;
-    private UUID bookingId;
     private Integer retryCount;
     private String errorMessage;
 }

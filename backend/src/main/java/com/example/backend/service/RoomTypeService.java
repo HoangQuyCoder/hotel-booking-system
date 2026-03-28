@@ -1,5 +1,17 @@
 package com.example.backend.service;
 
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.backend.dto.filter.RoomTypeFilterRequest;
 import com.example.backend.dto.request.RoomTypeRequest;
 import com.example.backend.dto.request.RoomTypeUpdateRequest;
@@ -13,21 +25,10 @@ import com.example.backend.model.RoomType;
 import com.example.backend.repository.HotelRepository;
 import com.example.backend.repository.RoomTypeRepository;
 import com.example.backend.specification.RoomTypeSpecification;
-import com.example.backend.utils.BeanUtilsHelper;
 import com.example.backend.utils.PagingUtils;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +45,8 @@ public class RoomTypeService {
         logger.info("Creating room type with name: {} for hotel ID: {}", request.getName(), request.getHotelId());
 
         if (roomTypeRepository.existsByNameAndHotelId(request.getName(), request.getHotelId())) {
-            logger.error("[create] Room type already exists: {} for hotel ID: {}", request.getName(), request.getHotelId());
+            logger.error("[create] Room type already exists: {} for hotel ID: {}", request.getName(),
+                    request.getHotelId());
             throw new IllegalArgumentException("Room type already exists in this hotel");
         }
 
@@ -54,16 +56,8 @@ public class RoomTypeService {
                     return new ResourceNotFoundException("Hotel not found");
                 });
 
-        RoomType roomType = RoomType.builder()
-                .name(request.getName())
-                .capacity(request.getCapacity())
-                .sizeSqm(request.getSizeSqm())
-                .totalRooms(request.getTotalRooms())
-                .description(request.getDescription())
-                .hotel(hotel)
-                .isAvailable(true)
-                .isActive(true)
-                .build();
+        RoomType roomType = roomTypeMapper.toEntity(request);
+        roomType.setHotel(hotel);
 
         try {
             RoomType saved = roomTypeRepository.save(roomType);
@@ -96,9 +90,11 @@ public class RoomTypeService {
                     return new ResourceNotFoundException("Room type not found");
                 });
 
-        if (!roomType.getName().equals(request.getName()) || !roomType.getHotel().getId().equals(request.getHotelId())) {
+        if (!roomType.getName().equals(request.getName())
+                || !roomType.getHotel().getId().equals(request.getHotelId())) {
             if (roomTypeRepository.existsByNameAndHotelId(request.getName(), request.getHotelId())) {
-                logger.error("[update] Room type already exists: {} for hotel ID: {}", request.getName(), request.getHotelId());
+                logger.error("[update] Room type already exists: {} for hotel ID: {}", request.getName(),
+                        request.getHotelId());
                 throw new IllegalArgumentException("Room type already exists in this hotel");
             }
         }
@@ -109,8 +105,7 @@ public class RoomTypeService {
                     return new ResourceNotFoundException("Hotel not found");
                 });
 
-        // Update fields only when data is available
-        BeanUtilsHelper.copyNonNullProperties(request, roomType);
+        roomTypeMapper.updateEntity(request, roomType);
         roomType.setHotel(hotel);
 
         try {
@@ -179,7 +174,6 @@ public class RoomTypeService {
                 roomTypePage.getNumber(),
                 roomTypePage.getSize(),
                 roomTypePage.getTotalElements(),
-                roomTypePage.getTotalPages()
-        );
+                roomTypePage.getTotalPages());
     }
 }

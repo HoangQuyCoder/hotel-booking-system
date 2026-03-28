@@ -47,10 +47,12 @@ public class BookingService {
 
     @Transactional
     public BookingResponse createBooking(BookingRequest request) {
-        logger.info("Creating booking for check-in: {}, check-out: {}", request.getCheckInDate(), request.getCheckOutDate());
+        logger.info("Creating booking for check-in: {}, check-out: {}", request.getCheckInDate(),
+                request.getCheckOutDate());
 
         if (request.getCheckOutDate().isBefore(request.getCheckInDate())) {
-            logger.error("[create] Check-out date {} is before check-in date {}", request.getCheckOutDate(), request.getCheckInDate());
+            logger.error("[create] Check-out date {} is before check-in date {}", request.getCheckOutDate(),
+                    request.getCheckInDate());
             throw new IllegalArgumentException("Check-out date cannot be before check-in date");
         }
 
@@ -113,7 +115,8 @@ public class BookingService {
                 });
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_STAFF")) &&
+        if (auth.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_STAFF")) &&
                 !booking.getUser().getEmail().equals(auth.getName())) {
             logger.error("Unauthorized access to booking ID: {} by user: {}", id, auth.getName());
             throw new SecurityException("Unauthorized access to booking");
@@ -136,15 +139,15 @@ public class BookingService {
             throw new IllegalArgumentException("Check-out date cannot be before check-in date");
         }
 
-        bookingMapper.updateEntityFromRequest(request, booking);
+        bookingMapper.updateEntity(request, booking);
 
         // Determine whether recalculation is needed
-        boolean shouldRecalculate =
-                !request.getCheckInDate().equals(booking.getCheckInDate()) ||
-                        !request.getCheckOutDate().equals(booking.getCheckOutDate()) ||
-                        !Objects.equals(request.getPromoCode(),
-                                booking.getPromotion() != null ? booking.getPromotion().getCode() : null) ||
-                        isBookingRoomsChanged(request.getBookingRooms(), booking.getBookingRooms());
+        boolean shouldRecalculate = !request.getCheckInDate().equals(booking.getCheckInDate()) ||
+                !request.getCheckOutDate().equals(booking.getCheckOutDate()) ||
+                !Objects.equals(request.getPromoCode(),
+                        booking.getPromotion() != null ? booking.getPromotion().getCode() : null)
+                ||
+                isBookingRoomsChanged(request.getBookingRooms(), booking.getBookingRooms());
 
         if (shouldRecalculate) {
             logger.info("[update] Recalculating booking total for ID: {}", id);
@@ -281,8 +284,7 @@ public class BookingService {
                 pageResult.getNumber(),
                 pageResult.getSize(),
                 pageResult.getTotalElements(),
-                pageResult.getTotalPages()
-        );
+                pageResult.getTotalPages());
     }
 
     private void validateUpdatePermission(Booking booking, Authentication auth) {
@@ -304,15 +306,16 @@ public class BookingService {
     }
 
     private boolean isBookingRoomsChanged(List<BookingRoomRequest> newRooms, List<BookingRoom> oldRooms) {
-        if (newRooms == null || oldRooms == null) return true;
-        if (newRooms.size() != oldRooms.size()) return true;
+        if (newRooms == null || oldRooms == null)
+            return true;
+        if (newRooms.size() != oldRooms.size())
+            return true;
 
         // Create a temporary map to compare rooms by roomTypeId
         Map<UUID, Integer> oldRoomMap = oldRooms.stream()
                 .collect(Collectors.toMap(
                         room -> room.getRoomType().getId(),
-                        BookingRoom::getQuantity
-                ));
+                        BookingRoom::getQuantity));
 
         for (BookingRoomRequest newRoom : newRooms) {
             Integer oldQty = oldRoomMap.get(newRoom.getRoomTypeId());

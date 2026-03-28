@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,7 +32,7 @@ public class RoleController {
 
     // GET BY ID
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<RoleResponse>> getRole(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<RoleResponse>> getRole(@PathVariable UUID id) {
         RoleResponse role = roleService.getRoleById(id);
         return ResponseEntity.ok(
                 ApiResponse.success("Get role information successfully", role)
@@ -41,7 +42,7 @@ public class RoleController {
     // UPDATE ROLE
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<RoleResponse>> updateRole(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody RoleRequest request) {
 
         RoleResponse updated = roleService.updateRole(id, request);
@@ -52,7 +53,7 @@ public class RoleController {
 
     // DELETE ROLE BY ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteRole(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteRole(@PathVariable UUID id) {
         roleService.deleteRole(id);
         return ResponseEntity.ok(
                 ApiResponse.ok("User deleted successfully")

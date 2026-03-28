@@ -38,10 +38,12 @@ public class RoomService {
 
     @Transactional
     public RoomResponse createRoom(RoomRequest request) {
-        logger.info("Creating room with number: {} for room type ID: {}", request.getRoomNumber(), request.getRoomTypeId());
+        logger.info("Creating room with number: {} for room type ID: {}", request.getRoomNumber(),
+                request.getRoomTypeId());
 
         if (roomRepository.existsByRoomNumberAndRoomTypeId(request.getRoomNumber(), request.getRoomTypeId())) {
-            logger.error("[create] Room number already exists: {} for room type ID: {}", request.getRoomNumber(), request.getRoomTypeId());
+            logger.error("[create] Room number already exists: {} for room type ID: {}", request.getRoomNumber(),
+                    request.getRoomTypeId());
             throw new IllegalArgumentException("Room number already exists for this room type");
         }
 
@@ -52,12 +54,10 @@ public class RoomService {
                 });
 
         RoomStatus status = RoomStatus.valueOf(request.getStatus());
-        Room room = Room.builder()
-                .roomNumber(request.getRoomNumber())
-                .status(status)
-                .roomType(roomType)
-                .isActive(true)
-                .build();
+
+        Room room = roomMapper.toEntity(request);
+        room.setRoomType(roomType);
+        room.setStatus(status);
 
         try {
             Room saved = roomRepository.save(room);
@@ -93,9 +93,11 @@ public class RoomService {
                     return new ResourceNotFoundException("Room not found");
                 });
 
-        if (!room.getRoomNumber().equals(request.getRoomNumber()) || !room.getRoomType().getId().equals(request.getRoomTypeId())) {
+        if (!room.getRoomNumber().equals(request.getRoomNumber())
+                || !room.getRoomType().getId().equals(request.getRoomTypeId())) {
             if (roomRepository.existsByRoomNumberAndRoomTypeId(request.getRoomNumber(), request.getRoomTypeId())) {
-                logger.error("[update] Room number already exists: {} for room type ID: {}", request.getRoomNumber(), request.getRoomTypeId());
+                logger.error("[update] Room number already exists: {} for room type ID: {}", request.getRoomNumber(),
+                        request.getRoomTypeId());
                 throw new IllegalArgumentException("Room number already exists for this room type");
             }
         }
@@ -164,7 +166,6 @@ public class RoomService {
                 roomPage.getNumber(),
                 roomPage.getSize(),
                 roomPage.getTotalElements(),
-                roomPage.getTotalPages()
-        );
+                roomPage.getTotalPages());
     }
 }

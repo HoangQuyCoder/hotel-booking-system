@@ -113,7 +113,7 @@ public class BaseRateService {
             }
         }
 
-        baseRateMapper.updateEntityFromRequest(request, baseRate);
+        baseRateMapper.updateEntity(request, baseRate);
         baseRate.setRoomType(roomType);
 
         try {
@@ -165,7 +165,6 @@ public class BaseRateService {
                 pageResult.getNumber(),
                 pageResult.getSize(),
                 pageResult.getTotalElements(),
-                pageResult.getTotalPages()
-        );
+                pageResult.getTotalPages());
     }
 }
