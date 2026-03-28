@@ -1,13 +1,11 @@
 package com.example.backend.dto.request;
 
 import com.example.backend.common.RoleName;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-
-import java.time.LocalDateTime;
 
 @Data
 public class RegisterRequest {
@@ -31,7 +29,4 @@ public class RegisterRequest {
     private String address;
     private String preferredLanguage;
     private RoleName roleName;
-
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

@@ -1,5 +1,18 @@
 package com.example.backend.service;
 
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.backend.dto.filter.UserFilterRequest;
 import com.example.backend.dto.request.UserUpdateRequest;
 import com.example.backend.dto.response.PagedResponse;
@@ -11,22 +24,10 @@ import com.example.backend.model.User;
 import com.example.backend.repository.RoleRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.specification.UserSpecification;
-import com.example.backend.utils.BeanUtilsHelper;
 import com.example.backend.utils.PagingUtils;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -62,7 +63,8 @@ public class UserService {
 
         // Execute query
         Page<User> pageResult = userRepository.findAll(spec, pageable);
-        logger.info("Found {} users (page {}/{})", pageResult.getNumberOfElements(), pageResult.getNumber() + 1, pageResult.getTotalPages());
+        logger.info("Found {} users (page {}/{})", pageResult.getNumberOfElements(), pageResult.getNumber() + 1,
+                pageResult.getTotalPages());
 
         List<UserResponse> content = pageResult.getContent().stream()
                 .map(userMapper::toResponse)
@@ -70,7 +72,8 @@ public class UserService {
 
         // Optional detailed logging (DEBUG)
         if (logger.isDebugEnabled()) {
-            content.forEach(u -> logger.debug("User: id={}, email={}, role={}", u.getId(), u.getEmail(), u.getRoleName()));
+            content.forEach(
+                    u -> logger.debug("User: id={}, email={}, role={}", u.getId(), u.getEmail(), u.getRoleName()));
         }
 
         return new PagedResponse<>(
@@ -78,8 +81,7 @@ public class UserService {
                 pageResult.getNumber(),
                 pageResult.getSize(),
                 pageResult.getTotalElements(),
-                pageResult.getTotalPages()
-        );
+                pageResult.getTotalPages());
     }
 
     // ============================= UPDATE =============================
@@ -106,14 +108,15 @@ public class UserService {
 
         // Update a role (only admin can change a role)
         String currentRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString();
-        if (request.getRoleName() != null && !user.getRole().getRoleName().equals(request.getRoleName()) && currentRole.contains("ROLE_ADMIN")) {
+        if (request.getRoleName() != null && !user.getRole().getRoleName().equals(request.getRoleName())
+                && currentRole.contains("ROLE_ADMIN")) {
             Role role = roleRepository.findByRoleName(request.getRoleName())
                     .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
             user.setRole(role);
             logger.debug("Updated role for user {} to {}", user.getId(), role.getRoleName());
         }
 
-        userMapper.updateEntityFromRequest(request, user);
+        userMapper.updateEntity(request, user);
 
         try {
             User updated = userRepository.save(user);

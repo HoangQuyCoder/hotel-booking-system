@@ -7,7 +7,6 @@ import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.mapper.RoleMapper;
 import com.example.backend.model.Role;
 import com.example.backend.repository.RoleRepository;
-import com.example.backend.utils.BeanUtilsHelper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -15,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,7 +41,7 @@ public class RoleService {
         return roleMapper.toResponse(saved);
     }
 
-    public RoleResponse getRoleById(Long id) {
+    public RoleResponse getRoleById(UUID id) {
         logger.info("Fetching role with ID: {}", id);
 
         Role role = roleRepository.findById(id)
@@ -53,7 +53,7 @@ public class RoleService {
     }
 
     @Transactional
-    public RoleResponse updateRole(Long id, RoleRequest request) {
+    public RoleResponse updateRole(UUID id, RoleRequest request) {
         Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
@@ -62,13 +62,13 @@ public class RoleService {
             throw new BadRequestException("Role name already exists");
         }
 
-        roleMapper.updateEntityFromRequest(request, role);
+        roleMapper.updateEntity(request, role);
 
         return roleMapper.toResponse(roleRepository.save(role));
     }
 
     @Transactional
-    public void deleteRole(Long id) {
+    public void deleteRole(UUID id) {
         logger.info("Deactivating role with ID: {}", id);
 
         Role role = roleRepository.findById(id)

@@ -1,15 +1,18 @@
 package com.example.backend.mapper;
 
+import org.mapstruct.MappingTarget;
 import java.util.List;
 
-/**
- * BaseMapper is the interface used for all mappers in the system.
- * @param <E> Entity
- * @param <R> Response DTO
- */
-public interface BaseMapper<E, R> {
+public interface BaseMapper<E, Req, Res> {
 
-    R toResponse(E entity);
-    List<R> toResponseList(List<E> entities);
+    // ==================== CREATE ====================
+    E toEntity(Req request);
+
+    // ==================== UPDATE ====================
+    void updateEntity(Req request, @MappingTarget E entity);
+
+    // ==================== RESPONSE ====================
+    Res toResponse(E entity);
+
+    List<Res> toResponseList(List<E> entities);
 }
-

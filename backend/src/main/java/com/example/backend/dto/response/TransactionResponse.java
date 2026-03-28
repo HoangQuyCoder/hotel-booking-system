@@ -12,7 +12,7 @@ import java.util.UUID;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class TransactionResponse extends BaseResponse{
-    private UUID bookingId;
+    private BookingListResponse booking;
     private Double amount;
     private String currency;
     private PaymentMethod paymentMethod;

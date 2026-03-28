@@ -101,7 +101,7 @@ public class DailyOverrideService {
                     return new ResourceNotFoundException("Room type not found");
                 });
 
-        dailyOverrideMapper.updateEntityFromRequest(request, dailyOverride);
+        dailyOverrideMapper.updateEntity(request, dailyOverride);
         dailyOverride.setRoomType(roomType);
 
         try {
@@ -154,7 +154,6 @@ public class DailyOverrideService {
                 pageResult.getNumber(),
                 pageResult.getSize(),
                 pageResult.getTotalElements(),
-                pageResult.getTotalPages()
-        );
+                pageResult.getTotalPages());
     }
 }

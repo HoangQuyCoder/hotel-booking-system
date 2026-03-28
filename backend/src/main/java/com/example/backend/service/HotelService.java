@@ -11,7 +11,6 @@ import com.example.backend.model.User;
 import com.example.backend.repository.HotelRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.specification.HotelSpecification;
-import com.example.backend.utils.BeanUtilsHelper;
 import com.example.backend.utils.PagingUtils;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -53,24 +52,9 @@ public class HotelService {
                         return new ResourceNotFoundException("Role not found");
                     });
         }
-        
-        Hotel hotel = Hotel.builder()
-                .name(request.getName())
-                .city(request.getCity())
-                .address(request.getAddress())
-                .rating(request.getRating())
-                .description(request.getDescription())
-                .thumbnailUrl(request.getThumbnailUrl())
-                .images(request.getImages())
-                .manager(user)
-                .latitude(request.getLatitude())
-                .longitude(request.getLongitude())
-                .contactPhone(request.getContactPhone())
-                .contactEmail(request.getContactEmail())
-                .checkInTime(request.getCheckInTime())
-                .checkOutTime(request.getCheckOutTime())
-                .isActive(true)
-                .build();
+
+        Hotel hotel = hotelMapper.toEntity(request);
+        hotel.setManager(user);
 
         try {
             Hotel saved = hotelRepository.save(hotel);
@@ -116,8 +100,7 @@ public class HotelService {
             throw new ResourceNotFoundException("Manager not found");
         }
 
-        // Update fields only when data is available
-        BeanUtilsHelper.copyNonNullProperties(request, hotel);
+        hotelMapper.updateEntity(request, hotel);
 
         try {
             Hotel updated = hotelRepository.save(hotel);
@@ -169,8 +152,7 @@ public class HotelService {
                 hotels.getNumber(),
                 hotels.getSize(),
                 hotels.getTotalElements(),
-                hotels.getTotalPages()
-        );
+                hotels.getTotalPages());
     }
 
     public List<String> findDistinctCitiesContaining(String keyword) {
