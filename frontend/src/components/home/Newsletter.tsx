@@ -15,11 +15,11 @@ export default function Newsletter() {
   };
 
   return (
-    <section className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
+    <section className="py-16 md:py-24 bg-gray-100 px-4">
       {/* Card Container */}
-      <div className="bg-gray-200 rounded-2xl shadow-lg max-w-4xl w-full overflow-hidden flex flex-col md:flex-row">
+      <div className="bg-gray-200 rounded-2xl shadow-lg max-w-4xl mx-auto overflow-hidden flex flex-col md:flex-row">
         {/* Left Image */}
-        <div className="md:w-1/2 h-64 md:h-auto">
+        <div className="md:w-1/2 h-52 sm:h-64 md:h-auto">
           <img
             src="/src/assets/images/newsletter-image.jpg"
             alt="Newsletter"
@@ -28,18 +28,18 @@ export default function Newsletter() {
         </div>
 
         {/* Right Content */}
-        <div className="md:w-1/2 p-8 flex flex-col justify-center text-center md:text-left">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Get Special Offers & Travel Tips
+        <div className="md:w-1/2 p-6 sm:p-8 flex flex-col justify-center text-center md:text-left">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Get Special Offers &amp; Travel Tips
           </h2>
-          <p className="text-gray-700 mb-6">
+          <p className="text-gray-700 mb-6 text-sm sm:text-base">
             Subscribe to our newsletter and be the first to know about exclusive
             deals!
           </p>
 
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col sm:flex-row gap-4"
+            className="flex flex-col sm:flex-row gap-3"
           >
             <div className="flex-1 relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -48,16 +48,22 @@ export default function Newsletter() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 text-sm"
                 required
               />
             </div>
             <button
               type="submit"
-              className="bg-gray-900 text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-800 transition flex items-center justify-center gap-2"
+              className="bg-gray-900 text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-800 transition flex items-center justify-center gap-2 text-sm whitespace-nowrap"
             >
-              {submitted ? <Check className="w-5 h-5" /> : "Subscribe"}
-              {submitted && "Subscribed!"}
+              {submitted ? (
+                <>
+                  <Check className="w-5 h-5" />
+                  Subscribed!
+                </>
+              ) : (
+                "Subscribe"
+              )}
             </button>
           </form>
         </div>

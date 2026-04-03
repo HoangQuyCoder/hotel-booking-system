@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { LogIn, LogOut, Menu, X, User, ChevronDown } from "lucide-react";
+import { LogOut, Menu, X, User, ChevronDown, CalendarDays } from "lucide-react";
 import { Button } from "../ui/Button";
 
 export default function Navbar() {
@@ -17,7 +17,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Đóng dropdown khi click ngoài
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -38,20 +37,18 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 md:px-12 lg:px-20 transition-all duration-300 ${
-        scrolled
-          ? "bg-gray-900/90 backdrop-blur-md shadow-md"
-          : "bg-transparent"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 md:px-12 lg:px-20 transition-all duration-300 ${scrolled
+        ? "bg-gray-900/90 backdrop-blur-md shadow-md"
+        : "bg-transparent"
+        }`}
     >
       <div className="flex items-center justify-between">
         {/* Logo */}
         <Link
           to="/"
-          className={`text-2xl font-bold transition no-underline ${
-            scrolled ? "text-cyan-400" : "text-white"
-          }`}
           onClick={closeAll}
+          className={`text-2xl font-bold no-underline ${scrolled ? "text-cyan-400" : "text-white"
+            }`}
         >
           ACENDA
         </Link>
@@ -63,7 +60,7 @@ export default function Navbar() {
               key={item}
               to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
               onClick={closeAll}
-              className={`transition no-underline ${hoverColor} ${textColor}`}
+              className={`no-underline transition ${hoverColor} ${textColor}`}
             >
               {item}
             </Link>
@@ -74,16 +71,15 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-3" ref={dropdownRef}>
           {user ? (
             <div className="relative">
-              {/* Nút mở dropdown - dùng Button variant ghost */}
               <Button
                 variant="ghost"
-                size="md"
                 className="text-white hover:bg-white/10"
                 onClick={() => setAccountOpen(!accountOpen)}
                 rightIcon={
                   <ChevronDown
                     size={16}
-                    className={`transition-transform ${accountOpen ? "rotate-180" : ""}`}
+                    className={`transition-transform ${accountOpen ? "rotate-180" : ""
+                      }`}
                   />
                 }
               >
@@ -91,9 +87,9 @@ export default function Navbar() {
                 {user.firstName || "User"}
               </Button>
 
-              {/* Dropdown Menu */}
+              {/* Dropdown */}
               {accountOpen && (
-                <div className="absolute right-0 top-full mt-2 w-56 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl overflow-hidden">
+                <div className="absolute right-0 mt-2 w-56 bg-gray-900 border border-gray-800 rounded-xl shadow-xl overflow-hidden">
                   <div className="p-3 border-b border-gray-800">
                     <p className="text-sm text-gray-400">Signed in as</p>
                     <p className="font-semibold text-white truncate">
@@ -101,41 +97,38 @@ export default function Navbar() {
                     </p>
                   </div>
 
-                  <Link to="/profile" onClick={closeAll}>
-                    <Button
-                      variant="ghost"
-                      size="md"
-                      block
-                      leftIcon={<User size={18} />}
-                      className="justify-start text-gray-200 hover:bg-gray-800"
-                    >
-                      Profile
-                    </Button>
-                  </Link>
+                  <Button
+                    to="/profile"
+                    variant="ghost"
+                    block
+                    leftIcon={<User size={18} />}
+                    className="justify-start text-gray-200 hover:bg-gray-800"
+                    onClick={closeAll}
+                  >
+                    Profile
+                  </Button>
 
-                  <Link to="/bookings" onClick={closeAll}>
-                    <Button
-                      variant="ghost"
-                      size="md"
-                      block
-                      leftIcon={<LogIn size={18} />}
-                      className="justify-start text-gray-200 hover:bg-gray-800"
-                    >
-                      My Bookings
-                    </Button>
-                  </Link>
+                  <Button
+                    to="/bookings"
+                    variant="ghost"
+                    block
+                    leftIcon={<CalendarDays size={18} />}
+                    className="justify-start text-gray-200 hover:bg-gray-800"
+                    onClick={closeAll}
+                  >
+                    My Bookings
+                  </Button>
 
                   <div className="border-t border-gray-800">
                     <Button
                       variant="danger"
-                      size="md"
                       block
                       leftIcon={<LogOut size={18} />}
+                      className="justify-start rounded-none"
                       onClick={() => {
                         logout();
                         closeAll();
                       }}
-                      className="justify-start rounded-none"
                     >
                       Sign out
                     </Button>
@@ -144,24 +137,22 @@ export default function Navbar() {
               )}
             </div>
           ) : (
-            <>
-              <Button asChild variant="outline" size="md">
-                <Link to="/login">
-                  <LogIn size={18} />
-                  Login
-                </Link>
+            <div className="flex items-center gap-3">
+              <Button to="/login" variant="outline" className="no-underline">
+                Login
               </Button>
 
-              <Button asChild variant="primary" size="md">
-                <Link to="/register">Register</Link>
+              <Button to="/register" variant="primary" className="no-underline">
+                Register
               </Button>
-            </>
+            </div>
           )}
         </div>
 
-        {/* Mobile Menu Toggle */}
+        {/* Mobile Toggle */}
         <button
-          className={`md:hidden ${scrolled ? "text-cyan-400" : "text-white"} transition`}
+          className={`md:hidden ${scrolled ? "text-cyan-400" : "text-white"
+            }`}
           onClick={() => setMenuOpen(!menuOpen)}
         >
           {menuOpen ? <X size={28} /> : <Menu size={28} />}
@@ -178,7 +169,7 @@ export default function Navbar() {
                 key={item}
                 to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
                 onClick={closeAll}
-                className="block text-lg font-medium text-white hover:text-cyan-400 transition"
+                className="block text-lg font-medium text-white hover:text-cyan-400 no-underline"
               >
                 {item}
               </Link>
@@ -198,17 +189,26 @@ export default function Navbar() {
                   </div>
                 </div>
 
-                <Button asChild variant="outline" size="lg" block>
-                  <Link to="/profile" onClick={closeAll}>
-                    <User size={18} />
-                    Profile
-                  </Link>
+                <Button
+                  to="/profile"
+                  variant="outline"
+                  size="lg"
+                  block
+                  leftIcon={<User size={18} />}
+                  onClick={closeAll}
+                >
+                  Profile
                 </Button>
 
-                <Button asChild variant="outline" size="lg" block>
-                  <Link to="/bookings" onClick={closeAll}>
-                    My Bookings
-                  </Link>
+                <Button
+                  to="/bookings"
+                  variant="outline"
+                  size="lg"
+                  block
+                  leftIcon={<CalendarDays size={18} />}
+                  onClick={closeAll}
+                >
+                  My Bookings
                 </Button>
 
                 <Button
@@ -226,17 +226,25 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <Button asChild variant="outline" size="lg" block>
-                  <Link to="/login" onClick={closeAll}>
-                    <LogIn size={18} />
-                    Login
-                  </Link>
+                <Button
+                  to="/login"
+                  variant="outline"
+                  size="lg"
+                  block
+                  className="bg-white text-gray-900 border-white hover:bg-gray-100"
+                  onClick={closeAll}
+                >
+                  Login
                 </Button>
 
-                <Button asChild variant="primary" size="lg" block>
-                  <Link to="/register" onClick={closeAll}>
-                    Register
-                  </Link>
+                <Button
+                  to="/register"
+                  variant="primary"
+                  size="lg"
+                  block
+                  onClick={closeAll}
+                >
+                  Register
                 </Button>
               </>
             )}
