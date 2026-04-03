@@ -2,7 +2,6 @@ package com.example.backend.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 
 import com.example.backend.config.BaseMapperConfig;
 import com.example.backend.dto.request.RegisterRequest;

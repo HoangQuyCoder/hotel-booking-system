@@ -7,11 +7,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class TransactionResponse extends BaseResponse{
+public class TransactionResponse extends BaseResponse {
     private BookingListResponse booking;
     private Double amount;
     private String currency;

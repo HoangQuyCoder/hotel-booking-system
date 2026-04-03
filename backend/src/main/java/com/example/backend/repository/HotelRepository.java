@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface HotelRepository extends JpaRepository<Hotel, UUID> , JpaSpecificationExecutor<Hotel> {
+public interface HotelRepository extends JpaRepository<Hotel, UUID>, JpaSpecificationExecutor<Hotel> {
     boolean existsByNameAndCity(String name, String city);
 
     @Query("""
@@ -20,4 +20,13 @@ public interface HotelRepository extends JpaRepository<Hotel, UUID> , JpaSpecifi
                 ORDER BY h.city ASC
             """)
     List<String> findDistinctCitiesContainingIgnoreCase(String keyword);
+
+    // Top rating
+    List<Hotel> findTop10ByIsActiveTrueOrderByRatingDesc();
+
+    // Newest
+    List<Hotel> findTop10ByIsActiveTrueOrderByCreatedAtDesc();
+
+    // Theo city
+    List<Hotel> findTop10ByCityAndIsActiveTrueOrderByRatingDesc(String city);
 }
