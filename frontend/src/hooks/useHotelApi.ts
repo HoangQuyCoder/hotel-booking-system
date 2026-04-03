@@ -13,6 +13,11 @@ import type {
 const HOTELS_KEY = ["hotels"];
 const HOTEL_KEY = ["hotel"];
 const CITIES_KEY = ["cities"];
+export const FEATURED_KEY = ["hotels", "featured"];
+export const TOP_RATED_KEY = ["hotels", "top-rated"];
+export const NEWEST_KEY = ["hotels", "newest"];
+export const DISCOVER_KEY = ["hotels", "discover"];
+export const NEARBY_KEY = ["hotels", "nearby"];
 
 export const useHotelApi = () => {
   const queryClient = useQueryClient();
@@ -88,10 +93,63 @@ export const useHotelApi = () => {
     },
   });
 
+
+  // Featured
+  const useFeaturedHotels = () =>
+    useQuery({
+      queryKey: FEATURED_KEY,
+      queryFn: () => hotelApi.getFeatured(),
+      select: (res) => res.data,
+    });
+
+  // Top rated
+  const useTopRatedHotels = () =>
+    useQuery({
+      queryKey: TOP_RATED_KEY,
+      queryFn: () => hotelApi.getTopRated(),
+      select: (res) => res.data,
+    });
+
+  // Newest
+  const useNewestHotels = () =>
+    useQuery({
+      queryKey: NEWEST_KEY,
+      queryFn: () => hotelApi.getNewest(),
+      select: (res) => res.data,
+    });
+
+  // Discover
+  const useDiscoverHotels = (city: string) =>
+    useQuery({
+      queryKey: [...DISCOVER_KEY, city],
+      queryFn: () => hotelApi.getByCity(city),
+      enabled: !!city,
+      select: (res) => res.data,
+    });
+
+  // Nearby
+  const useNearbyHotels = (lat?: number, lng?: number) =>
+    useQuery({
+      queryKey: [...NEARBY_KEY, lat, lng],
+      queryFn: () => hotelApi.getNearby(lat!, lng!),
+      enabled: !!lat && !!lng,
+      select: (res) => res.data,
+    });
+
   return {
+    // existing
     useHotels,
     useHotelById,
     useCities,
+
+    // new
+    useFeaturedHotels,
+    useTopRatedHotels,
+    useNewestHotels,
+    useDiscoverHotels,
+    useNearbyHotels,
+
+    // mutations
     createHotel,
     updateHotel,
     deleteHotel,
