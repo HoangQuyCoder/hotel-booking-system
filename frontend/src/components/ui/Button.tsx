@@ -1,125 +1,102 @@
 import React from "react";
 import { Link, type LinkProps } from "react-router-dom";
-import { Slot } from "@radix-ui/react-slot";
 import { Spinner } from "./Spinner";
 
-interface BaseButtonProps {
-  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
-  size?: "sm" | "md" | "lg";
+type Variant = "primary" | "secondary" | "outline" | "ghost" | "danger";
+type Size = "sm" | "md" | "lg";
+
+interface BaseProps {
+  variant?: Variant;
+  size?: Size;
   loading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   block?: boolean;
   className?: string;
-  disabled?: boolean;
   children: React.ReactNode;
-  asChild?: boolean;
 }
 
-// Button normal
-type ButtonAsButtonProps = BaseButtonProps &
-  Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "disabled"> & {
-    to?: never;
-  };
-
-// Button is Link (react-router)
-type ButtonAsLinkProps = BaseButtonProps &
-  LinkProps & {
-    disabled?: boolean;
-  };
-
-type ButtonProps = ButtonAsButtonProps | ButtonAsLinkProps;
+type ButtonProps =
+  | (BaseProps &
+    React.ButtonHTMLAttributes<HTMLButtonElement> & {
+      to?: undefined;
+    })
+  | (BaseProps &
+    Omit<LinkProps, "className" | "children"> & {
+      to: LinkProps["to"];
+      disabled?: boolean;
+    });
 
 export const Button = React.forwardRef<
   HTMLButtonElement | HTMLAnchorElement,
   ButtonProps
 >((props, ref) => {
   const {
-    children,
     variant = "primary",
     size = "md",
     loading = false,
     leftIcon,
     rightIcon,
-    block = false,
+    block,
     className = "",
-    disabled = false,
-    asChild = false,
+    children,
     ...rest
   } = props;
 
-  const isLink = "to" in props && props.to !== undefined;
-  const Comp = asChild ? Slot : isLink ? Link : "button";
+  const isLink = "to" in props && props.to;
+  const disabled = (props as any).disabled || false;
+  const isDisabled = disabled || loading;
 
+  // Base
   const base =
-    "inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed";
 
-  const variants = {
+  // Variant
+  const variantStyles: Record<Variant, string> = {
     primary:
-      "bg-cyan-600 hover:bg-cyan-700 text-white focus-visible:ring-cyan-500",
+      "bg-cyan-600 text-white hover:bg-cyan-700",
     secondary:
-      "bg-gray-600 hover:bg-gray-700 text-white focus-visible:ring-gray-500",
+      "bg-gray-600 text-white hover:bg-gray-700",
     outline:
-      "border border-cyan-600 text-cyan-600 hover:bg-cyan-50 focus-visible:ring-cyan-500",
-    ghost: "text-gray-600 hover:bg-gray-100 focus-visible:ring-gray-300",
-    danger: "bg-red-600 hover:bg-red-700 text-white focus-visible:ring-red-500",
+      "border border-cyan-600 text-white hover:bg-cyan-700",
+    ghost:
+      "text-gray-600 hover:bg-gray-100",
+    danger:
+      "bg-red-600 text-white hover:bg-red-700",
   };
 
-  const sizes = {
+  // Size
+  const sizeStyles: Record<Size, string> = {
     sm: "px-3 py-1.5 text-sm",
-    md: "px-4 py-2 text-base",
+    md: "px-4 py-2",
     lg: "px-5 py-3 text-lg",
   };
 
-  const width = block ? "w-full" : "";
-  const allClasses =
-    `${base} ${variants[variant]} ${sizes[size]} ${width} ${className}`.trim();
+  const classes = [
+    base,
+    variantStyles[variant],
+    sizeStyles[size],
+    block && "w-full",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
-  const isDisabled = disabled || loading;
-
-  const content = (
+  const content = loading ? (
+    <Spinner size="sm" color="white" />
+  ) : (
     <>
-      {loading ? (
-        <Spinner
-          size="sm"
-          color={
-            variant === "outline" || variant === "ghost" ? "primary" : "white"
-          }
-        />
-      ) : (
-        <>
-          {leftIcon && <span className="flex items-center">{leftIcon}</span>}
-          <span>{children}</span>
-          {rightIcon && <span className="flex items-center">{rightIcon}</span>}
-        </>
-      )}
+      {leftIcon && <span>{leftIcon}</span>}
+      <span>{children}</span>
+      {rightIcon && <span>{rightIcon}</span>}
     </>
   );
 
-  if (asChild) {
-    return (
-      <Slot
-        className={allClasses}
-        ref={ref}
-        {...rest}
-        aria-disabled={isDisabled || undefined}
-      >
-        {content}
-      </Slot>
-    );
-  }
-
-  // Link (have prop to)
+  // Link mode
   if (isLink) {
-    const { to, replace, ...linkProps } = rest as LinkProps;
-
-    // When disabled or loading → render span instead of Link
     if (isDisabled) {
       return (
-        <span
-          className={`${allClasses} cursor-not-allowed opacity-60`}
-          aria-disabled="true"
-        >
+        <span className={classes + " opacity-60 cursor-not-allowed"}>
           {content}
         </span>
       );
@@ -127,26 +104,24 @@ export const Button = React.forwardRef<
 
     return (
       <Link
-        to={to}
-        replace={replace}
-        {...linkProps}
-        className={allClasses}
-        ref={ref as React.ForwardedRef<HTMLAnchorElement>}
-        aria-disabled={isDisabled || undefined}
+        to={props.to}
+        ref={ref as React.Ref<HTMLAnchorElement>}
+        className={classes}
+        {...(rest as Omit<LinkProps, "to">)}
       >
         {content}
       </Link>
     );
   }
 
+  // Button mode
   return (
     <button
-      {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}
-      ref={ref as React.ForwardedRef<HTMLButtonElement>}
-      className={allClasses}
+      ref={ref as React.Ref<HTMLButtonElement>}
+      className={classes}
       disabled={isDisabled}
-      type={props.type ?? "button"}
-      aria-disabled={isDisabled || undefined}
+      type={(rest as any).type ?? "button"}
+      {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}
     >
       {content}
     </button>

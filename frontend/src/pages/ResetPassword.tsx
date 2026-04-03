@@ -1,87 +1,186 @@
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { useSearchParams } from "react-router-dom";
-import { useEffect } from "react";
-import { toast } from "react-toastify";
+import { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useAuthApi } from "../hooks/useAuthApi";
-import type { ResetPasswordRequest } from "../types";
-import { apiClient } from "../services/apiClient";
+import { Input } from "../components/ui/Input";
+import { Button } from "../components/ui/Button";
+import { CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
 
-const schema = yup
-  .object({
-    newPassword: yup.string().min(6).required("Bắt buộc"),
-    confirmPassword: yup
-      .string()
-      .oneOf([yup.ref("newPassword")], "Mật khẩu không khớp")
-      .required("Bắt buộc"),
-  })
-  .required();
-
-const ResetPassword: React.FC = () => {
+export default function ResetPassword() {
   const [searchParams] = useSearchParams();
-  const token = searchParams.get("token");
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ResetPasswordRequest>();
+  const token = searchParams.get("token") ?? "";
+  const navigate = useNavigate();
 
+  const { validateResetToken, resetPassword } = useAuthApi();
+
+  const [tokenValid, setTokenValid] = useState<boolean | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  // Validate token on mount
   useEffect(() => {
-    if (token) {
-      apiClient
-        .get(`/auth/validate-reset-token?token=${token}`)
-        .catch(() => toast.error("Token không hợp lệ"));
+    if (!token) {
+      setTokenValid(false);
+      return;
     }
+
+    validateResetToken.mutate(
+      { token },
+      {
+        onSuccess: () => setTokenValid(true),
+        onError: () => setTokenValid(false),
+      }
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  const onSubmit = async (data: ResetPasswordRequest) => {
-    try {
-      await apiClient.post("/auth/reset-password", { ...data, token });
-      toast.success("Mật khẩu đã được đặt lại!");
-    } catch {
-      // toast.error(err.response?.data?.message || "Thất bại");
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError("");
+
+    if (newPassword.length < 6) {
+      return setPasswordError("Password must be at least 6 characters.");
     }
+
+    if (newPassword !== confirmPassword) {
+      return setPasswordError("Passwords do not match.");
+    }
+
+    resetPassword.mutate(
+      { token, newPassword, confirmPassword },
+      {
+        onSuccess: () => {
+          setSuccess(true);
+        },
+      }
+    );
   };
 
-  if (!token) return <p>Token không tồn tại</p>;
-
-  return (
-    <div className="container my-5">
-      <div className="card mx-auto" style={{ maxWidth: "400px" }}>
-        <div className="card-body">
-          <h3 className="card-title text-center">Đặt lại mật khẩu</h3>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="mb-3">
-              <label className="form-label">Mật khẩu mới</label>
-              <input
-                type="password"
-                className="form-control"
-                {...register("newPassword")}
-              />
-              {errors.newPassword && (
-                <p className="text-danger">{errors.newPassword.message}</p>
-              )}
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Xác nhận mật khẩu</label>
-              <input
-                type="password"
-                className="form-control"
-                {...register("confirmPassword")}
-              />
-              {errors.confirmPassword && (
-                <p className="text-danger">{errors.confirmPassword.message}</p>
-              )}
-            </div>
-            <button type="submit" className="btn btn-primary w-100">
-              Đặt lại
-            </button>
-          </form>
+  // ── Loading: validating token ──
+  if (tokenValid === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center gap-3 text-gray-500">
+          <Loader2 className="w-8 h-8 animate-spin text-cyan-600" />
+          <p className="text-sm">Validating reset link…</p>
         </div>
       </div>
+    );
+  }
+
+  // ── Invalid / expired token ──
+  if (!tokenValid) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <section
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/src/assets/images/maldives.jpg')" }}
+        />
+        <div className="relative bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center space-y-4">
+          <div className="flex justify-center">
+            <div className="bg-red-50 p-4 rounded-full">
+              <AlertTriangle className="w-10 h-10 text-red-500" />
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900">Link expired</h2>
+          <p className="text-gray-500 text-sm">
+            This password reset link is invalid or has expired. Please request a
+            new one.
+          </p>
+          <Button block onClick={() => navigate("/forgot-password")}>
+            Request new link
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Success ──
+  if (success) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <section
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/src/assets/images/maldives.jpg')" }}
+        />
+        <div className="relative bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center space-y-4">
+          <div className="flex justify-center">
+            <div className="bg-green-50 p-4 rounded-full">
+              <CheckCircle className="w-10 h-10 text-green-500" />
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Password reset!
+          </h2>
+          <p className="text-gray-500 text-sm">
+            Your password has been updated successfully.
+          </p>
+          <Button block onClick={() => navigate("/login")}>
+            Sign In
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Main form ──
+  return (
+    <div className="min-h-screen font-sans overflow-x-hidden">
+      <section
+        className="relative h-screen bg-cover bg-center flex flex-col justify-center"
+        style={{ backgroundImage: "url('/src/assets/images/maldives.jpg')" }}
+      >
+        <div className="flex items-center justify-center">
+          <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+            <h2 className="text-3xl font-bold text-center mb-2">
+              Reset Password
+            </h2>
+            <p className="text-center text-gray-500 text-sm mb-8">
+              Enter your new password below.
+            </p>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <Input
+                label="New Password"
+                type="password"
+                placeholder="At least 6 characters"
+                value={newPassword}
+                onChange={(e) => {
+                  setNewPassword(e.target.value);
+                  setPasswordError("");
+                }}
+                required
+                autoFocus
+              />
+
+              <Input
+                label="Confirm Password"
+                type="password"
+                placeholder="Re-enter your password"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  setPasswordError("");
+                }}
+                required
+              />
+
+              {passwordError && (
+                <p className="text-red-500 text-sm">{passwordError}</p>
+              )}
+
+              <Button
+                type="submit"
+                block
+                loading={resetPassword.isPending}
+              >
+                Reset Password
+              </Button>
+            </form>
+          </div>
+        </div>
+      </section>
     </div>
   );
-};
-
-export default ResetPassword;
+}

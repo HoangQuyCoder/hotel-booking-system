@@ -9,17 +9,18 @@ import AppRouter from "./router/AppRouter.tsx";
 
 function App() {
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      <Suspense fallback={<Spinner fullscreen />}>
-        <ScrollToTop />
-        <AppRouter />
-      </Suspense>
-
-      <Footer />
+      <main className="flex-1">
+        <Suspense fallback={<Spinner fullscreen />}>
+          <ScrollToTop />
+          <AppRouter />
+        </Suspense>
+      </main>
       <GlobalLoadingOverlay />
-    </>
+      <Footer />
+    </div>
   );
 }
 

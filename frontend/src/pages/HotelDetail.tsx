@@ -3,7 +3,7 @@ import Gallery from "../components/hotel/Gallery";
 import Info from "../components/hotel/Info";
 import TabsContent from "../components/hotel/TabsContent";
 import Reviews from "../components/hotel/Reviews";
-import BookingCard from "../components/hotel/BookingCard";
+import BookingCard from "../components/booking/BookingCard";
 import Map from "../components/hotel/Map";
 import { useHotelApi } from "../hooks/useHotelApi";
 import HotelDetailSkeleton from "../components/skeleton/HotelDetailSkeleton";

@@ -7,7 +7,7 @@ export default function HotelCard({ hotel }: { hotel: HotelListResponse }) {
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden group hover:shadow-xl transition-shadow">
       <div className="relative h-48 overflow-hidden">
         <img
-          src={hotel.thumbnailUrl || "/src/assets/images/default-hotel.jpg"} // fallback image
+          src={hotel.thumbnailUrl}
           alt={hotel.name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />

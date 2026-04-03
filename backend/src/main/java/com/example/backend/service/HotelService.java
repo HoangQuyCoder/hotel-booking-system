@@ -21,6 +21,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -160,5 +161,58 @@ public class HotelService {
             return List.of();
         }
         return hotelRepository.findDistinctCitiesContainingIgnoreCase(keyword.trim());
+    }
+
+    public List<HotelListResponse> getFeaturedHotels() {
+        // Featured = rating cao + active
+        return hotelRepository.findTop10ByIsActiveTrueOrderByRatingDesc()
+                .stream()
+                .map(hotelMapper::toListResponse)
+                .toList();
+    }
+
+    public List<HotelListResponse> getTopRatedHotels() {
+        return hotelRepository.findTop10ByIsActiveTrueOrderByRatingDesc()
+                .stream()
+                .map(hotelMapper::toListResponse)
+                .toList();
+    }
+
+    public List<HotelListResponse> getNewestHotels() {
+        return hotelRepository.findTop10ByIsActiveTrueOrderByCreatedAtDesc()
+                .stream()
+                .map(hotelMapper::toListResponse)
+                .toList();
+    }
+
+    public List<HotelListResponse> getHotelsByCity(String city) {
+        return hotelRepository.findTop10ByCityAndIsActiveTrueOrderByRatingDesc(city)
+                .stream()
+                .map(hotelMapper::toListResponse)
+                .toList();
+    }
+
+    public List<HotelListResponse> getNearbyHotels(Double lat, Double lng) {
+        List<Hotel> hotels = hotelRepository.findAll();
+
+        return hotels.stream()
+                .filter(h -> h.getLatitude() != null && h.getLongitude() != null)
+                .sorted(Comparator.comparingDouble(h -> distance(lat, lng, h.getLatitude(), h.getLongitude())))
+                .limit(10)
+                .map(hotelMapper::toListResponse)
+                .toList();
+    }
+
+    // Haversine formula
+    private double distance(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371; // km
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                        * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 }
