@@ -48,4 +48,38 @@ export const hotelApi = {
         params: { q },
       })
     ),
+
+  // ================= FEATURED =================
+  getFeatured: () =>
+    apiCall<ApiResponse<HotelListResponse[]>>(
+      apiClient.get("/hotels/featured")
+    ),
+
+  // ================= TOP RATED =================
+  getTopRated: () =>
+    apiCall<ApiResponse<HotelListResponse[]>>(
+      apiClient.get("/hotels/top-rated")
+    ),
+
+  // ================= NEWEST =================
+  getNewest: () =>
+    apiCall<ApiResponse<HotelListResponse[]>>(
+      apiClient.get("/hotels/newest")
+    ),
+
+  // ================= DISCOVER =================
+  getByCity: (city: string) =>
+    apiCall<ApiResponse<HotelListResponse[]>>(
+      apiClient.get("/hotels/discover", {
+        params: { city },
+      })
+    ),
+
+  // ================= NEARBY =================
+  getNearby: (lat: number, lng: number) =>
+    apiCall<ApiResponse<HotelListResponse[]>>(
+      apiClient.get("/hotels/nearby", {
+        params: { lat, lng },
+      })
+    ),
 };
