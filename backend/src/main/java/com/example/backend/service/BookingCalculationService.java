@@ -88,18 +88,17 @@ public class BookingCalculationService {
                     // update status
                     selectedRooms.forEach(r -> r.setStatus(RoomStatus.BOOKED));
 
-                    double price = calculateRoomPrice(
+                    double pricePerNight = calculateRoomPrice(
                             roomType.getId(),
                             request.getCheckInDate(),
-                            request.getCheckOutDate()
-                    );
+                            request.getCheckOutDate());
 
                     BookingRoom bookingRoom = BookingRoom.builder()
                             .roomType(roomType)
                             .quantity(req.getQuantity())
-                            .pricePerNight(price)
-                            .isActive(true)
+                            .pricePerNight(pricePerNight)
                             .build();
+
                     // create booking room detail
                     List<BookingRoomDetail> details = selectedRooms.stream()
                             .map(room -> BookingRoomDetail.builder()
@@ -124,7 +123,8 @@ public class BookingCalculationService {
 
     // Discount applies
     private double applyPromotionIfEligible(Promotion promotion, double totalAmount) {
-        if (promotion == null) return totalAmount;
+        if (promotion == null)
+            return totalAmount;
 
         if (promotion.getMinBookingAmount() == null || totalAmount >= promotion.getMinBookingAmount()) {
             double discounted = totalAmount * (1 - promotion.getDiscountPercent() / 100);
@@ -138,12 +138,12 @@ public class BookingCalculationService {
 
     // Calculate room price
     private double calculateRoomPrice(UUID roomTypeId, LocalDate checkInDate, LocalDate checkOutDate) {
-        double totalPrice = 0.0;
-        for (LocalDate date = checkInDate; !date.isAfter(checkOutDate); date = date.plusDays(1)) {
+        double pricePerNight = 0.0;
+        for (LocalDate date = checkInDate; date.isBefore(checkOutDate); date = date.plusDays(1)) {
             DailyOverride override = dailyOverrideRepository.findByRoomTypeIdAndDate(roomTypeId, date)
                     .orElse(null);
             if (override != null && override.getPriceAdjustment() != null) {
-                totalPrice += override.getPriceAdjustment();
+                pricePerNight += override.getPriceAdjustment();
             } else {
                 LocalDate finalDate = date;
                 BaseRate baseRate = baseRateRepository.findByRoomTypeIdAndOverlappingDates(roomTypeId, date)
@@ -151,10 +151,9 @@ public class BookingCalculationService {
                             logger.error("No base rate found for room type ID: {} on date: {}", roomTypeId, finalDate);
                             return new ResourceNotFoundException("No base rate found for the given date");
                         });
-                totalPrice += baseRate.getBasePrice();
+                pricePerNight += baseRate.getBasePrice();
             }
         }
-        return totalPrice;
+        return pricePerNight;
     }
 }
-

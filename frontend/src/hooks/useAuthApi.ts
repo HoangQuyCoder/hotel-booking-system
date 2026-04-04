@@ -1,9 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { authApi } from "../api/authApi";
-import type {
-  UserResponse
-} from "../types";
+import type { UserResponse } from "../types";
 
 const USER_KEY = ["user"];
 
@@ -12,6 +10,10 @@ export const useAuthApi = () => {
 
   const setUser = (user: UserResponse | null) => {
     queryClient.setQueryData(USER_KEY, user);
+    queryClient.invalidateQueries({
+      queryKey: USER_KEY,
+      exact: true,
+    });
   };
 
   const clearUser = () => {

@@ -19,15 +19,18 @@ export function SearchBar() {
   const cityDropdownRef = useRef<HTMLDivElement>(null);
   const debouncedLocation = useDebounce(location, 300);
   const { useCities } = useHotelApi();
-  const { data: cities, isLoading: loadingCities } = useCities(debouncedLocation);
-  console.log(cities);
+  const { data: cities, isLoading: loadingCities } =
+    useCities(debouncedLocation);
   const checkInRef = useRef<HTMLInputElement>(null);
   const checkOutRef = useRef<HTMLInputElement>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (cityDropdownRef.current && !cityDropdownRef.current.contains(event.target as Node)) {
+      if (
+        cityDropdownRef.current &&
+        !cityDropdownRef.current.contains(event.target as Node)
+      ) {
         setShowCities(false);
       }
     };
@@ -51,23 +54,28 @@ export function SearchBar() {
   };
 
   const displayCheckIn = checkIn ? formatDisplayDate(checkIn) : "Select date";
-  const displayCheckOut = checkOut ? formatDisplayDate(checkOut) : "Select date";
+  const displayCheckOut = checkOut
+    ? formatDisplayDate(checkOut)
+    : "Select date";
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col md:flex-row items-stretch 
-                 bg-white border border-gray-200 rounded-3xl md:rounded-full 
-                 shadow-sm overflow-hidden md:overflow-visible"
+      className="flex flex-col md:flex-row items-stretch bg-white border 
+          border-gray-200 rounded-3xl md:rounded-full shadow-sm"
     >
       {/* ==================== LOCATION ==================== */}
       <div
         ref={cityDropdownRef}
-        className="flex-1 relative flex items-center px-5 py-4 md:py-3 gap-3 hover:bg-gray-50 transition rounded-t-2xl md:rounded-l-full md:rounded-r-none"
+        className="flex-1 relative flex items-center px-5 py-4 md:py-3 gap-3 
+             hover:bg-gray-50 transition 
+             rounded-t-2xl md:rounded-l-full md:rounded-r-none"
       >
         <MapPin className="text-sky-500 shrink-0" size={20} />
         <div className="text-left flex-1 min-w-0">
-          <div className="text-xs font-semibold text-gray-700 mb-0.5">Location</div>
+          <div className="text-xs font-semibold text-gray-700 mb-0.5">
+            Location
+          </div>
           <input
             type="text"
             value={location}
@@ -78,14 +86,14 @@ export function SearchBar() {
             }}
             placeholder="Where are you going?"
             className="w-full text-base md:text-sm text-gray-700 
-                       placeholder-gray-400 outline-none bg-transparent 
-                       pr-2 md:pr-4 truncate"
+                 placeholder-gray-400 outline-none bg-transparent 
+                 pr-2 md:pr-4 truncate"
           />
         </div>
 
-        {/* Suggestion Dropdown */}
-        {showCities && (location.trim() || loadingCities) && (
-          <div className="absolute top-full left-0 mt-2 w-full bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto py-2">
+        {/* Suggestion Dropdown - Đưa ra ngoài overflow-hidden */}
+        {showCities && (
+          <div className="absolute top-full left-0 mt-2 w-full bg-white border border-gray-100 rounded-2xl shadow-xl z-[100] max-h-60 overflow-y-auto py-2">
             {loadingCities ? (
               <div className="flex items-center justify-center p-4">
                 <Loader2 className="w-5 h-5 animate-spin text-sky-500" />
@@ -96,15 +104,17 @@ export function SearchBar() {
                   key={idx}
                   type="button"
                   onClick={() => handleSelectCity(city)}
-                  className="w-full flex items-center gap-3 px-5 py-3 text-sm text-gray-700 hover:bg-sky-50 text-left"
+                  className="w-full flex items-center gap-3 px-5 py-3 text-sm text-gray-700 hover:bg-sky-50 text-left transition"
                 >
                   <MapPin size={16} className="text-gray-400" />
                   <span className="truncate">{city}</span>
                 </button>
               ))
-            ) : (
-              <div className="px-5 py-3 text-sm text-gray-400 italic">No cities found</div>
-            )}
+            ) : location.trim() ? (
+              <div className="px-5 py-3 text-sm text-gray-400 italic">
+                No cities found
+              </div>
+            ) : null}
           </div>
         )}
       </div>
@@ -116,7 +126,9 @@ export function SearchBar() {
       <label className="flex-1 flex items-center px-5 py-4 md:py-3 gap-3 cursor-pointer hover:bg-gray-50 transition relative md:border-r md:border-gray-200">
         <Calendar className="text-sky-500 shrink-0" size={20} />
         <div className="text-left flex-1 min-w-0">
-          <div className="text-xs font-semibold text-gray-700 mb-0.5">Check-in</div>
+          <div className="text-xs font-semibold text-gray-700 mb-0.5">
+            Check-in
+          </div>
           <div
             onClick={() => checkInRef.current?.showPicker()}
             className="text-sm text-gray-700 cursor-pointer select-none"
@@ -133,7 +145,7 @@ export function SearchBar() {
             const newCheckIn = e.target.value;
             setCheckIn(newCheckIn);
 
-            // Tự động gợi ý check-out +7 ngày nếu chưa có hoặc check-out cũ hơn check-in
+            // Automatically suggest check-out +7 days if there is none or if the check-out is older than the check-in
             if (!checkOut || newCheckIn > checkOut) {
               const date = new Date(newCheckIn);
               date.setDate(date.getDate() + 7);
@@ -151,7 +163,9 @@ export function SearchBar() {
       <label className="flex-1 flex items-center px-5 py-4 md:py-3 gap-3 cursor-pointer hover:bg-gray-50 transition relative">
         <Calendar className="text-sky-500 shrink-0" size={20} />
         <div className="text-left flex-1 min-w-0">
-          <div className="text-xs font-semibold text-gray-700 mb-0.5">Check-out</div>
+          <div className="text-xs font-semibold text-gray-700 mb-0.5">
+            Check-out
+          </div>
           <div
             onClick={() => checkOutRef.current?.showPicker()}
             className="text-sm text-gray-700 cursor-pointer select-none"
@@ -176,7 +190,9 @@ export function SearchBar() {
       <label className="flex items-center flex-1 px-5 py-4 md:py-3 gap-3 cursor-pointer hover:bg-gray-50 transition relative">
         <Users className="text-sky-500 shrink-0" size={20} />
         <div className="text-left flex-1 min-w-0">
-          <div className="text-xs font-semibold text-gray-700 mb-0.5">Guests</div>
+          <div className="text-xs font-semibold text-gray-700 mb-0.5">
+            Guests
+          </div>
           <input
             type="number"
             value={guests}

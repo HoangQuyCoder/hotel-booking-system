@@ -8,6 +8,7 @@ export interface HotelListResponse extends BaseEntity {
   city: string;
   address: string;
   rating: number;
+  description: string;
   thumbnailUrl: string;
   checkInTime: string;
   checkOutTime: string;
@@ -74,4 +75,7 @@ export interface HotelFilterRequest extends BaseFilterRequest {
   managerId?: string;
   minRating?: number;
   maxRating?: number;
+  guests?: number;
+  checkIn?: string;
+  checkOut?: string;
 }

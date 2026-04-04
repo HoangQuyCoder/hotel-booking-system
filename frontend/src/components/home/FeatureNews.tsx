@@ -10,7 +10,9 @@ export default function FeatureNews() {
 
   const displayedHotels = hotels.slice(0, 9);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [selectedCardIndex, setSelectedCardIndex] = useState<number | null>(null);
+  const [selectedCardIndex, setSelectedCardIndex] = useState<number | null>(
+    null,
+  );
 
   const cardsPerView = 3;
   const totalSlides = Math.ceil(displayedHotels.length / cardsPerView);
@@ -42,7 +44,9 @@ export default function FeatureNews() {
             </h2>
             <div className="w-20 h-1 bg-cyan-600 mx-auto mt-4 rounded-full" />
           </div>
-          <p className="text-red-500 py-8">Something went wrong while fetching latest hotels.</p>
+          <p className="text-red-500 py-8">
+            Something went wrong while fetching latest hotels.
+          </p>
         </div>
       </section>
     );
@@ -56,7 +60,9 @@ export default function FeatureNews() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
               Latest Additions
             </h2>
-            <p className="text-gray-500 mt-2">Discover our newest luxury destinations</p>
+            <p className="text-gray-500 mt-2">
+              Discover our newest luxury destinations
+            </p>
           </div>
 
           {!isLoading && displayedHotels.length > 0 && (
@@ -104,10 +110,7 @@ export default function FeatureNews() {
                       className="w-full md:w-1/3 flex-shrink-0 px-2 md:px-4 cursor-pointer"
                       onClick={() => handleCardClick(index)}
                     >
-                      <NewsCard
-                        hotel={hotel}
-                        highlighted={isHighlighted}
-                      />
+                      <NewsCard hotel={hotel} highlighted={isHighlighted} />
                     </div>
                   );
                 })}
@@ -121,13 +124,12 @@ export default function FeatureNews() {
                       key={i}
                       onClick={() => {
                         setCurrentSlide(i);
-                        // Optional: bỏ highlight khi chuyển slide bằng dots
-                        // setSelectedCardIndex(null);
                       }}
-                      className={`h-3 rounded-full transition-all duration-300 ${currentSlide === i
+                      className={`h-3 rounded-full transition-all duration-300 ${
+                        currentSlide === i
                           ? "bg-cyan-600 w-10"
                           : "bg-gray-300 w-3 hover:bg-gray-400"
-                        }`}
+                      }`}
                       aria-label={`Go to slide ${i + 1}`}
                     />
                   ))}

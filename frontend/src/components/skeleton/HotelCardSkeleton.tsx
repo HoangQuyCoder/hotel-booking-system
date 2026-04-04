@@ -1,32 +1,38 @@
 export default function HotelCardSkeleton() {
   return (
-    <div className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse">
-      {/* Image placeholder */}
-      <div className="h-48 bg-gray-300 relative">
-        <div className="absolute top-3 right-3 bg-gray-400 rounded-full w-8 h-5"></div>
+    <div className="bg-white rounded-3xl shadow-md overflow-hidden animate-pulse">
+      {/* Image Section */}
+      <div className="relative h-56 bg-gray-300">
+        {/* Rating badge placeholder */}
+        <div className="absolute top-4 right-4 bg-gray-400/80 backdrop-blur-sm px-3 py-1 rounded-2xl w-14 h-7" />
       </div>
 
-      <div className="p-4">
-        {/* Hotel name */}
-        <div className="h-5 bg-gray-300 rounded w-3/4 mb-2"></div>
-
+      {/* Content Section */}
+      <div className="p-6">
         {/* Location */}
-        <div className="flex items-center gap-1 text-sm text-gray-400 mb-3">
-          <div className="w-4 h-4 bg-gray-300 rounded"></div>
-          <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+        <div className="flex items-center gap-1.5 mb-2">
+          <div className="w-4 h-4 bg-gray-300 rounded" />
+          <div className="h-4 bg-gray-300 rounded w-3/4" />
         </div>
 
-        {/* Button */}
-        <div className="flex justify-between items-center">
-          <div className="h-5 bg-gray-300 rounded w-1/4"></div>
-          <div className="h-8 bg-gray-300 rounded w-24"></div>
+        {/* Hotel Name */}
+        <div className="h-7 bg-gray-300 rounded w-full mb-3" />
+        <div className="h-7 bg-gray-300 rounded w-5/6 mb-5" />
+
+        {/* Check-in & Check-out */}
+        <div className="flex flex-col gap-1.5 mb-6">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-gray-300 rounded" />
+            <div className="h-4 bg-gray-300 rounded w-2/3" />
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-gray-300 rounded" />
+            <div className="h-4 bg-gray-300 rounded w-2/3" />
+          </div>
         </div>
 
-        {/* Contact info */}
-        <div className="mt-2 space-y-1">
-          <div className="h-3 bg-gray-300 rounded w-1/3"></div>
-          <div className="h-3 bg-gray-300 rounded w-1/2"></div>
-        </div>
+        {/* Action Button */}
+        <div className="h-12 bg-gray-300 rounded-2xl w-full" />
       </div>
     </div>
   );

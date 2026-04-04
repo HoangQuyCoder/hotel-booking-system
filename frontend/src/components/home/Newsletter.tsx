@@ -21,7 +21,7 @@ export default function Newsletter() {
         {/* Left Image */}
         <div className="md:w-1/2 h-52 sm:h-64 md:h-auto">
           <img
-            src="/src/assets/images/newsletter-image.jpg"
+            src="/images/newsletter-image.jpg"
             alt="Newsletter"
             className="w-full h-full object-cover"
           />

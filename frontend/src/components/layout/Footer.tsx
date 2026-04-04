@@ -14,7 +14,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto mt-4 px-6 md:px-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
-            <h3 className="text-2xl font-bold text-white mb-4">ACENDA</h3>
+            <h3 className="text-2xl font-bold text-white mb-4">THEODORE</h3>
             <p className="text-sm">
               Your trusted partner in discovering the world's most beautiful
               destinations.
@@ -26,7 +26,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm  pl-0 list-none">
               <li>
                 <a
-                  href="#"
+                  href="/about-us"
                   className="hover:text-white transition no-underline"
                 >
                   About Us
@@ -34,7 +34,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/destinations"
                   className="hover:text-white transition no-underline"
                 >
                   Destinations
@@ -42,7 +42,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/news"
                   className="hover:text-white transition no-underline"
                 >
                   News
@@ -50,7 +50,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/contact"
                   className="hover:text-white transition no-underline"
                 >
                   Contact
@@ -64,7 +64,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm  pl-0 list-none">
               <li>
                 <a
-                  href="#"
+                  href="/help-center"
                   className="hover:text-white transition no-underline"
                 >
                   Help Center
@@ -72,7 +72,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="safety-information"
                   className="hover:text-white transition no-underline"
                 >
                   Safety information
@@ -80,7 +80,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="terms-of-service"
                   className="hover:text-white transition no-underline"
                 >
                   Terms of service
@@ -88,7 +88,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="privacy-policy"
                   className="hover:text-white transition no-underline"
                 >
                   Privacy policy
@@ -106,18 +106,20 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
-                <span>hello@acenda.com</span>
+                <span>booking@theodore.com</span>
               </div>
               <div className="flex items-center gap-2">
                 <Globe className="w-4 h-4" />
-                <span>www.acenda.com</span>
+                <span>www.theodore.com</span>
               </div>
             </div>
           </div>
         </div>
 
         <div className="border-t border-gray-800 pt-2 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm mt-4 md:mt-0">&copy; 2025 Acenda. All rights reserved.</p>
+          <p className="text-sm mt-4 md:mt-0">
+            &copy; 2025 Theodore. All rights reserved.
+          </p>
           <div className="flex gap-4 mt-4 md:mt-0">
             <a href="#" className="hover:text-white transition">
               <Facebook className="w-5 h-5" />

@@ -19,7 +19,7 @@ export default function Login() {
         onSuccess: () => {
           navigate("/");
         },
-      }
+      },
     );
   };
 
@@ -27,7 +27,7 @@ export default function Login() {
     <div className="min-h-screen font-sans overflow-x-hidden">
       <section
         className="relative h-screen bg-cover bg-center flex flex-col justify-center"
-        style={{ backgroundImage: "url('/src/assets/images/maldives.jpg')" }}
+        style={{ backgroundImage: "url('/images/maldives.jpg')" }}
       >
         <div className="flex items-center justify-center">
           <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
@@ -43,16 +43,33 @@ export default function Login() {
                 required
               />
 
-              <Input
-                label="Password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div>
+                <Input
+                  label="Password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
 
-              <Button type="submit" block disabled={login.isPending}>
+                {/* Forgot Password Link */}
+                <div className="flex justify-end mt-2">
+                  <a
+                    href="/forgot-password"
+                    className="no-underline text-sm text-cyan-600 hover:text-cyan-700 hover:underline font-medium transition-colors"
+                  >
+                    Forgot password?
+                  </a>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="py-3"
+                block
+                disabled={login.isPending}
+              >
                 {login.isPending ? "Signing in..." : "Sign In"}
               </Button>
             </form>
