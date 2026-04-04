@@ -1,14 +1,7 @@
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { userApi } from "../api/userApi";
-import type {
-  UserUpdateRequest,
-  UserFilterRequest,
-} from "../types";
+import type { UserUpdateRequest, UserFilterRequest } from "../types";
 
 const USER_KEY = ["user"];
 const USERS_KEY = ["users"];
@@ -21,7 +14,15 @@ export const useUserApi = () => {
     useQuery({
       queryKey: USER_KEY,
       queryFn: userApi.getMe,
-      select: (res) => res.data, // unwrap
+      select: (res) => res.data,
+
+      retry: (failureCount, error: any) => {
+        if (error?.response?.status === 401) return false;
+        return failureCount < 2;
+      },
+
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
     });
 
   // ================= GET USER BY ID =================
@@ -43,7 +44,8 @@ export const useUserApi = () => {
 
   // ================= UPDATE USER =================
   const updateUser = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UserUpdateRequest }) => userApi.update(id, data),
+    mutationFn: ({ id, data }: { id: string; data: UserUpdateRequest }) =>
+      userApi.update(id, data),
 
     onSuccess: (res, variables) => {
       toast.success(res.message);

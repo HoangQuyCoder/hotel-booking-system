@@ -2,7 +2,7 @@ import type { BaseEntity } from "./common";
 import type { RoomTypeListResponse } from "./roomType";
 
 export interface BookingRoomResponse extends BaseEntity {
-  roomTypeId: RoomTypeListResponse;
+  roomType: RoomTypeListResponse;
   quantity: number;
   pricePerNight: number;
   bookingRoomDetails: BookingRoomDetailResponse[];
