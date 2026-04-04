@@ -23,7 +23,7 @@ export default function HeroSection() {
             {getGreeting()}
           </h1>
           <p className="text-gray-700 text-base sm:text-lg mb-6 md:mb-8">
-            Explore beautiful places in the world with Acenda
+            Explore beautiful places in the world with Theodore
           </p>
 
           <SearchBar />

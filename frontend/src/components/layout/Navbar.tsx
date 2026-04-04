@@ -19,7 +19,10 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setAccountOpen(false);
       }
     };
@@ -37,20 +40,22 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 md:px-12 lg:px-20 transition-all duration-300 ${scrolled
-        ? "bg-gray-900/90 backdrop-blur-md shadow-md"
-        : "bg-transparent"
-        }`}
+      className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 md:px-12 lg:px-20 transition-all duration-300 ${
+        scrolled
+          ? "bg-gray-900/90 backdrop-blur-md shadow-md"
+          : "bg-transparent"
+      }`}
     >
       <div className="flex items-center justify-between">
         {/* Logo */}
         <Link
           to="/"
           onClick={closeAll}
-          className={`text-2xl font-bold no-underline ${scrolled ? "text-cyan-400" : "text-white"
-            }`}
+          className={`text-2xl font-bold no-underline ${
+            scrolled ? "text-cyan-400" : "text-white"
+          }`}
         >
-          ACENDA
+          THEODORE
         </Link>
 
         {/* Desktop Navigation */}
@@ -68,23 +73,22 @@ export default function Navbar() {
         </div>
 
         {/* Desktop Auth */}
-        <div className="hidden md:flex items-center gap-3" ref={dropdownRef}>
+        <div className="hidden md:flex items-center gap-2" ref={dropdownRef}>
           {user ? (
             <div className="relative">
               <Button
                 variant="ghost"
-                className="text-white hover:bg-white/10"
+                className="text-white hover:bg-white/10 flex items-center gap-2"
                 onClick={() => setAccountOpen(!accountOpen)}
                 rightIcon={
                   <ChevronDown
                     size={16}
-                    className={`transition-transform ${accountOpen ? "rotate-180" : ""
-                      }`}
+                    className={`transition-transform ${accountOpen ? "rotate-180" : ""}`}
                   />
                 }
               >
-                <User size={20} />
-                {user.firstName || "User"}
+                <User size={18} />
+                <span>Hi, {user.firstName || "User"}</span>
               </Button>
 
               {/* Dropdown */}
@@ -93,8 +97,9 @@ export default function Navbar() {
                   <div className="p-3 border-b border-gray-800">
                     <p className="text-sm text-gray-400">Signed in as</p>
                     <p className="font-semibold text-white truncate">
-                      {user.email || user.firstName}
+                      {user.firstName + " " + user.lastName}
                     </p>
+                    <p className="text-sm text-gray-400">{user.email}</p>
                   </div>
 
                   <Button
@@ -102,7 +107,7 @@ export default function Navbar() {
                     variant="ghost"
                     block
                     leftIcon={<User size={18} />}
-                    className="justify-start text-gray-200 hover:bg-gray-800"
+                    className="justify-start text-gray-200 hover:bg-gray-800 no-underline"
                     onClick={closeAll}
                   >
                     Profile
@@ -113,7 +118,7 @@ export default function Navbar() {
                     variant="ghost"
                     block
                     leftIcon={<CalendarDays size={18} />}
-                    className="justify-start text-gray-200 hover:bg-gray-800"
+                    className="justify-start text-gray-200 hover:bg-gray-800 no-underline"
                     onClick={closeAll}
                   >
                     My Bookings
@@ -137,12 +142,20 @@ export default function Navbar() {
               )}
             </div>
           ) : (
-            <div className="flex items-center gap-3">
-              <Button to="/login" variant="outline" className="no-underline">
+            <div className="flex items-center gap-2">
+              <Button
+                to="/login"
+                variant="outline"
+                className="no-underline px-4"
+              >
                 Login
               </Button>
 
-              <Button to="/register" variant="primary" className="no-underline">
+              <Button
+                to="/register"
+                variant="primary"
+                className="no-underline px-4"
+              >
                 Register
               </Button>
             </div>
@@ -151,8 +164,7 @@ export default function Navbar() {
 
         {/* Mobile Toggle */}
         <button
-          className={`md:hidden ${scrolled ? "text-cyan-400" : "text-white"
-            }`}
+          className={`md:hidden ${scrolled ? "text-cyan-400" : "text-white"}`}
           onClick={() => setMenuOpen(!menuOpen)}
         >
           {menuOpen ? <X size={28} /> : <Menu size={28} />}
