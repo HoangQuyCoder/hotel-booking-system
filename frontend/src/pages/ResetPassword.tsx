@@ -30,9 +30,8 @@ export default function ResetPassword() {
       {
         onSuccess: () => setTokenValid(true),
         onError: () => setTokenValid(false),
-      }
+      },
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -53,7 +52,7 @@ export default function ResetPassword() {
         onSuccess: () => {
           setSuccess(true);
         },
-      }
+      },
     );
   };
 
@@ -75,7 +74,7 @@ export default function ResetPassword() {
       <div className="min-h-screen flex items-center justify-center">
         <section
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/src/assets/images/maldives.jpg')" }}
+          style={{ backgroundImage: "url('/images/maldives.jpg')" }}
         />
         <div className="relative bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center space-y-4">
           <div className="flex justify-center">
@@ -102,7 +101,7 @@ export default function ResetPassword() {
       <div className="min-h-screen flex items-center justify-center">
         <section
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/src/assets/images/maldives.jpg')" }}
+          style={{ backgroundImage: "url('/images/maldives.jpg')" }}
         />
         <div className="relative bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center space-y-4">
           <div className="flex justify-center">
@@ -110,9 +109,7 @@ export default function ResetPassword() {
               <CheckCircle className="w-10 h-10 text-green-500" />
             </div>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">
-            Password reset!
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900">Password reset!</h2>
           <p className="text-gray-500 text-sm">
             Your password has been updated successfully.
           </p>
@@ -129,7 +126,7 @@ export default function ResetPassword() {
     <div className="min-h-screen font-sans overflow-x-hidden">
       <section
         className="relative h-screen bg-cover bg-center flex flex-col justify-center"
-        style={{ backgroundImage: "url('/src/assets/images/maldives.jpg')" }}
+        style={{ backgroundImage: "url('/images/maldives.jpg')" }}
       >
         <div className="flex items-center justify-center">
           <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
@@ -170,11 +167,7 @@ export default function ResetPassword() {
                 <p className="text-red-500 text-sm">{passwordError}</p>
               )}
 
-              <Button
-                type="submit"
-                block
-                loading={resetPassword.isPending}
-              >
+              <Button type="submit" block loading={resetPassword.isPending}>
                 Reset Password
               </Button>
             </form>

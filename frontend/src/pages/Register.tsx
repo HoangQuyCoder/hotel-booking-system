@@ -12,11 +12,7 @@ export default function Register() {
   const [step, setStep] = useState<Step>(1);
   const navigate = useNavigate();
 
-  const {
-    sendCode,
-    verifyCode,
-    register: registerMutation,
-  } = useAuthApi();
+  const { sendCode, verifyCode, register: registerMutation } = useAuthApi();
 
   // Form data
   const [email, setEmail] = useState("");
@@ -50,7 +46,7 @@ export default function Register() {
           setCountdown(60);
           setStep(2);
         },
-      }
+      },
     );
   };
 
@@ -73,7 +69,7 @@ export default function Register() {
       { email, code: verificationCode },
       {
         onSuccess: () => setStep(3),
-      }
+      },
     );
   };
 
@@ -98,7 +94,7 @@ export default function Register() {
       },
       {
         onSuccess: () => navigate("/"),
-      }
+      },
     );
   };
 
@@ -109,7 +105,7 @@ export default function Register() {
     <div className="min-h-screen font-sans overflow-x-hidden">
       <section
         className="relative h-screen bg-cover bg-center flex items-center justify-center px-4"
-        style={{ backgroundImage: "url('/src/assets/images/maldives.jpg')" }}
+        style={{ backgroundImage: "url('/images/maldives.jpg')" }}
       >
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl w-full max-w-lg p-8">
           {/* Header */}
@@ -122,8 +118,9 @@ export default function Register() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className={`h-2 w-20 rounded-full transition-all duration-300 ${i <= step ? "bg-cyan-600" : "bg-gray-300"
-                    }`}
+                  className={`h-2 w-20 rounded-full transition-all duration-300 ${
+                    i <= step ? "bg-cyan-600" : "bg-gray-300"
+                  }`}
                 />
               ))}
             </div>
@@ -142,7 +139,12 @@ export default function Register() {
                 required
               />
 
-              <Button type="submit" loading={sendCode.isPending} block>
+              <Button
+                type="submit"
+                className="py-3"
+                loading={sendCode.isPending}
+                block
+              >
                 Continue
               </Button>
             </form>
@@ -190,7 +192,9 @@ export default function Register() {
                     className="w-12 h-14 text-2xl font-bold text-center border-2 rounded-lg outline-none transition-all focus:border-cyan-600 focus:ring-4 focus:ring-cyan-100 bg-gray-50"
                     autoFocus={i === 0}
                     onPaste={(e) => {
-                      const paste = e.clipboardData.getData("text").replace(/\D/g, "");
+                      const paste = e.clipboardData
+                        .getData("text")
+                        .replace(/\D/g, "");
                       if (paste.length === 6) {
                         setVerificationCode(paste);
                       }
@@ -210,10 +214,10 @@ export default function Register() {
                   </p>
                 ) : (
                   <Button
-                    variant="ghost"
                     onClick={handleResendCode}
                     loading={sendCode.isPending}
                     leftIcon={<RefreshCw className="w-4 h-4" />}
+                    className="py-3 bg-gray-400 hover:bg-cyan-600"
                   >
                     Resend verification code
                   </Button>
@@ -223,7 +227,7 @@ export default function Register() {
               {/* Navigation buttons */}
               <div className="flex gap-3">
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   onClick={goBack}
                   block
                   leftIcon={<ArrowLeft className="w-4 h-4" />}
@@ -234,6 +238,7 @@ export default function Register() {
                   type="submit"
                   loading={verifyCode.isPending}
                   disabled={verificationCode.length !== 6}
+                  className="py-3"
                   block
                 >
                   Verify
@@ -280,14 +285,19 @@ export default function Register() {
 
               <div className="flex gap-3">
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   onClick={goBack}
                   block
                   leftIcon={<ArrowLeft className="w-4 h-4" />}
                 >
                   Back
                 </Button>
-                <Button type="submit" loading={registerMutation.isPending} block>
+                <Button
+                  type="submit"
+                  loading={registerMutation.isPending}
+                  block
+                  className="py-3"
+                >
                   Complete Registration
                 </Button>
               </div>

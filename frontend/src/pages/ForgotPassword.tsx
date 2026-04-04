@@ -20,7 +20,7 @@ export default function ForgotPassword() {
         onSuccess: () => {
           setSubmitted(true);
         },
-      }
+      },
     );
   };
 
@@ -28,7 +28,7 @@ export default function ForgotPassword() {
     <div className="min-h-screen font-sans overflow-x-hidden">
       <section
         className="relative h-screen bg-cover bg-center flex flex-col justify-center"
-        style={{ backgroundImage: "url('/src/assets/images/maldives.jpg')" }}
+        style={{ backgroundImage: "url('/images/maldives.jpg')" }}
       >
         <div className="flex items-center justify-center">
           <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
