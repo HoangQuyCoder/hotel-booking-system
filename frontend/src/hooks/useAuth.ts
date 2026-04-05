@@ -10,11 +10,11 @@ export const useAuth = () => {
 
   const logoutWithRedirect = async () => {
     context.logout();
-    navigate("/login");
+    navigate("/login", { replace: true });
   };
 
   return {
     ...context,
-    logout: logoutWithRedirect,
+    logoutWithRedirect,
   };
 };

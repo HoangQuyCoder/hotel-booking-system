@@ -5,7 +5,7 @@ import { LogOut, Menu, X, User, ChevronDown, CalendarDays } from "lucide-react";
 import { Button } from "../ui/Button";
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, logoutWithRedirect } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -131,7 +131,7 @@ export default function Navbar() {
                       leftIcon={<LogOut size={18} />}
                       className="justify-start rounded-none"
                       onClick={() => {
-                        logout();
+                        logoutWithRedirect();
                         closeAll();
                       }}
                     >
@@ -229,7 +229,7 @@ export default function Navbar() {
                   block
                   leftIcon={<LogOut size={18} />}
                   onClick={() => {
-                    logout();
+                    logoutWithRedirect();
                     closeAll();
                   }}
                 >
