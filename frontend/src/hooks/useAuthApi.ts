@@ -17,8 +17,8 @@ export const useAuthApi = () => {
   };
 
   const clearUser = () => {
-    queryClient.removeQueries({ queryKey: USER_KEY });
-    setUser(null);
+    queryClient.setQueryData(["user"], null);
+    queryClient.removeQueries({ queryKey: ["user"], exact: true });
   };
 
   // ================= LOGIN =================
