@@ -5,31 +5,36 @@ import {
   Edit,
   Trash2,
   Percent,
-  Calendar,
-  Clock,
   CheckCircle2,
   XCircle,
+  Clock,
+  Hash,
 } from "lucide-react";
 import { usePromotionApi } from "../../hooks/usePromotionApi";
 import { Pagination } from "../../components/ui/Pagination";
-import { useDebounce } from "../../hooks/useDebounce";
 import { AdminPageHeader } from "../../components/admin/AdminPageHeader";
 import { AdminFilterBar } from "../../components/admin/AdminFilterBar";
 import { AdminTable } from "../../components/admin/AdminTable";
 import { AdminStatusBadge } from "../../components/admin/AdminStatusBadge";
 import { AdminEmptyState } from "../../components/admin/AdminEmptyState";
+import { PromotionModal } from "../../components/admin/modal/PromotionModal";
+import type { PromotionResponse } from "../../types";
 
 export default function AdminPromotions() {
   const { usePromotions, deletePromotion } = usePromotionApi();
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [search, setSearch] = useState("");
-  const debouncedSearch = useDebounce(search, 500);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingPromo, setEditingPromo] = useState<PromotionResponse | null>(
+    null,
+  );
 
   const { data: promotionsData, isLoading } = usePromotions({
     page,
     size,
-    // keyword: debouncedSearch,
+    code: search || undefined,
   });
 
   const handleDelete = async (id: string) => {
@@ -38,19 +43,23 @@ export default function AdminPromotions() {
     }
   };
 
-  const columns = [
-    { label: "Campaign" },
-    { label: "Code" },
-    { label: "Discount" },
-    { label: "Validity" },
-    { label: "Status" },
-    { label: "Actions", className: "text-right" },
-  ];
+  const handleEdit = (promo: PromotionResponse) => {
+    setEditingPromo(promo);
+    setIsModalOpen(true);
+  };
 
-  const getStatusInfo = (promo: any) => {
+  const getStatusInfo = (promo: PromotionResponse) => {
     const now = new Date();
-    const start = new Date(promo.startDate);
-    const end = new Date(promo.endDate);
+    const start = new Date(promo.validFrom);
+    const end = new Date(promo.validTo);
+
+    if (promo.usedCount >= promo.maxUses) {
+      return {
+        label: "Exhausted",
+        color: "bg-red-50 text-red-500 border-red-200",
+        icon: XCircle,
+      };
+    }
 
     if (now < start) {
       return {
@@ -59,13 +68,15 @@ export default function AdminPromotions() {
         icon: Clock,
       };
     }
+
     if (now > end) {
       return {
         label: "Expired",
-        color: "bg-red-50 text-red-500 border-red-200",
+        color: "bg-gray-100 text-gray-500 border-gray-200",
         icon: XCircle,
       };
     }
+
     return {
       label: "Active",
       color: "bg-emerald-50 text-emerald-600 border-emerald-200",
@@ -73,19 +84,31 @@ export default function AdminPromotions() {
     };
   };
 
+  const columns = [
+    { label: "Promo Info" },
+    { label: "Discount" },
+    { label: "Validity" },
+    { label: "Usage" },
+    { label: "Status" },
+    { label: "Actions", className: "text-right" },
+  ];
+
   return (
     <div>
       <AdminPageHeader
-        title="Promotion Management"
-        description="Create and manage discount codes and special offers"
+        title="Promotions & Discounts"
+        description="Create and manage marketing discount codes"
         icon={Tag}
       />
 
       <AdminFilterBar
-        searchPlaceHolder="Search by code or promotion name..."
+        searchPlaceHolder="Search by promo code..."
         searchValue={search}
         onSearchChange={setSearch}
-        onActionClick={() => console.log("Add Promotion")}
+        onActionClick={() => {
+          setEditingPromo(null);
+          setIsModalOpen(true);
+        }}
         actionLabel="Add Promotion"
         actionIcon={Plus}
       />
@@ -98,11 +121,11 @@ export default function AdminPromotions() {
           <AdminEmptyState
             icon={Tag}
             message="No promotions found"
-            subMessage="Click 'Add Promotion' to create one"
+            subMessage="Click 'Add Promotion' to start"
           />
         }
       >
-        {promotionsData?.content?.map((promo: any) => {
+        {promotionsData?.content?.map((promo: PromotionResponse) => {
           const status = getStatusInfo(promo);
           return (
             <tr
@@ -110,41 +133,61 @@ export default function AdminPromotions() {
               className="hover:bg-gray-50 transition-colors group"
             >
               <td className="px-6 py-4">
-                <div className="flex flex-col">
-                  <span className="text-gray-900 font-semibold text-sm group-hover:text-indigo-600 transition-colors">
-                    {promo.name}
-                  </span>
-                  <span className="text-gray-400 text-[11px] truncate max-w-[200px] mt-0.5">
-                    {promo.description}
-                  </span>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                    <Hash className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-gray-900 font-bold text-sm tracking-tight uppercase">
+                      {promo.code}
+                    </p>
+                    <p className="text-gray-400 text-[10px] mt-0.5 font-semibold">
+                      MIN: {promo.minBookingAmount.toLocaleString()} ₫
+                    </p>
+                  </div>
                 </div>
               </td>
               <td className="px-6 py-4">
-                <span className="bg-indigo-50 border border-indigo-200 text-indigo-600 px-3 py-1 rounded-lg font-mono text-xs font-bold uppercase tracking-widest">
-                  {promo.code}
-                </span>
-              </td>
-              <td className="px-6 py-4">
-                <div className="flex items-center gap-1 text-emerald-600 font-bold text-sm">
-                  <Percent className="w-3.5 h-3.5" />
-                  {promo.discountValue}%
+                <div className="flex items-center gap-1.5 text-indigo-600 font-black text-lg">
+                  <Percent className="w-4 h-4" />
+                  {promo.discountPercent}%
                 </div>
               </td>
-              <td className="px-6 py-4 text-gray-600 text-xs">
-                <div className="flex flex-col gap-1 font-medium">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-3 h-3 text-gray-400" />
-                    <span className="text-gray-400 w-8">From:</span>
-                    <span className="text-gray-700">
-                      {new Date(promo.startDate).toLocaleDateString("en-US")}
+              <td className="px-6 py-4">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2 text-gray-700 text-xs font-semibold">
+                    <span className="w-8 h-4 rounded bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center text-[9px] uppercase">
+                      From
+                    </span>
+                    {new Date(promo.validFrom).toLocaleDateString()}
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-700 text-xs font-semibold">
+                    <span className="w-8 h-4 rounded bg-red-50 text-red-600 border border-red-100 flex items-center justify-center text-[9px] uppercase">
+                      To
+                    </span>
+                    {new Date(promo.validTo).toLocaleDateString()}
+                  </div>
+                </div>
+              </td>
+              <td className="px-6 py-4">
+                <div className="flex flex-col gap-1.5 w-32">
+                  <div className="flex justify-between text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                    <span>Used</span>
+                    <span>
+                      {promo.usedCount}/{promo.maxUses}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-3 h-3 text-gray-400" />
-                    <span className="text-gray-400 w-8">To:</span>
-                    <span className="text-gray-700">
-                      {new Date(promo.endDate).toLocaleDateString("en-US")}
-                    </span>
+                  <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden border border-gray-200/50">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        promo.usedCount / promo.maxUses > 0.8
+                          ? "bg-red-500"
+                          : "bg-indigo-500"
+                      }`}
+                      style={{
+                        width: `${(promo.usedCount / promo.maxUses) * 100}%`,
+                      }}
+                    />
                   </div>
                 </div>
               </td>
@@ -157,7 +200,10 @@ export default function AdminPromotions() {
               </td>
               <td className="px-6 py-4 text-right">
                 <div className="flex items-center justify-end gap-1">
-                  <button className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">
+                  <button
+                    onClick={() => handleEdit(promo)}
+                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                  >
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
@@ -173,8 +219,17 @@ export default function AdminPromotions() {
         })}
       </AdminTable>
 
+      <PromotionModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingPromo(null);
+        }}
+        promotion={editingPromo}
+      />
+
       {promotionsData && promotionsData.totalPages > 1 && (
-        <div className="mt-6 flex justify-center pb-8">
+        <div className="mt-6 flex justify-center">
           <Pagination
             currentPage={page}
             totalPages={promotionsData.totalPages}

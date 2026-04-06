@@ -11,10 +11,13 @@ public class RoomAmenitySpecification {
 
     public static Specification<RoomAmenity> build(RoomAmenityFilterRequest filterRequest) {
         return spec.and(SpecUtils.nestedEqualIfNotNull("roomType", "id", filterRequest.getRoomTypeId()))
+                .and(SpecUtils.nested2EqualIfNotNull("roomType", "hotel", "id", filterRequest.getHotelId()))
                 .and(SpecUtils.likeIfNotNull("category", filterRequest.getCategory()))
                 .and(SpecUtils.likeIfNotNull("name", filterRequest.getName()))
                 .and(SpecUtils.equalIfNotNull("isActive", filterRequest.getIsActive()))
-                .and(SpecUtils.betweenIfNotNull("createdAt", filterRequest.getCreatedFrom(), filterRequest.getCreatedTo()))
-                .and(SpecUtils.betweenIfNotNull("updatedAt", filterRequest.getUpdatedFrom(), filterRequest.getUpdatedTo()));
+                .and(SpecUtils.betweenIfNotNull("createdAt", filterRequest.getCreatedFrom(),
+                        filterRequest.getCreatedTo()))
+                .and(SpecUtils.betweenIfNotNull("updatedAt", filterRequest.getUpdatedFrom(),
+                        filterRequest.getUpdatedTo()));
     }
 }

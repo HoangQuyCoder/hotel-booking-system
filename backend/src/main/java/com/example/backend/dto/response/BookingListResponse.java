@@ -16,4 +16,5 @@ public class BookingListResponse extends BaseResponse {
     private String confirmationCode;
     private Integer guestCount;
     private String hotelName;
+    private String notes;
 }

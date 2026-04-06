@@ -16,7 +16,7 @@ export interface BookingResponse extends BaseEntity {
   hotel: HotelListResponse;
   user: UserListResponse;
   promotion: PromotionResponse;
-  bookingRooms: BookingRoomResponse[]
+  bookingRooms: BookingRoomResponse[];
 }
 
 export interface BookingListResponse extends BaseEntity {
@@ -26,7 +26,8 @@ export interface BookingListResponse extends BaseEntity {
   status: BookingStatus;
   confirmationCode: string;
   guestCount: number;
-  hoteName: string;
+  hotelName: string;
+  notes: string;
 }
 
 export interface BookingRequest {

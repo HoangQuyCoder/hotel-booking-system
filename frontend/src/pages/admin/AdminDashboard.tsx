@@ -10,6 +10,7 @@ import { AdminPageHeader } from "../../components/admin/AdminPageHeader";
 import RecentBookings from "../../components/admin/dashboard/RecentBookings";
 import QuickActions from "../../components/admin/dashboard/QuickActions";
 import StatCard from "../../components/admin/dashboard/StatCard";
+import DashboardCharts from "../../components/admin/dashboard/DashboardCharts";
 import {
   Users,
   Hotel,
@@ -49,8 +50,11 @@ export default function AdminDashboard() {
       trend: "up" as const,
       trendValue: "+12%",
       gradient: "from-indigo-500 to-indigo-600",
-      color: "text-indigo-600",
+      color: "#4F46E5",
       link: "/admin/users",
+      chartData: [
+        { value: 400 }, { value: 300 }, { value: 500 }, { value: 450 }, { value: 600 }, { value: 700 }
+      ],
     },
     {
       title: "Hotels",
@@ -59,8 +63,11 @@ export default function AdminDashboard() {
       trend: "up" as const,
       trendValue: "+3%",
       gradient: "from-violet-500 to-violet-600",
-      color: "text-violet-600",
+      color: "#8B5CF6",
       link: "/admin/hotels",
+      chartData: [
+        { value: 100 }, { value: 120 }, { value: 115 }, { value: 130 }, { value: 140 }, { value: 150 }
+      ],
     },
     {
       title: "Bookings",
@@ -69,8 +76,11 @@ export default function AdminDashboard() {
       trend: "up" as const,
       trendValue: "+8%",
       gradient: "from-sky-500 to-sky-600",
-      color: "text-sky-600",
+      color: "#0EA5E9",
       link: "/admin/bookings",
+      chartData: [
+        { value: 200 }, { value: 400 }, { value: 300 }, { value: 500 }, { value: 450 }, { value: 600 }
+      ],
     },
     {
       title: "Transactions",
@@ -79,24 +89,33 @@ export default function AdminDashboard() {
       trend: "up" as const,
       trendValue: "+15%",
       gradient: "from-emerald-500 to-emerald-600",
-      color: "text-emerald-600",
+      color: "#10B981",
       link: "/admin/transactions",
+      chartData: [
+        { value: 50 }, { value: 80 }, { value: 70 }, { value: 100 }, { value: 90 }, { value: 120 }
+      ],
     },
     {
       title: "Promotions",
       value: promotionsData?.totalElements ?? "—",
       icon: Tag,
       gradient: "from-amber-500 to-amber-600",
-      color: "text-amber-600",
+      color: "#F59E0B",
       link: "/admin/promotions",
+      chartData: [
+        { value: 10 }, { value: 15 }, { value: 12 }, { value: 20 }, { value: 18 }, { value: 25 }
+      ],
     },
     {
       title: "Reviews",
       value: reviewsData?.totalElements ?? "—",
       icon: Star,
       gradient: "from-pink-500 to-pink-600",
-      color: "text-pink-600",
+      color: "#EC4899",
       link: "/admin/reviews",
+      chartData: [
+        { value: 300 }, { value: 250 }, { value: 350 }, { value: 320 }, { value: 400 }, { value: 450 }
+      ],
     },
   ];
 
@@ -113,6 +132,8 @@ export default function AdminDashboard() {
           <StatCard key={index} {...stat} />
         ))}
       </div>
+
+      <DashboardCharts />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-12">
         <RecentBookings bookings={recentBookingsData?.content || []} />

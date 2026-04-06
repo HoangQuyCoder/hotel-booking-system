@@ -1,7 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { userApi } from "../api/userApi";
-import type { UserUpdateRequest, UserFilterRequest } from "../types";
+import type {
+  UserUpdateRequest,
+  UserFilterRequest,
+  RegisterRequest,
+} from "../types";
 
 const USER_KEY = ["user"];
 const USERS_KEY = ["users"];
@@ -42,6 +46,16 @@ export const useUserApi = () => {
       select: (res) => res.data,
     });
 
+  // ================= CREATE USER =================
+  const createUser = useMutation({
+    mutationFn: (data: RegisterRequest) => userApi.create(data),
+
+    onSuccess: (res) => {
+      toast.success(res.message);
+      queryClient.invalidateQueries({ queryKey: USERS_KEY });
+    },
+  });
+
   // ================= UPDATE USER =================
   const updateUser = useMutation({
     mutationFn: ({ id, data }: { id: string; data: UserUpdateRequest }) =>
@@ -53,7 +67,7 @@ export const useUserApi = () => {
       // update cache user detail
       queryClient.setQueryData(["user", variables.id], res.data);
 
-      // update current user nếu chính mình
+      // update current user if it is the same user
       queryClient.setQueryData(USER_KEY, res.data);
 
       // invalidate list
@@ -80,6 +94,7 @@ export const useUserApi = () => {
     useCurrentUser,
     useUserById,
     useUsers,
+    createUser,
     updateUser,
     deleteUser,
   };

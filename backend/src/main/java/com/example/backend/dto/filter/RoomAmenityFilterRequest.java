@@ -13,7 +13,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 public class RoomAmenityFilterRequest extends BaseFilterRequest {
     private UUID roomTypeId;
+    private UUID hotelId;
     private String category;
     private String name;
 }
-

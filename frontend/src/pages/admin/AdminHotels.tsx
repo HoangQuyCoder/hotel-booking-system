@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Hotel,
   Plus,
@@ -15,13 +15,22 @@ import { Link } from "react-router-dom";
 import { AdminPageHeader } from "../../components/admin/AdminPageHeader";
 import { AdminFilterBar } from "../../components/admin/AdminFilterBar";
 import { AdminEmptyState } from "../../components/admin/AdminEmptyState";
+import { HotelModal } from "../../components/admin/modal/HotelModal";
+import type { HotelDetailResponse } from "../../types";
 
 export default function AdminHotels() {
-  const { useHotels, deleteHotel } = useHotelApi();
+  const { useHotels, deleteHotel, useHotelById } = useHotelApi();
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
+
+  // Modal states
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingHotelId, setEditingHotelId] = useState<string | null>(null);
+
+  // Fetch full data for editing if an ID is selected
+  const { data: hotelDetail } = useHotelById(editingHotelId || "");
 
   const { data: hotelsData, isLoading } = useHotels({
     page,
@@ -29,10 +38,25 @@ export default function AdminHotels() {
     keyword: debouncedSearch,
   });
 
+  // Reset page when search changes
+  useEffect(() => {
+    setPage(0);
+  }, [debouncedSearch]);
+
   const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this hotel?")) {
       await deleteHotel.mutateAsync(id);
     }
+  };
+
+  const handleEdit = (id: string) => {
+    setEditingHotelId(id);
+    setIsModalOpen(true);
+  };
+
+  const handleAddHotel = () => {
+    setEditingHotelId(null);
+    setIsModalOpen(true);
   };
 
   return (
@@ -47,7 +71,7 @@ export default function AdminHotels() {
         searchPlaceHolder="Search by hotel name or address..."
         searchValue={search}
         onSearchChange={setSearch}
-        onActionClick={() => console.log("Add Hotel")}
+        onActionClick={handleAddHotel}
         actionLabel="Add Hotel"
         actionIcon={Plus}
       />
@@ -64,9 +88,9 @@ export default function AdminHotels() {
           hotelsData.content.map((hotel: any) => (
             <div
               key={hotel.id}
-              className="bg-white border border-gray-200 rounded-2xl overflow-hidden group hover:border-indigo-300 hover:shadow-lg transition-all duration-300"
+              className="bg-white border border-gray-200 rounded-2xl overflow-hidden group hover:border-indigo-300 hover:shadow-lg transition-all duration-300 flex flex-col h-full"
             >
-              <div className="relative h-44 overflow-hidden">
+              <div className="relative h-44 overflow-hidden flex-shrink-0">
                 <img
                   src={hotel.thumbnailUrl || "/images/hotel-placeholder.png"}
                   alt={hotel.name}
@@ -78,30 +102,38 @@ export default function AdminHotels() {
                 </div>
               </div>
 
-              <div className="p-5">
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="text-gray-900 font-bold text-base truncate flex-1 group-hover:text-indigo-600 transition-colors">
-                    {hotel.name}
-                  </h3>
-                  <Link
-                    to={`/hotels/${hotel.id}`}
-                    target="_blank"
-                    className="no-underline p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all flex-shrink-0"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </Link>
+              <div className="p-5 flex flex-col flex-1 justify-between">
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <h3 className="text-gray-900 font-bold text-base truncate flex-1 group-hover:text-indigo-600 transition-colors">
+                      {hotel.name}
+                    </h3>
+                    <Link
+                      to={`/hotels/${hotel.id}`}
+                      target="_blank"
+                      className="no-underline p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all flex-shrink-0"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </Link>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 text-gray-500 text-sm mb-4">
+                    <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-indigo-500" />
+                    <span className="truncate">
+                      {hotel.city}, {hotel.address}
+                    </span>
+                  </div>
+                  <p className="text-gray-600 text-sm line-clamp-2">
+                    {hotel.description}
+                  </p>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-gray-500 text-sm mb-5">
-                  <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-indigo-500" />
-                  <span className="truncate">
-                    {hotel.city}, {hotel.address}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-auto">
                   <div className="flex items-center gap-2">
-                    <button className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-indigo-600 hover:text-white text-gray-600 text-xs font-semibold rounded-lg transition-all">
+                    <button
+                      onClick={() => handleEdit(hotel.id)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-indigo-600 hover:text-white text-gray-600 text-xs font-semibold rounded-lg transition-all"
+                    >
                       <Edit className="w-3.5 h-3.5" />
                       Edit
                     </button>
@@ -143,6 +175,16 @@ export default function AdminHotels() {
           />
         </div>
       )}
+
+      {/* Hotel Management Modal */}
+      <HotelModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingHotelId(null);
+        }}
+        hotel={editingHotelId ? (hotelDetail as HotelDetailResponse) : null}
+      />
     </div>
   );
 }

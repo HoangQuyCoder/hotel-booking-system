@@ -10,6 +10,7 @@ public class RoomSpecification {
 
     public static Specification<Room> build(RoomFilterRequest filter) {
         return spec.and(SpecUtils.nestedEqualIfNotNull("roomType", "id", filter.getRoomTypeId()))
+                .and(SpecUtils.nested2EqualIfNotNull("roomType", "hotel", "id", filter.getHotelId()))
                 .and(SpecUtils.equalIfNotNull("isActive", filter.getIsActive()))
                 .and(SpecUtils.likeIfNotNull("status", filter.getStatus()))
                 .and(SpecUtils.likeIfNotNull("roomNumber", filter.getRoomNumber()))

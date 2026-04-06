@@ -1,23 +1,29 @@
 import { useState } from "react";
-import { Star, Trash2, Hotel, MessageSquare, Calendar } from "lucide-react";
+import { MessageSquare, Plus, Edit, Trash2, Star, Hotel } from "lucide-react";
 import { useReviewApi } from "../../hooks/useReviewApi";
 import { Pagination } from "../../components/ui/Pagination";
-import { useDebounce } from "../../hooks/useDebounce";
 import { AdminPageHeader } from "../../components/admin/AdminPageHeader";
 import { AdminFilterBar } from "../../components/admin/AdminFilterBar";
+import { AdminTable } from "../../components/admin/AdminTable";
 import { AdminEmptyState } from "../../components/admin/AdminEmptyState";
+import { ReviewModal } from "../../components/admin/modal/ReviewModal";
+import type { ReviewResponse } from "../../types";
 
 export default function AdminReviews() {
   const { useReviews, deleteReview } = useReviewApi();
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [search, setSearch] = useState("");
-  const debouncedSearch = useDebounce(search, 500);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingReview, setEditingReview] = useState<ReviewResponse | null>(
+    null,
+  );
 
   const { data: reviewsData, isLoading } = useReviews({
     page,
     size,
-    // keyword: debouncedSearch,
+    name: search || undefined,
   });
 
   const handleDelete = async (id: string) => {
@@ -26,110 +32,124 @@ export default function AdminReviews() {
     }
   };
 
+  const handleEdit = (review: ReviewResponse) => {
+    setEditingReview(review);
+    setIsModalOpen(true);
+  };
+
+  const columns = [
+    { label: "Guest" },
+    { label: "Hotel" },
+    { label: "Rating" },
+    { label: "Comment" },
+    { label: "Date" },
+    { label: "Actions", className: "text-right" },
+  ];
+
   return (
     <div>
       <AdminPageHeader
-        title="Review Management"
-        description="View and moderate customer reviews"
-        icon={Star}
+        title="Guest Reviews"
+        description="Monitor and manage hotel feedback"
+        icon={MessageSquare}
       />
 
       <AdminFilterBar
-        searchPlaceHolder="Search by content or hotel name..."
+        searchPlaceHolder="Search reviewers..."
         searchValue={search}
         onSearchChange={setSearch}
+        onActionClick={() => {
+          setEditingReview(null);
+          setIsModalOpen(true);
+        }}
+        actionLabel="Add Review"
+        actionIcon={Plus}
       />
 
-      <div className="space-y-4">
-        {isLoading ? (
-          Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-white border border-gray-100 rounded-2xl p-6 h-36 animate-pulse shadow-sm"
-            />
-          ))
-        ) : reviewsData?.content?.length ? (
-          reviewsData.content.map((review: any) => (
-            <div
-              key={review.id}
-              className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-indigo-200 hover:shadow-md transition-all duration-200 group"
-            >
-              <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                <div className="flex-1">
-                  {/* Rating + Date row */}
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center gap-0.5 bg-gray-50 px-2.5 py-1.5 rounded-lg border border-gray-200">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-3.5 h-3.5 ${
-                            i < review.rating
-                              ? "text-yellow-400 fill-yellow-400"
-                              : "text-gray-200"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <div className="flex items-center gap-1.5 text-gray-400 text-xs font-medium bg-gray-50 px-2.5 py-1.5 rounded-lg border border-gray-200">
-                      <Calendar className="w-3.5 h-3.5" />
-                      {new Date(review.createdAt).toLocaleString("en-US", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Hotel label */}
-                  <div className="flex items-center gap-2 mb-3 text-indigo-600 text-xs font-semibold bg-indigo-50 w-fit px-3 py-1 rounded-lg border border-indigo-100">
-                    <Hotel className="w-3.5 h-3.5" />
-                    <span>Hotel ID: {review.hotelId.substring(0, 12)}...</span>
-                  </div>
-
-                  {/* Comment */}
-                  <div className="relative pl-3 border-l-2 border-indigo-200 group-hover:border-indigo-400 transition-colors">
-                    <p className="text-gray-700 text-sm leading-relaxed italic">
-                      "{review.comment || "No detailed comment provided"}"
-                    </p>
-                  </div>
-
-                  {/* User tag */}
-                  <div className="flex items-center gap-2 mt-4 text-gray-400 text-xs bg-gray-50 w-fit px-3 py-1.5 rounded-xl border border-gray-200">
-                    <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center font-bold text-[10px] text-gray-500">
-                      U
-                    </div>
-                    <span className="font-mono">
-                      User ID: {review.userId.substring(0, 12)}...
-                    </span>
-                  </div>
-                </div>
-
-                {/* Action */}
-                <div className="flex flex-row md:flex-col items-center justify-end gap-2 shrink-0">
-                  <button
-                    onClick={() => handleDelete(review.id)}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white border border-red-200 rounded-xl transition-all text-xs font-semibold active:scale-95"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))
-        ) : (
+      <AdminTable
+        columns={columns}
+        isLoading={isLoading}
+        isEmpty={!reviewsData?.content?.length}
+        emptyState={
           <AdminEmptyState
             icon={MessageSquare}
-            message="No customer reviews yet"
-            subMessage="New reviews will appear here after guests complete their stay"
+            message="No reviews found"
+            subMessage="Reviews from guests will appear here"
           />
-        )}
-      </div>
+        }
+      >
+        {reviewsData?.content?.map((review: ReviewResponse) => (
+          <tr
+            key={review.id}
+            className="hover:bg-gray-50 transition-colors group"
+          >
+            <td className="px-6 py-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm">
+                  {review.name?.charAt(0) || "U"}
+                </div>
+                <div>
+                  <p className="text-gray-900 font-bold text-sm tracking-tight capitalize group-hover:text-indigo-600 transition-colors">
+                    {review.name || `User: ${review.userId.substring(0, 8)}`}
+                  </p>
+                  <p className="text-gray-400 text-[10px] uppercase font-semibold">
+                    Guest
+                  </p>
+                </div>
+              </div>
+            </td>
+            <td className="px-6 py-4">
+              <div className="flex items-center gap-2 text-gray-700 text-xs font-semibold">
+                <Hotel className="w-3.5 h-3.5 text-gray-400" />
+                Hotel: {review.hotelId.substring(0, 8)}...
+              </div>
+            </td>
+            <td className="px-6 py-4">
+              <div className="flex items-center gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-3.5 h-3.5 ${
+                      i < review.rating
+                        ? "fill-amber-400 text-amber-400"
+                        : "text-gray-200"
+                    }`}
+                  />
+                ))}
+              </div>
+            </td>
+            <td className="px-6 py-4">
+              <p className="text-gray-600 text-xs italic leading-relaxed line-clamp-2 max-w-[250px] bg-gray-50 px-2.5 py-1.5 rounded-lg border border-transparent group-hover:bg-white group-hover:border-gray-100 transition-all">
+                "{review.text}"
+              </p>
+            </td>
+            <td className="px-6 py-4 text-gray-400 text-[11px] font-semibold">
+              {new Date(review.createdAt).toLocaleDateString()}
+            </td>
+            <td className="px-6 py-4 text-right">
+              <div className="flex items-center justify-end gap-1">
+                <button
+                  onClick={() => handleEdit(review)}
+                  title="Edit Review"
+                  className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleDelete(review.id)}
+                  title="Delete Review"
+                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </AdminTable>
 
       {reviewsData && reviewsData.totalPages > 1 && (
-        <div className="mt-8 flex justify-center pb-8">
+        <div className="mt-6 flex justify-center pb-8">
           <Pagination
             currentPage={page}
             totalPages={reviewsData.totalPages}
@@ -137,6 +157,15 @@ export default function AdminReviews() {
           />
         </div>
       )}
+
+      <ReviewModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingReview(null);
+        }}
+        review={editingReview}
+      />
     </div>
   );
 }

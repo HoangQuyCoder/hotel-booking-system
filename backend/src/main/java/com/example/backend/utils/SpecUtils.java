@@ -21,7 +21,8 @@ public class SpecUtils {
      * LIKE (case-insensitive) if value != null
      **/
     public static <T> Specification<T> likeIfNotNull(String field, String value) {
-        if (value == null || value.isBlank()) return null;
+        if (value == null || value.isBlank())
+            return null;
         return (root, query, cb) -> cb.like(cb.lower(root.get(field)), "%" + value.toLowerCase() + "%");
     }
 
@@ -29,23 +30,28 @@ public class SpecUtils {
      * EQUAL if value != null
      **/
     public static <T> Specification<T> equalIfNotNull(String field, Object value) {
-        if (value == null) return null;
+        if (value == null)
+            return null;
         return (root, query, cb) -> cb.equal(root.get(field), value);
     }
 
     /**
      * GREATER_THAN_OR_EQUAL if value != null
      **/
-    public static <T, Y extends Comparable<? super Y>> Specification<T> greaterThanOrEqualIfNotNull(String field, Y value) {
-        if (value == null) return null;
+    public static <T, Y extends Comparable<? super Y>> Specification<T> greaterThanOrEqualIfNotNull(String field,
+            Y value) {
+        if (value == null)
+            return null;
         return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get(field), value);
     }
 
     /**
      * LESS_THAN_OR_EQUAL if value != null
      **/
-    public static <T, Y extends Comparable<? super Y>> Specification<T> lessThanOrEqualIfNotNull(String field, Y value) {
-        if (value == null) return null;
+    public static <T, Y extends Comparable<? super Y>> Specification<T> lessThanOrEqualIfNotNull(String field,
+            Y value) {
+        if (value == null)
+            return null;
         return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(field), value);
     }
 
@@ -67,7 +73,8 @@ public class SpecUtils {
      * IN if collection != null and not empty
      **/
     public static <T> Specification<T> inIfNotEmpty(String field, Collection<?> values) {
-        if (values == null || values.isEmpty()) return null;
+        if (values == null || values.isEmpty())
+            return null;
         return (root, query, cb) -> root.get(field).in(values);
     }
 
@@ -75,7 +82,8 @@ public class SpecUtils {
      * NOT EQUAL if value != null
      **/
     public static <T> Specification<T> notEqualIfNotNull(String field, Object value) {
-        if (value == null) return null;
+        if (value == null)
+            return null;
         return (root, query, cb) -> cb.notEqual(root.get(field), value);
     }
 
@@ -83,15 +91,47 @@ public class SpecUtils {
      * NESTED EQUAL if field is in else relation
      **/
     public static <T> Specification<T> nestedEqualIfNotNull(String nestedPath, String field, Object value) {
-        if (value == null) return null;
+        if (value == null)
+            return null;
         return (root, query, cb) -> cb.equal(root.get(nestedPath).get(field), value);
+    }
+
+    /**
+     * NESTED EQUAL TWO LEVEL if field is in else relation (OBJECT)
+     **/
+    public static <T> Specification<T> nested2EqualIfNotNull(
+            String parent,
+            String child,
+            String field,
+            Object value) {
+        if (value == null)
+            return null;
+
+        return (root, query, cb) -> cb.equal(
+                root.get(parent).get(child).get(field),
+                value);
+    }
+
+    // NESTED EQUAL TWO LEVEL if field is in else relation (LIST)
+    public static <T> Specification<T> nested2JoinEqualIfNotNull(
+            String parent,
+            String child,
+            String field,
+            Object value) {
+        if (value == null)
+            return null;
+
+        return (root, query, cb) -> cb.equal(
+                root.join(parent).join(child).get(field),
+                value);
     }
 
     /**
      * Search by keyword on multiple fields (nested field support)
      */
     public static <T> Specification<T> keywordSearch(String keyword, String... fields) {
-        if (keyword == null || keyword.isBlank() || fields.length == 0) return null;
+        if (keyword == null || keyword.isBlank() || fields.length == 0)
+            return null;
 
         return (root, query, cb) -> {
             String pattern = "%" + keyword.toLowerCase() + "%";
@@ -115,9 +155,12 @@ public class SpecUtils {
 
     public static <T> Specification<T> dateBetweenIfNotNull(String field, LocalDate from, LocalDate to) {
         return (root, query, cb) -> {
-            if (from == null && to == null) return null;
-            if (from != null && to != null) return cb.between(root.get(field), from, to);
-            if (from != null) return cb.greaterThanOrEqualTo(root.get(field), from);
+            if (from == null && to == null)
+                return null;
+            if (from != null && to != null)
+                return cb.between(root.get(field), from, to);
+            if (from != null)
+                return cb.greaterThanOrEqualTo(root.get(field), from);
             return cb.lessThanOrEqualTo(root.get(field), to);
         };
     }

@@ -13,4 +13,8 @@ public interface RoomMapper extends BaseMapper<Room, RoomRequest, RoomResponse> 
     @Override
     @Mapping(target = "isActive", constant = "true")
     Room toEntity(RoomRequest request);
+
+    @Override
+    @Mapping(source = "roomType.name", target = "roomTypeName")
+    RoomResponse toResponse(Room room);
 }
