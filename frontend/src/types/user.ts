@@ -3,17 +3,25 @@ import type { LanguageCode, RoleName, UserStatus } from "./enum";
 
 export interface UserResponse extends BaseEntity {
   email: string;
-  firstName: string | null;
-  lastName: string | null;
-  phoneNumber: string | null;
-  address: string | null;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  address: string;
   roleName: RoleName;
   status: UserStatus;
-  profilePictureUrl: string | null;
-  preferredLanguage: LanguageCode | null;
-  lastLoginAt: string | null;
+  profilePictureUrl: string;
+  preferredLanguage: LanguageCode;
+  lastLoginAt: string;
   failedLoginAttempts: number;
-  lockedUntil?: string;
+  lockedUntil: string;
+}
+
+export interface UserListResponse extends BaseEntity {
+  email: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  address: string;
 }
 
 export interface UserUpdateRequest {
@@ -25,7 +33,7 @@ export interface UserUpdateRequest {
   roleName?: RoleName;
 }
 
-export interface UserFilterRequest extends BaseFilterRequest{
+export interface UserFilterRequest extends BaseFilterRequest {
   username?: string;
   email?: string;
   phoneNumber?: string;
@@ -34,4 +42,11 @@ export interface UserFilterRequest extends BaseFilterRequest{
   roleId?: string;
   status?: UserStatus;
   keyword?: string;
+}
+
+export interface ManagerResponse {
+  id: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
 }

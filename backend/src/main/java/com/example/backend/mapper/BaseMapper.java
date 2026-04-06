@@ -1,12 +1,18 @@
 package com.example.backend.mapper;
 
-/**
- * BaseMapper là interface dùng cho tất cả mapper trong hệ thống.
- * @param <E> Entity
- * @param <R> Response DTO
- */
-public interface BaseMapper<E, R> {
+import org.mapstruct.MappingTarget;
+import java.util.List;
 
-    R toResponse(E entity);
+public interface BaseMapper<E, Req, Res> {
+
+    // ==================== CREATE ====================
+    E toEntity(Req request);
+
+    // ==================== UPDATE ====================
+    void updateEntity(Req request, @MappingTarget E entity);
+
+    // ==================== RESPONSE ====================
+    Res toResponse(E entity);
+
+    List<Res> toResponseList(List<E> entities);
 }
-

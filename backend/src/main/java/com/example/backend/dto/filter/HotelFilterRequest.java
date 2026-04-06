@@ -20,4 +20,3 @@ public class HotelFilterRequest extends BaseFilterRequest {
     private UUID managerId;
     private String keyword;
 }
-

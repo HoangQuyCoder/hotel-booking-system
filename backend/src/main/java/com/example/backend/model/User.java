@@ -6,9 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,14 +54,15 @@ public class User {
     @Builder.Default
     private UserStatus status = UserStatus.PENDING;
 
+    @Builder.Default
     @Column(name = "failed_login_attempts")
     private Integer failedLoginAttempts = 0;
 
     @Column(name = "locked_until")
     private LocalDateTime lockedUntil;
 
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
 
     @Column(name = "reset_password_token")
     private String resetPasswordToken;
@@ -68,17 +70,21 @@ public class User {
     @Column(name = "reset_password_expiry")
     private LocalDateTime resetPasswordExpiry;
 
+    @Builder.Default
     @Column(name = "reset_token_used", nullable = false)
     private Boolean resetTokenUsed = false;
 
-    @Column(name = "created_at")
+    @Builder.Default
+    @Column(name = "is_active")
+    private Boolean isActive = true;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    @Column(name = "last_login_at")
-    private LocalDateTime lastLoginAt;
 
     // 1: N relationship with Hotel
     @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -91,22 +97,11 @@ public class User {
 
     // 1: N relationship with Booking
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Booking> bookings = new ArrayList<>();
+    private List<Booking> bookings;
 
     // 1: N relationship with NotificationLog
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<NotificationLog> notifications = new ArrayList<>();
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    private List<NotificationLog> notifications;
 
     public boolean isEnabled() {
         if (status == UserStatus.LOCKED_TEMP && lockedUntil != null) {

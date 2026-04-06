@@ -67,7 +67,8 @@ public class TransactionService {
                 });
 
         if (isClient && !booking.getUser().getEmail().equals(auth.getName())) {
-            logger.error("Client {} cannot create transaction for booking ID: {}", auth.getName(), request.getBookingId());
+            logger.error("Client {} cannot create transaction for booking ID: {}", auth.getName(),
+                    request.getBookingId());
             throw new SecurityException("Unauthorized to create transaction for this booking");
         }
 
@@ -77,12 +78,14 @@ public class TransactionService {
         }
 
         if (booking.getStatus() != BookingStatus.PENDING && booking.getStatus() != BookingStatus.CONFIRMED) {
-            logger.error("Cannot create transaction for booking ID: {} with status: {}", request.getBookingId(), booking.getStatus());
+            logger.error("Cannot create transaction for booking ID: {} with status: {}", request.getBookingId(),
+                    booking.getStatus());
             throw new IllegalStateException("Booking must be in PENDING or CONFIRMED status");
         }
 
         if (!Objects.equals(request.getAmount(), booking.getTotalAmount())) {
-            logger.error("Transaction amount {} does not match booking amount {}", request.getAmount(), booking.getTotalAmount());
+            logger.error("Transaction amount {} does not match booking amount {}", request.getAmount(),
+                    booking.getTotalAmount());
             throw new IllegalArgumentException("Transaction amount must match booking amount");
         }
 
@@ -91,17 +94,11 @@ public class TransactionService {
             throw new IllegalArgumentException("Client cannot use CASH payment method");
         }
 
-        Transaction transaction = Transaction.builder()
-                .booking(booking)
-                .amount(request.getAmount())
-                .currency(request.getCurrency())
-                .paymentMethod(request.getPaymentMethod())
-                .status(TransactionStatus.PENDING)
-                .gatewayRef(request.getGatewayRef())
-                .transactionType(TransactionType.PAYMENT)
-                .processedAt(LocalDateTime.now())
-                .isActive(true)
-                .build();
+        Transaction transaction = transactionMapper.toEntity(request);
+        transaction.setBooking(booking);
+        transaction.setStatus(TransactionStatus.PENDING);
+        transaction.setTransactionType(TransactionType.PAYMENT);
+        transaction.setProcessedAt(LocalDateTime.now());
 
         try {
             Transaction saved = transactionRepository.save(transaction);
@@ -127,7 +124,8 @@ public class TransactionService {
                 });
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_STAFF")) &&
+        if (auth.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_STAFF")) &&
                 !transaction.getBooking().getUser().getEmail().equals(auth.getName())) {
             logger.error("Unauthorized access to transaction ID: {} by user: {}", id, auth.getName());
             throw new SecurityException("Unauthorized access to transaction");
@@ -165,7 +163,6 @@ public class TransactionService {
                 .gatewayRef("REFUND-" + transaction.getGatewayRef())
                 .transactionType(TransactionType.REFUND)
                 .processedAt(LocalDateTime.now())
-                .isActive(true)
                 .build();
 
         try {
@@ -199,8 +196,7 @@ public class TransactionService {
                 pageResult.getNumber(),
                 pageResult.getSize(),
                 pageResult.getTotalElements(),
-                pageResult.getTotalPages()
-        );
+                pageResult.getTotalPages());
     }
 
     @Transactional
@@ -221,7 +217,8 @@ public class TransactionService {
         long hoursSinceCreation = ChronoUnit.HOURS.between(transaction.getCreatedAt(), LocalDateTime.now());
         if (hoursSinceCreation > TRANSACTION_TIMEOUT_HOURS) {
             logger.error("Transaction ID: {} cannot be deleted after {} hours", id, TRANSACTION_TIMEOUT_HOURS);
-            throw new IllegalStateException("Transaction cannot be deleted after " + TRANSACTION_TIMEOUT_HOURS + " hours");
+            throw new IllegalStateException(
+                    "Transaction cannot be deleted after " + TRANSACTION_TIMEOUT_HOURS + " hours");
         }
 
         try {

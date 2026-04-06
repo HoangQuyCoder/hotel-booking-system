@@ -5,9 +5,9 @@ import com.example.backend.service.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import io.micrometer.common.lang.NonNull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -21,6 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Optional;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -38,12 +39,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
         logger.debug("Processing request for URI: {}", request.getRequestURI());
 
-        String token = extractJwtFromCookie(request);
+        String token = extractToken(request);
 
         if (token != null) {
             try {
@@ -64,46 +67,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         logger.debug("Successfully authenticated user: {}", email);
                     }
                 }
-            } catch (ExpiredJwtException e) {
-                logger.warn("Expired token: {}", e.getMessage());
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token expired");
-                return;
-            } catch (MalformedJwtException | SignatureException e) {
-                logger.warn("Invalid token: {}", e.getMessage());
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
-                return;
+            } catch (ExpiredJwtException | MalformedJwtException | SignatureException e) {
+                logger.warn("JWT error: {}", e.getMessage());
             }
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private String extractJwtFromCookie(HttpServletRequest request) {
-        if (request.getCookies() == null) return null;
-
-        return Arrays.stream(request.getCookies())
-                .filter(c -> COOKIE_NAME.equals(c.getName()))
-                .map(Cookie::getValue)
-                .findFirst()
+    private String extractToken(HttpServletRequest request) {
+        return extractFromCookie(request)
+                .or(() -> extractFromHeader(request))
                 .orElse(null);
     }
 
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
-        String method = request.getMethod();
+    private Optional<String> extractFromCookie(HttpServletRequest request) {
+        if (request.getCookies() == null) return Optional.empty();
 
-        // PUBLIC ENDPOINTS
-        boolean isPublic =
-                path.startsWith("/api/v1/auth") ||
-                        (method.equals("GET") && path.startsWith("/api/v1/hotels")) ||
-                        (method.equals("GET") && path.startsWith("/api/v1/rooms")) ||
-                        (method.equals("GET") && path.startsWith("/api/v1/reviews"));
+        return Arrays.stream(request.getCookies())
+                .filter(c -> COOKIE_NAME.equals(c.getName()))
+                .map(c -> c.getValue().trim())
+                .findFirst();
+    }
 
-        if (isPublic) {
-            logger.debug("Bypassing JWT filter for URI: {}", path);
+    private Optional<String> extractFromHeader(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return Optional.of(authHeader.substring(7).trim());
         }
 
-        return isPublic;
+        return Optional.empty();
     }
 }

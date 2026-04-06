@@ -1,19 +1,15 @@
 package com.example.backend.dto.response;
 
-import lombok.Data;
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.UUID;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
-public class DailyOverrideResponse {
-    private UUID id;
+@EqualsAndHashCode(callSuper = true)
+public class DailyOverrideResponse extends BaseResponse {
     private LocalDate date;
     private Double priceAdjustment;
     private Integer availableRooms;
     private String reason;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private Boolean isActive;
 }

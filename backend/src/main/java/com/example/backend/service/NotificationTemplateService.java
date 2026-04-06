@@ -1,6 +1,6 @@
 package com.example.backend.service;
 
-import com.example.backend.dto.filter.NotificationFilterRequest;
+import com.example.backend.dto.filter.NotificationTemplateFilterRequest;
 import com.example.backend.dto.request.NotificationTemplateRequest;
 import com.example.backend.dto.response.NotificationTemplateResponse;
 import com.example.backend.dto.response.PagedResponse;
@@ -42,23 +42,24 @@ public class NotificationTemplateService {
     public NotificationTemplateResponse createTemplate(NotificationTemplateRequest request) {
         logger.info("Creating notification template: {}", request.getName());
 
-        NotificationTemplate template = NotificationTemplate.builder()
-                .name(request.getName())
-                .type(request.getType())
-                .subject(request.getSubject())
-                .templateFile(request.getTemplateFile())
-                .defaultLanguage(request.getDefaultLanguage())
-                .priority(request.getPriority() != null ? request.getPriority() : 0)
-                .isActive(true)
-                .build();
+        // ===== VALIDATE DUPLICATE =====
+        if (notificationTemplateRepository.existsByName(request.getName())) {
+            logger.warn("Template name already exists: {}", request.getName());
+            throw new IllegalArgumentException("Template name already exists");
+        }
 
         try {
+            NotificationTemplate template = notificationTemplateMapper.toEntity(request);
+
             NotificationTemplate saved = notificationTemplateRepository.save(template);
+
             logger.info("Template created with ID: {}", saved.getId());
+
             return notificationTemplateMapper.toResponse(saved);
+
         } catch (Exception e) {
             logger.error("Failed to create template {}: {}", request.getName(), e.getMessage(), e);
-            throw new ResourceNotFoundException("Failed to create template");
+            throw new RuntimeException("Failed to create template");
         }
     }
 
@@ -83,12 +84,7 @@ public class NotificationTemplateService {
                     return new ResourceNotFoundException("Template not found");
                 });
 
-        template.setName(request.getName());
-        template.setType(request.getType());
-        template.setSubject(request.getSubject());
-        template.setTemplateFile(request.getTemplateFile());
-        template.setDefaultLanguage(request.getDefaultLanguage());
-        template.setPriority(request.getPriority() != null ? request.getPriority() : 0);
+        notificationTemplateMapper.updateEntity(request, template);
 
         try {
             NotificationTemplate updated = notificationTemplateRepository.save(template);
@@ -121,7 +117,8 @@ public class NotificationTemplateService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<NotificationTemplateResponse> getAllTemplates(NotificationFilterRequest filterRequest) {
+    public PagedResponse<NotificationTemplateResponse> getAllTemplates(
+            NotificationTemplateFilterRequest filterRequest) {
         logger.info("Fetching notification template with filters: {}", filterRequest);
 
         Pageable pageable = PagingUtils.toPageable(filterRequest);
@@ -139,8 +136,7 @@ public class NotificationTemplateService {
                 pageResult.getNumber(),
                 pageResult.getSize(),
                 pageResult.getTotalElements(),
-                pageResult.getTotalPages()
-        );
+                pageResult.getTotalPages());
     }
 
     public NotificationTemplate getTemplate(String name) {
@@ -165,4 +161,3 @@ public class NotificationTemplateService {
         }
     }
 }
-

@@ -52,14 +52,8 @@ public class DailyOverrideService {
                     return new ResourceNotFoundException("Room type not found");
                 });
 
-        DailyOverride dailyOverride = DailyOverride.builder()
-                .roomType(roomType)
-                .date(request.getDate())
-                .priceAdjustment(request.getPriceAdjustment())
-                .availableRooms(request.getAvailableRooms())
-                .reason(request.getReason())
-                .isActive(true)
-                .build();
+        DailyOverride dailyOverride = dailyOverrideMapper.toEntity(request);
+        dailyOverride.setRoomType(roomType);
 
         try {
             DailyOverride saved = dailyOverrideRepository.save(dailyOverride);
@@ -107,11 +101,8 @@ public class DailyOverrideService {
                     return new ResourceNotFoundException("Room type not found");
                 });
 
+        dailyOverrideMapper.updateEntity(request, dailyOverride);
         dailyOverride.setRoomType(roomType);
-        dailyOverride.setDate(request.getDate());
-        dailyOverride.setPriceAdjustment(request.getPriceAdjustment());
-        dailyOverride.setAvailableRooms(request.getAvailableRooms());
-        dailyOverride.setReason(request.getReason());
 
         try {
             DailyOverride updated = dailyOverrideRepository.save(dailyOverride);
@@ -163,7 +154,6 @@ public class DailyOverrideService {
                 pageResult.getNumber(),
                 pageResult.getSize(),
                 pageResult.getTotalElements(),
-                pageResult.getTotalPages()
-        );
+                pageResult.getTotalPages());
     }
 }

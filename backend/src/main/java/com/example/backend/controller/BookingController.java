@@ -3,6 +3,7 @@ package com.example.backend.controller;
 import com.example.backend.dto.filter.BookingFilterRequest;
 import com.example.backend.dto.request.BookingRequest;
 import com.example.backend.dto.response.ApiResponse;
+import com.example.backend.dto.response.BookingListResponse;
 import com.example.backend.dto.response.BookingResponse;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.service.BookingService;
@@ -69,10 +70,10 @@ public class BookingController {
     // GET ALL BOOKINGS
     @GetMapping
     @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN', 'STAFF')")
-    public ResponseEntity<ApiResponse<PagedResponse<BookingResponse>>> getAllBookings(
+    public ResponseEntity<ApiResponse<PagedResponse<BookingListResponse>>> getAllBookings(
             BookingFilterRequest filter) {
 
-        PagedResponse<BookingResponse> paged = bookingService.getAllBookings(filter);
+        PagedResponse<BookingListResponse> paged = bookingService.getAllBookings(filter);
         return ResponseEntity.ok(
                 ApiResponse.success("Get list of successful bookings", paged)
         );

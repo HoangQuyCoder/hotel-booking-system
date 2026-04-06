@@ -1,24 +1,13 @@
-import React, { useEffect } from "react";
+import { useIsFetching, useIsMutating } from "@tanstack/react-query";
 import { Spinner } from "./Spinner";
-import { useLoadingStore } from "../../store/useLoadingStore";
 
-export const GlobalLoadingOverlay: React.FC = () => {
-  const loading = useLoadingStore((s) => s.loading);
+export const GlobalLoadingOverlay = () => {
+  const isFetching = useIsFetching();
+  const isMutating = useIsMutating();
 
-  useEffect(() => {
-    if (loading) {
-      const scrollBarWidth =
-        window.innerWidth - document.documentElement.clientWidth;
-
-      document.body.style.overflow = "hidden";
-      document.body.style.paddingRight = `${scrollBarWidth}px`;
-    } else {
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
-    }
-  }, [loading]);
+  const loading = isFetching > 0 || isMutating > 0;
 
   if (!loading) return null;
 
-  return <Spinner fullscreen color="primary" />;
+  return <Spinner fullscreen />;
 };

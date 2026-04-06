@@ -1,30 +1,48 @@
-import apiClient from "../services/apiClient";
+import { apiClient } from "../services/apiClient";
 import { apiCall } from "../services/apiCall";
+import type { ApiResponse } from "../types";
 import type {
-  UserFilterRequest,
   UserResponse,
   UserUpdateRequest,
+  UserFilterRequest,
+  RegisterRequest,
+  PagedResponse
 } from "../types";
-import type { ApiResponse } from "../types/api";
-import type { PagedResponse } from "../types/common";
 
 export const userApi = {
-  getCurrentUser: () =>
+  // GET /users/me
+  getMe: () =>
     apiCall<ApiResponse<UserResponse>>(
-      apiClient.get("/users/me", { silent: true })
+      apiClient.get("/users/me")
     ),
 
-  getUserById: (id: string) =>
-    apiCall<ApiResponse<UserResponse>>(apiClient.get(`/users/${id}`)),
+  // GET /users/{id}
+  getById: (id: string) =>
+    apiCall<ApiResponse<UserResponse>>(
+      apiClient.get(`/users/${id}`)
+    ),
 
-  getAllUsers: (params: UserFilterRequest) =>
+  // GET /users (filter + pagination)
+  getAll: (params: UserFilterRequest) =>
     apiCall<ApiResponse<PagedResponse<UserResponse>>>(
       apiClient.get("/users", { params })
     ),
 
-  updateUser: (id: string, body: UserUpdateRequest) =>
-    apiCall<ApiResponse<UserResponse>>(apiClient.put(`/users/${id}`, body)),
+  // POST /users
+  create: (data: RegisterRequest) =>
+    apiCall<ApiResponse<UserResponse>>(
+      apiClient.post("/users", data)
+    ),
 
-  deleteUser: (id: string) =>
-    apiCall<ApiResponse<void>>(apiClient.delete(`/users/${id}`)),
+  // PUT /users/{id}
+  update: (id: string, data: UserUpdateRequest) =>
+    apiCall<ApiResponse<UserResponse>>(
+      apiClient.put(`/users/${id}`, data)
+    ),
+
+  // DELETE /users/{id}
+  delete: (id: string) =>
+    apiCall<ApiResponse<void>>(
+      apiClient.delete(`/users/${id}`)
+    ),
 };

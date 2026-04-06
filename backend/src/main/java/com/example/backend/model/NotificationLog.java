@@ -1,10 +1,15 @@
 package com.example.backend.model;
 
 import com.example.backend.common.NotificationStatus;
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -34,8 +39,9 @@ public class NotificationLog {
     @Column(name = "source_event", length = 100)
     private String sourceEvent;
 
-    @Column(name = "metadata", columnDefinition = "JSONB")
-    private String metadata;
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
+    private Map<String, Object> metadata;
 
     @Column(name = "sent_at")
     private LocalDateTime sentAt;
@@ -45,34 +51,22 @@ public class NotificationLog {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // N:1 Relationship with Booking
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "booking_id", nullable = false)
-    private Booking booking;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
+    @Builder.Default
     @Column(name = "retry_count")
     private Integer retryCount = 0;
 
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
+    @Builder.Default
     @Column(name = "is_active")
     private Boolean isActive = true;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

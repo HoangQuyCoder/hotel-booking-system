@@ -57,13 +57,8 @@ public class BaseRateService {
             throw new IllegalArgumentException("Overlapping base rate exists for this period");
         }
 
-        BaseRate baseRate = BaseRate.builder()
-                .roomType(roomType)
-                .basePrice(request.getBasePrice())
-                .startDate(request.getStartDate())
-                .endDate(request.getEndDate())
-                .isActive(true)
-                .build();
+        BaseRate baseRate = baseRateMapper.toEntity(request);
+        baseRate.setRoomType(roomType);
 
         try {
             BaseRate saved = baseRateRepository.save(baseRate);
@@ -118,10 +113,8 @@ public class BaseRateService {
             }
         }
 
+        baseRateMapper.updateEntity(request, baseRate);
         baseRate.setRoomType(roomType);
-        baseRate.setBasePrice(request.getBasePrice());
-        baseRate.setStartDate(request.getStartDate());
-        baseRate.setEndDate(request.getEndDate());
 
         try {
             BaseRate updated = baseRateRepository.save(baseRate);
@@ -172,7 +165,6 @@ public class BaseRateService {
                 pageResult.getNumber(),
                 pageResult.getSize(),
                 pageResult.getTotalElements(),
-                pageResult.getTotalPages()
-        );
+                pageResult.getTotalPages());
     }
 }

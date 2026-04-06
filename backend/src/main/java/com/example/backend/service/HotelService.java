@@ -11,7 +11,6 @@ import com.example.backend.model.User;
 import com.example.backend.repository.HotelRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.specification.HotelSpecification;
-import com.example.backend.utils.BeanUtilsHelper;
 import com.example.backend.utils.PagingUtils;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -22,6 +21,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -53,24 +53,9 @@ public class HotelService {
                         return new ResourceNotFoundException("Role not found");
                     });
         }
-        
-        Hotel hotel = Hotel.builder()
-                .name(request.getName())
-                .city(request.getCity())
-                .address(request.getAddress())
-                .rating(request.getRating())
-                .description(request.getDescription())
-                .thumbnailUrl(request.getThumbnailUrl())
-                .images(request.getImages())
-                .manager(user)
-                .latitude(request.getLatitude())
-                .longitude(request.getLongitude())
-                .contactPhone(request.getContactPhone())
-                .contactEmail(request.getContactEmail())
-                .checkInTime(request.getCheckInTime())
-                .checkOutTime(request.getCheckOutTime())
-                .isActive(true)
-                .build();
+
+        Hotel hotel = hotelMapper.toEntity(request);
+        hotel.setManager(user);
 
         try {
             Hotel saved = hotelRepository.save(hotel);
@@ -116,8 +101,7 @@ public class HotelService {
             throw new ResourceNotFoundException("Manager not found");
         }
 
-        // Update fields only when data is available
-        BeanUtilsHelper.copyNonNullProperties(request, hotel);
+        hotelMapper.updateEntity(request, hotel);
 
         try {
             Hotel updated = hotelRepository.save(hotel);
@@ -151,7 +135,7 @@ public class HotelService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<HotelDetailResponse> getAllHotels(HotelFilterRequest filterRequest) {
+    public PagedResponse<HotelListResponse> getAllHotels(HotelFilterRequest filterRequest) {
         logger.info("Fetching hotels with filters: {}", filterRequest);
 
         Pageable pageable = PagingUtils.toPageable(filterRequest);
@@ -160,8 +144,8 @@ public class HotelService {
 
         Page<Hotel> hotels = hotelRepository.findAll(spec, pageable);
 
-        List<HotelDetailResponse> content = hotels.getContent().stream()
-                .map(hotelMapper::toResponse)
+        List<HotelListResponse> content = hotels.getContent().stream()
+                .map(hotelMapper::toListResponse)
                 .collect(Collectors.toList());
 
         return new PagedResponse<>(
@@ -169,8 +153,7 @@ public class HotelService {
                 hotels.getNumber(),
                 hotels.getSize(),
                 hotels.getTotalElements(),
-                hotels.getTotalPages()
-        );
+                hotels.getTotalPages());
     }
 
     public List<String> findDistinctCitiesContaining(String keyword) {
@@ -178,5 +161,58 @@ public class HotelService {
             return List.of();
         }
         return hotelRepository.findDistinctCitiesContainingIgnoreCase(keyword.trim());
+    }
+
+    public List<HotelListResponse> getFeaturedHotels() {
+        // Featured = rating cao + active
+        return hotelRepository.findTop10ByIsActiveTrueOrderByRatingDesc()
+                .stream()
+                .map(hotelMapper::toListResponse)
+                .toList();
+    }
+
+    public List<HotelListResponse> getTopRatedHotels() {
+        return hotelRepository.findTop10ByIsActiveTrueOrderByRatingDesc()
+                .stream()
+                .map(hotelMapper::toListResponse)
+                .toList();
+    }
+
+    public List<HotelListResponse> getNewestHotels() {
+        return hotelRepository.findTop10ByIsActiveTrueOrderByCreatedAtDesc()
+                .stream()
+                .map(hotelMapper::toListResponse)
+                .toList();
+    }
+
+    public List<HotelListResponse> getHotelsByCity(String city) {
+        return hotelRepository.findTop10ByCityAndIsActiveTrueOrderByRatingDesc(city)
+                .stream()
+                .map(hotelMapper::toListResponse)
+                .toList();
+    }
+
+    public List<HotelListResponse> getNearbyHotels(Double lat, Double lng) {
+        List<Hotel> hotels = hotelRepository.findAll();
+
+        return hotels.stream()
+                .filter(h -> h.getLatitude() != null && h.getLongitude() != null)
+                .sorted(Comparator.comparingDouble(h -> distance(lat, lng, h.getLatitude(), h.getLongitude())))
+                .limit(10)
+                .map(hotelMapper::toListResponse)
+                .toList();
+    }
+
+    // Haversine formula
+    private double distance(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371; // km
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                        * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 }

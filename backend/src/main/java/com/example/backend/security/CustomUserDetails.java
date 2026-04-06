@@ -13,7 +13,13 @@ public record CustomUserDetails(User user) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().getRoleName()));
+        if (user.getRole() == null) {
+            return List.of();
+        }
+
+        return List.of(
+                new SimpleGrantedAuthority("ROLE_" + user.getRole().getRoleName())
+        );
     }
 
     @Override

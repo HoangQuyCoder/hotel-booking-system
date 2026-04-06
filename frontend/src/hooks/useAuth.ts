@@ -6,16 +6,15 @@ export const useAuth = () => {
   const context = useContext(AuthContext);
   const navigate = useNavigate();
 
-  if (!context)
-    throw new Error("useAuth must be used within an AuthProvider");
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
 
   const logoutWithRedirect = async () => {
     context.logout();
-    navigate("/login");
+    navigate("/login", { replace: true });
   };
 
   return {
     ...context,
-    logout: logoutWithRedirect,
+    logoutWithRedirect,
   };
 };

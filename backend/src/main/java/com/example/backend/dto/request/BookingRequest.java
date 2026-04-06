@@ -24,10 +24,10 @@ public class BookingRequest {
     @Size(min = 1, message = "At least one room must be selected")
     private List<BookingRoomRequest> bookingRooms;
 
+    @NotNull(message = "Guest count is required")
     @Positive(message = "Guest count must be positive")
     private Integer guestCount;
 
     private String notes;
-
     private String promoCode;
 }

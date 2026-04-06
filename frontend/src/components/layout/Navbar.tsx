@@ -1,24 +1,42 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-
-import { LogIn, LogOut, Menu, X, User } from "lucide-react";
+import { LogOut, Menu, X, User, ChevronDown, CalendarDays } from "lucide-react";
+import { Button } from "../ui/Button";
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, logoutWithRedirect } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Scroll effect: change navbar background
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu on navigation
-  const handleLinkClick = () => setMenuOpen(false);
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setAccountOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const closeAll = () => {
+    setMenuOpen(false);
+    setAccountOpen(false);
+  };
+
+  const textColor = scrolled ? "text-gray-200" : "text-white";
+  const hoverColor = "hover:text-cyan-400";
 
   return (
     <nav
@@ -32,209 +50,217 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           to="/"
-          className={`text-2xl font-bold transition no-underline ${
+          onClick={closeAll}
+          className={`text-2xl font-bold no-underline ${
             scrolled ? "text-cyan-400" : "text-white"
           }`}
         >
-          ACENDA
+          THEODORE
         </Link>
 
-        {/* Desktop Menu */}
+        {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8 font-medium">
-          <Link
-            to="/"
-            onClick={handleLinkClick}
-            className={`transition no-underline hover:text-cyan-400 ${
-              scrolled ? "text-gray-200" : "text-white"
-            }`}
-          >
-            Home
-          </Link>
-          <Link
-            to="/destinations"
-            onClick={handleLinkClick}
-            className={`transition no-underline hover:text-cyan-400 ${
-              scrolled ? "text-gray-200" : "text-white"
-            }`}
-          >
-            Destinations
-          </Link>
-          <Link
-            to="/news"
-            onClick={handleLinkClick}
-            className={`transition no-underline hover:text-cyan-400 ${
-              scrolled ? "text-gray-200" : "text-white"
-            }`}
-          >
-            News
-          </Link>
-          <Link
-            to="/contact"
-            onClick={handleLinkClick}
-            className={`transition no-underline hover:text-cyan-400 ${
-              scrolled ? "text-gray-200" : "text-white"
-            }`}
-          >
-            Contact
-          </Link>
+          {["Home", "Destinations", "News", "Contact"].map((item) => (
+            <Link
+              key={item}
+              to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
+              onClick={closeAll}
+              className={`no-underline transition ${hoverColor} ${textColor}`}
+            >
+              {item}
+            </Link>
+          ))}
         </div>
 
-        {/* Auth Desktop */}
-        <div
-          className={`hidden md:flex items-center gap-4 text-sm font-medium relative ${
-            scrolled ? "text-gray-200" : "text-white"
-          }`}
-        >
+        {/* Desktop Auth */}
+        <div className="hidden md:flex items-center gap-2" ref={dropdownRef}>
           {user ? (
-            <div
-              className="relative"
-              onMouseEnter={() => setAccountOpen(true)}
-              onMouseLeave={() => setAccountOpen(false)}
-            >
-              <button className="flex items-center gap-2">
+            <div className="relative">
+              <Button
+                variant="ghost"
+                className="text-white hover:bg-white/10 flex items-center gap-2"
+                onClick={() => setAccountOpen(!accountOpen)}
+                rightIcon={
+                  <ChevronDown
+                    size={16}
+                    className={`transition-transform ${accountOpen ? "rotate-180" : ""}`}
+                  />
+                }
+              >
                 <User size={18} />
-                <span>{user.firstName}</span>
-              </button>
+                <span>Hi, {user.firstName || "User"}</span>
+              </Button>
 
+              {/* Dropdown */}
               {accountOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white text-gray-800 rounded-lg shadow-lg">
-                  <Link
+                <div className="absolute right-0 mt-2 w-56 bg-gray-900 border border-gray-800 rounded-xl shadow-xl overflow-hidden">
+                  <div className="p-3 border-b border-gray-800">
+                    <p className="text-sm text-gray-400">Signed in as</p>
+                    <p className="font-semibold text-white truncate">
+                      {user.firstName + " " + user.lastName}
+                    </p>
+                    <p className="text-sm text-gray-400">{user.email}</p>
+                  </div>
+
+                  <Button
                     to="/profile"
-                    onClick={handleLinkClick}
-                    className="block px-4 py-2 hover:bg-gray-100 no-underline"
+                    variant="ghost"
+                    block
+                    leftIcon={<User size={18} />}
+                    className="justify-start text-gray-200 hover:bg-gray-800 no-underline"
+                    onClick={closeAll}
                   >
                     Profile
-                  </Link>
-                  <Link
+                  </Button>
+
+                  <Button
                     to="/bookings"
-                    onClick={handleLinkClick}
-                    className="block px-4 py-2 hover:bg-gray-100 no-underline"
+                    variant="ghost"
+                    block
+                    leftIcon={<CalendarDays size={18} />}
+                    className="justify-start text-gray-200 hover:bg-gray-800 no-underline"
+                    onClick={closeAll}
                   >
-                    Booking
-                  </Link>
-                  <hr />
-                  <button
-                    onClick={logout}
-                    className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
-                  >
-                    <LogOut size={16} className="inline mr-2" />
-                    Sign out
-                  </button>
+                    My Bookings
+                  </Button>
+
+                  <div className="border-t border-gray-800">
+                    <Button
+                      variant="danger"
+                      block
+                      leftIcon={<LogOut size={18} />}
+                      className="justify-start rounded-none"
+                      onClick={() => {
+                        logoutWithRedirect();
+                        closeAll();
+                      }}
+                    >
+                      Sign out
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
           ) : (
-            <>
-              <Link
+            <div className="flex items-center gap-2">
+              <Button
                 to="/login"
-                className={`px-3 py-2 border rounded-full transition no-underline ${
-                  scrolled
-                    ? "border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-gray-900"
-                    : "border-white text-white hover:bg-cyan-400"
-                }`}
+                variant="outline"
+                className="no-underline px-4"
               >
-                <LogIn size={16} className="inline mr-2" />
                 Login
-              </Link>
+              </Button>
 
-              <Link
+              <Button
                 to="/register"
-                className="px-4 py-2 rounded-full bg-cyan-500 hover:bg-cyan-400 text-white no-underline"
+                variant="primary"
+                className="no-underline px-4"
               >
                 Register
-              </Link>
-            </>
+              </Button>
+            </div>
           )}
         </div>
 
         {/* Mobile Toggle */}
         <button
-          className={`md:hidden transition ${
-            scrolled ? "text-cyan-400" : "text-white"
-          }`}
+          className={`md:hidden ${scrolled ? "text-cyan-400" : "text-white"}`}
           onClick={() => setMenuOpen(!menuOpen)}
         >
-          {menuOpen ? <X size={24} /> : <Menu size={24} />}
+          {menuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div className="md:hidden mt-4 bg-gray-900/90 backdrop-blur-md rounded-lg p-4 text-white text-sm space-y-3">
-          <Link
-            to="/"
-            onClick={handleLinkClick}
-            className="block hover:text-cyan-400 no-underline"
-          >
-            Home
-          </Link>
-          <Link
-            to="/destinations"
-            onClick={handleLinkClick}
-            className="block hover:text-cyan-400 no-underline"
-          >
-            Destinations
-          </Link>
-          <Link
-            to="/news"
-            onClick={handleLinkClick}
-            className="block hover:text-cyan-400 no-underline"
-          >
-            News
-          </Link>
-          <Link
-            to="/contact"
-            onClick={handleLinkClick}
-            className="block hover:text-cyan-400 no-underline"
-          >
-            Contact
-          </Link>
+        <div className="md:hidden mt-6 bg-gray-900/95 backdrop-blur-md rounded-xl p-6 space-y-6 border border-gray-800">
+          {/* Navigation */}
+          <div className="space-y-4">
+            {["Home", "Destinations", "News", "Contact"].map((item) => (
+              <Link
+                key={item}
+                to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
+                onClick={closeAll}
+                className="block text-lg font-medium text-white hover:text-cyan-400 no-underline"
+              >
+                {item}
+              </Link>
+            ))}
+          </div>
 
-          <hr className="border-gray-700" />
+          <div className="border-t border-gray-700 pt-6 space-y-4">
+            {user ? (
+              <>
+                <div className="flex items-center gap-3 text-white">
+                  <div className="w-10 h-10 bg-cyan-600 rounded-full flex items-center justify-center">
+                    <User size={20} />
+                  </div>
+                  <div>
+                    <p className="font-semibold">{user.firstName || "User"}</p>
+                    <p className="text-sm text-gray-400">{user.email}</p>
+                  </div>
+                </div>
 
-          {user ? (
-            <>
-              <Link
-                to="/profile"
-                onClick={handleLinkClick}
-                className="block hover:text-cyan-400 no-underline"
-              >
-                Profile
-              </Link>
-              <Link
-                to="/bookings"
-                onClick={handleLinkClick}
-                className="block hover:text-cyan-400 no-underline"
-              >
-                Booking
-              </Link>
-              <button
-                onClick={logout}
-                className="block w-full text-left text-red-400 hover:text-red-300 transition no-underline"
-              >
-                <LogOut size={16} className="inline mr-2" />
-                Sign out
-              </button>
-            </>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                onClick={handleLinkClick}
-                className="block px-4 py-2 border border-white rounded-full text-center hover:bg-white hover:text-gray-900 transition no-underline"
-              >
-                <LogIn size={16} className="inline mr-2" />
-                Login
-              </Link>
-              <Link
-                to="/register"
-                onClick={handleLinkClick}
-                className="block px-4 py-2 bg-cyan-500 rounded-full text-center hover:bg-cyan-400 transition no-underline"
-              >
-                Register
-              </Link>
-            </>
-          )}
+                <Button
+                  to="/profile"
+                  variant="outline"
+                  size="lg"
+                  block
+                  leftIcon={<User size={18} />}
+                  onClick={closeAll}
+                >
+                  Profile
+                </Button>
+
+                <Button
+                  to="/bookings"
+                  variant="outline"
+                  size="lg"
+                  block
+                  leftIcon={<CalendarDays size={18} />}
+                  onClick={closeAll}
+                >
+                  My Bookings
+                </Button>
+
+                <Button
+                  variant="danger"
+                  size="lg"
+                  block
+                  leftIcon={<LogOut size={18} />}
+                  onClick={() => {
+                    logoutWithRedirect();
+                    closeAll();
+                  }}
+                >
+                  Sign out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  to="/login"
+                  variant="outline"
+                  size="lg"
+                  block
+                  className="bg-white text-gray-900 border-white hover:bg-gray-100"
+                  onClick={closeAll}
+                >
+                  Login
+                </Button>
+
+                <Button
+                  to="/register"
+                  variant="primary"
+                  size="lg"
+                  block
+                  onClick={closeAll}
+                >
+                  Register
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       )}
     </nav>

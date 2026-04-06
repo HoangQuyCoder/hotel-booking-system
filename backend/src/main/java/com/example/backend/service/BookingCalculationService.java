@@ -1,13 +1,11 @@
 package com.example.backend.service;
 
+import com.example.backend.common.RoomStatus;
 import com.example.backend.dto.request.BookingRequest;
 import com.example.backend.dto.response.BookingCalculationResponse;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.model.*;
-import com.example.backend.repository.BaseRateRepository;
-import com.example.backend.repository.DailyOverrideRepository;
-import com.example.backend.repository.PromotionRepository;
-import com.example.backend.repository.RoomTypeRepository;
+import com.example.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +15,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +24,7 @@ public class BookingCalculationService {
 
     private final PromotionRepository promotionRepository;
     private final RoomTypeRepository roomTypeRepository;
+    private final RoomRepository roomRepository;
     private final BaseRateRepository baseRateRepository;
     private final DailyOverrideRepository dailyOverrideRepository;
 
@@ -71,28 +69,49 @@ public class BookingCalculationService {
     // Create a list of BookingRoom
     private List<BookingRoom> buildBookingRooms(BookingRequest request) {
         return request.getBookingRooms().stream()
-                .map(bookingRoomReq -> {
-                    RoomType roomType = roomTypeRepository.findById(bookingRoomReq.getRoomTypeId())
-                            .orElseThrow(() -> {
-                                logger.error("[calculateBookingTotal] RoomType not found: {}", bookingRoomReq.getRoomTypeId());
-                                return new ResourceNotFoundException("RoomType not found");
-                            });
+                .map(req -> {
+
+                    RoomType roomType = roomTypeRepository.findById(req.getRoomTypeId())
+                            .orElseThrow(() -> new ResourceNotFoundException("RoomType not found"));
+
+                    List<Room> availableRooms = roomRepository
+                            .findAvailableRoomsForUpdate(roomType.getId());
+
+                    if (availableRooms.size() < req.getQuantity()) {
+                        throw new IllegalArgumentException("Not enough rooms");
+                    }
+
+                    List<Room> selectedRooms = availableRooms.stream()
+                            .limit(req.getQuantity())
+                            .toList();
+
+                    // update status
+                    selectedRooms.forEach(r -> r.setStatus(RoomStatus.BOOKED));
 
                     double pricePerNight = calculateRoomPrice(
                             roomType.getId(),
                             request.getCheckInDate(),
-                            request.getCheckOutDate()
-                    );
+                            request.getCheckOutDate());
 
-                    return BookingRoom.builder()
+                    BookingRoom bookingRoom = BookingRoom.builder()
                             .roomType(roomType)
-                            .specificRoomIds(bookingRoomReq.getSpecificRoomIds())
+                            .quantity(req.getQuantity())
                             .pricePerNight(pricePerNight)
-                            .quantity(bookingRoomReq.getQuantity())
-                            .isActive(true)
                             .build();
+
+                    // create booking room detail
+                    List<BookingRoomDetail> details = selectedRooms.stream()
+                            .map(room -> BookingRoomDetail.builder()
+                                    .bookingRoom(bookingRoom)
+                                    .room(room)
+                                    .build())
+                            .toList();
+
+                    bookingRoom.setBookingRoomDetails(details);
+
+                    return bookingRoom;
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // Calculate the total amount
@@ -104,7 +123,8 @@ public class BookingCalculationService {
 
     // Discount applies
     private double applyPromotionIfEligible(Promotion promotion, double totalAmount) {
-        if (promotion == null) return totalAmount;
+        if (promotion == null)
+            return totalAmount;
 
         if (promotion.getMinBookingAmount() == null || totalAmount >= promotion.getMinBookingAmount()) {
             double discounted = totalAmount * (1 - promotion.getDiscountPercent() / 100);
@@ -118,12 +138,12 @@ public class BookingCalculationService {
 
     // Calculate room price
     private double calculateRoomPrice(UUID roomTypeId, LocalDate checkInDate, LocalDate checkOutDate) {
-        double totalPrice = 0.0;
-        for (LocalDate date = checkInDate; !date.isAfter(checkOutDate); date = date.plusDays(1)) {
+        double pricePerNight = 0.0;
+        for (LocalDate date = checkInDate; date.isBefore(checkOutDate); date = date.plusDays(1)) {
             DailyOverride override = dailyOverrideRepository.findByRoomTypeIdAndDate(roomTypeId, date)
                     .orElse(null);
             if (override != null && override.getPriceAdjustment() != null) {
-                totalPrice += override.getPriceAdjustment();
+                pricePerNight += override.getPriceAdjustment();
             } else {
                 LocalDate finalDate = date;
                 BaseRate baseRate = baseRateRepository.findByRoomTypeIdAndOverlappingDates(roomTypeId, date)
@@ -131,10 +151,9 @@ public class BookingCalculationService {
                             logger.error("No base rate found for room type ID: {} on date: {}", roomTypeId, finalDate);
                             return new ResourceNotFoundException("No base rate found for the given date");
                         });
-                totalPrice += baseRate.getBasePrice();
+                pricePerNight += baseRate.getBasePrice();
             }
         }
-        return totalPrice;
+        return pricePerNight;
     }
 }
-

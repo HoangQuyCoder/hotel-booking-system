@@ -31,14 +31,13 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ReviewService.class);
-    
+
     private final ReviewRepository reviewRepository;
     private final HotelRepository hotelRepository;
     private final UserRepository userRepository;
     private final ReviewMapper reviewMapper;
-
 
     public ReviewResponse create(ReviewRequest request) {
         logger.info("Creating review for user {} and hotel {}", request.getUserId(), request.getHotelId());
@@ -47,16 +46,14 @@ public class ReviewService {
             Review review = reviewMapper.toEntity(request);
 
             Hotel hotel = hotelRepository.findById(request.getHotelId())
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException("Hotel not found with id: " + request.getHotelId()));
+                    .orElseThrow(
+                            () -> new ResourceNotFoundException("Hotel not found with id: " + request.getHotelId()));
 
             User user = userRepository.findById(request.getUserId())
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException("User not found with id: " + request.getUserId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + request.getUserId()));
 
             review.setHotel(hotel);
             review.setUser(user);
-            review.setIsActive(true);
 
             Review saved = reviewRepository.save(review);
             logger.info("Review created successfully with id {}", saved.getId());
@@ -78,12 +75,9 @@ public class ReviewService {
 
         try {
             Review review = reviewRepository.findById(id)
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException("Review not found with id: " + id));
+                    .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + id));
 
-            review.setName(request.getName());
-            review.setText(request.getText());
-            review.setRating(request.getRating());
+            reviewMapper.updateEntity(request, review);
 
             Review updated = reviewRepository.save(review);
             logger.info("Review updated successfully with id {}", id);
@@ -105,8 +99,7 @@ public class ReviewService {
 
         try {
             Review review = reviewRepository.findById(id)
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException("Review not found with id: " + id));
+                    .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + id));
 
             review.setIsActive(false);
             reviewRepository.save(review);
@@ -128,8 +121,7 @@ public class ReviewService {
 
         try {
             Review review = reviewRepository.findById(id)
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException("Review not found with id: " + id));
+                    .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + id));
 
             return reviewMapper.toResponse(review);
 
@@ -165,8 +157,7 @@ public class ReviewService {
                     reviewPage.getNumber(),
                     reviewPage.getSize(),
                     reviewPage.getTotalElements(),
-                    reviewPage.getTotalPages()
-            );
+                    reviewPage.getTotalPages());
 
         } catch (Exception e) {
             logger.error("Unexpected error while fetching reviews: {}", e.getMessage(), e);
@@ -195,8 +186,7 @@ public class ReviewService {
                     reviewPage.getNumber(),
                     reviewPage.getSize(),
                     reviewPage.getTotalElements(),
-                    reviewPage.getTotalPages()
-            );
+                    reviewPage.getTotalPages());
 
         } catch (Exception e) {
             logger.error("Unexpected error while fetching reviews: {}", e.getMessage(), e);

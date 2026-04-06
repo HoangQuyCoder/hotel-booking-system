@@ -2,6 +2,8 @@ package com.example.backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,32 +37,18 @@ public class BookingRoom {
     @Column(name = "price_per_night", nullable = false)
     private Double pricePerNight;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "booking_specific_rooms",
-            joinColumns = @JoinColumn(name = "booking_room_id")
-    )
-    @Column(name = "specific_room_id", nullable = false)
-    private List<UUID> specificRoomIds;
+    @OneToMany(mappedBy = "bookingRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookingRoomDetail> bookingRoomDetails;
 
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
+    @Builder.Default
     @Column(name = "is_active")
     private Boolean isActive = true;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

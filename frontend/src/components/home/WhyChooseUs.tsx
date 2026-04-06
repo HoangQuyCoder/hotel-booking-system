@@ -22,21 +22,21 @@ export default function WhyChooseUs() {
   const features = [
     {
       icon: <DollarSign className="w-8 h-8" />,
-      title: "Competitive Prices",
+      title: "Best Price Guarantee",
       description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum",
+        "Enjoy the most competitive prices in the market with our Best Price Guarantee. We ensure you get exceptional value without compromising on quality or service.",
     },
     {
       icon: <Shield className="w-8 h-8" />,
       title: "Secure Booking",
       description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum",
+        "Book with complete confidence. Our platform uses advanced encryption and industry-leading security standards to protect your personal data and payment information at all times.",
     },
     {
       icon: <Zap className="w-8 h-8" />,
       title: "Seamless Experience",
       description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum",
+        "From browsing to booking and beyond, enjoy a fast, intuitive, and hassle-free journey. Our user-friendly platform and dedicated support make every step effortless.",
     },
   ];
 

@@ -1,5 +1,16 @@
 package com.example.backend.service;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.backend.dto.filter.RoomAmenityFilterRequest;
 import com.example.backend.dto.request.RoomAmenityRequest;
 import com.example.backend.dto.response.PagedResponse;
@@ -11,19 +22,9 @@ import com.example.backend.model.RoomType;
 import com.example.backend.repository.RoomAmenityRepository;
 import com.example.backend.repository.RoomTypeRepository;
 import com.example.backend.specification.RoomAmenitySpecification;
-import com.example.backend.utils.BeanUtilsHelper;
 import com.example.backend.utils.PagingUtils;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -37,10 +38,12 @@ public class RoomAmenityService {
 
     @Transactional
     public RoomAmenityResponse createRoomAmenity(RoomAmenityRequest request) {
-        logger.info("Creating room amenity with name: {} for room type ID: {}", request.getName(), request.getRoomTypeId());
+        logger.info("Creating room amenity with name: {} for room type ID: {}", request.getName(),
+                request.getRoomTypeId());
 
         if (roomAmenityRepository.existsByNameAndRoomTypeId(request.getName(), request.getRoomTypeId())) {
-            logger.error("[create] Room amenity already exists: {} for room type ID: {}", request.getName(), request.getRoomTypeId());
+            logger.error("[create] Room amenity already exists: {} for room type ID: {}", request.getName(),
+                    request.getRoomTypeId());
             throw new IllegalArgumentException("Room amenity already exists for this room type");
         }
 
@@ -50,12 +53,8 @@ public class RoomAmenityService {
                     return new ResourceNotFoundException("Room type not found");
                 });
 
-        RoomAmenity roomAmenity = RoomAmenity.builder()
-                .name(request.getName())
-                .category(request.getCategory())
-                .roomType(roomType)
-                .isActive(true)
-                .build();
+        RoomAmenity roomAmenity = roomAmenityMapper.toEntity(request);
+        roomAmenity.setRoomType(roomType);
 
         try {
             RoomAmenity saved = roomAmenityRepository.save(roomAmenity);
@@ -88,9 +87,11 @@ public class RoomAmenityService {
                     return new ResourceNotFoundException("Room amenity not found");
                 });
 
-        if (!roomAmenity.getName().equals(request.getName()) || !roomAmenity.getRoomType().getId().equals(request.getRoomTypeId())) {
+        if (!roomAmenity.getName().equals(request.getName())
+                || !roomAmenity.getRoomType().getId().equals(request.getRoomTypeId())) {
             if (roomAmenityRepository.existsByNameAndRoomTypeId(request.getName(), request.getRoomTypeId())) {
-                logger.error("[update] Room amenity already exists: {} for room type ID: {}", request.getName(), request.getRoomTypeId());
+                logger.error("[update] Room amenity already exists: {} for room type ID: {}", request.getName(),
+                        request.getRoomTypeId());
                 throw new IllegalArgumentException("Room amenity already exists for this room type");
             }
         }
@@ -101,7 +102,7 @@ public class RoomAmenityService {
                     return new ResourceNotFoundException("Room type not found");
                 });
 
-        BeanUtilsHelper.copyNonNullProperties(request, roomAmenity);
+        roomAmenityMapper.updateEntity(request, roomAmenity);
         roomAmenity.setRoomType(roomType);
 
         try {
@@ -154,7 +155,6 @@ public class RoomAmenityService {
                 pageResult.getNumber(),
                 pageResult.getSize(),
                 pageResult.getTotalElements(),
-                pageResult.getTotalPages()
-        );
+                pageResult.getTotalPages());
     }
 }

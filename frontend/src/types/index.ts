@@ -15,3 +15,5 @@ export * from "./promotion";
 export * from "./role";
 export * from "./api";
 export * from "./auth";
+export * from "./review";
+export * from "./common";

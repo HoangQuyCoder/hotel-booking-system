@@ -1,60 +1,85 @@
+import { apiClient } from "../services/apiClient";
 import { apiCall } from "../services/apiCall";
-import apiClient from "../services/apiClient";
-import type { ApiResponse } from "../types/api";
-import type { PagedResponse } from "../types/common";
 import type {
+  ApiResponse,
+  PagedResponse,
   HotelDetailResponse,
+  HotelListResponse,
   HotelRequest,
   HotelUpdateRequest,
-  HotelFilter,
-} from "../types/hotel";
-
-const toQueryParams = (obj: HotelFilter) => {
-  const params = new URLSearchParams();
-  Object.entries(obj).forEach(([k, v]) => {
-    if (v === undefined || v === null || v === "") return;
-    // arrays or objects need special handling
-    if (Array.isArray(v)) {
-      v.forEach((val) => params.append(k, String(val)));
-    } else {
-      params.append(k, String(v));
-    }
-  });
-  return params.toString();
-};
+  HotelFilterRequest,
+} from "../types";
 
 export const hotelApi = {
-  createHotel: (payload: HotelRequest) =>
+  // CREATE
+  create: (data: HotelRequest) =>
     apiCall<ApiResponse<HotelDetailResponse>>(
-      apiClient.post("/hotels", payload)
+      apiClient.post("/hotels", data)
     ),
 
-  getHotel: (id: string) =>
+  // GET BY ID
+  getById: (id: string) =>
     apiCall<ApiResponse<HotelDetailResponse>>(
       apiClient.get(`/hotels/${id}`)
     ),
 
-  updateHotel: (id: string, payload: HotelUpdateRequest) =>
+  // UPDATE
+  update: (id: string, data: HotelUpdateRequest) =>
     apiCall<ApiResponse<HotelDetailResponse>>(
-      apiClient.put(`/hotels/${id}`, payload)
+      apiClient.put(`/hotels/${id}`, data)
     ),
 
-  deleteHotel: (id: string) =>
+  // DELETE
+  delete: (id: string) =>
     apiCall<ApiResponse<void>>(
       apiClient.delete(`/hotels/${id}`)
     ),
 
-  getAllHotels: (filter: HotelFilter = {}) => {
-    const params = toQueryParams(filter);
-    const url = params ? `/hotels?${params}` : "/hotels";
+  // GET ALL (pagination + filter)
+  getAll: (params: HotelFilterRequest) =>
+    apiCall<ApiResponse<PagedResponse<HotelListResponse>>>(
+      apiClient.get("/hotels", { params })
+    ),
 
-    return apiCall<ApiResponse<PagedResponse<HotelDetailResponse>>>(
-      apiClient.get(url)
-    );
-  },
-
+  // SEARCH CITIES
   getCities: (q: string) =>
     apiCall<ApiResponse<string[]>>(
-      apiClient.get(`/hotels/cities?q=${encodeURIComponent(q)}`)
+      apiClient.get("/hotels/cities", {
+        params: { q },
+      })
+    ),
+
+  // ================= FEATURED =================
+  getFeatured: () =>
+    apiCall<ApiResponse<HotelListResponse[]>>(
+      apiClient.get("/hotels/featured")
+    ),
+
+  // ================= TOP RATED =================
+  getTopRated: () =>
+    apiCall<ApiResponse<HotelListResponse[]>>(
+      apiClient.get("/hotels/top-rated")
+    ),
+
+  // ================= NEWEST =================
+  getNewest: () =>
+    apiCall<ApiResponse<HotelListResponse[]>>(
+      apiClient.get("/hotels/newest")
+    ),
+
+  // ================= DISCOVER =================
+  getByCity: (city: string) =>
+    apiCall<ApiResponse<HotelListResponse[]>>(
+      apiClient.get("/hotels/discover", {
+        params: { city },
+      })
+    ),
+
+  // ================= NEARBY =================
+  getNearby: (lat: number, lng: number) =>
+    apiCall<ApiResponse<HotelListResponse[]>>(
+      apiClient.get("/hotels/nearby", {
+        params: { lat, lng },
+      })
     ),
 };

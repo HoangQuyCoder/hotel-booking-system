@@ -2,11 +2,12 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.request.*;
 import com.example.backend.dto.response.ApiResponse;
-import com.example.backend.dto.response.PasswordResetResponse;
+import com.example.backend.dto.response.ResetPasswordResponse;
 import com.example.backend.dto.response.UserResponse;
 import com.example.backend.service.AuthService;
-import com.example.backend.service.EmailVerificationService;
+import com.example.backend.service.EmailService;
 import com.example.backend.service.JwtService;
+import com.example.backend.service.NotificationService;
 import com.example.backend.utils.JwtCookieUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -24,7 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
-    private final EmailVerificationService emailVerificationService;
+    private final NotificationService notificationService;
+    private final EmailService emailService;
     private final JwtService jwtService;
     private final JwtCookieUtil jwtCookieUtil;
 
@@ -50,7 +52,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> sendCode(
             @Valid @RequestBody EmailRequest request) {
 
-        emailVerificationService.sendVerificationCode(request.getEmail());
+        notificationService.sendEmailVerificationCode(request.getEmail());
 
         return ResponseEntity.ok(
                 ApiResponse.ok("Verification code has been sent to your email")
@@ -62,7 +64,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> verifyCode(
             @Valid @RequestBody VerifyCodeRequest request) {
 
-        emailVerificationService.verifyCode(request.getEmail(), request.getCode());
+        emailService.verifyCode(request.getEmail(), request.getCode());
 
         return ResponseEntity.ok(
                 ApiResponse.ok("Verification successful! You can continue.")
@@ -96,10 +98,10 @@ public class AuthController {
 
     // REQUEST PASSWORD RESET
     @PostMapping("/forgot-password")
-    public ResponseEntity<ApiResponse<PasswordResetResponse>> requestPasswordReset(
-            @Valid @RequestBody PasswordResetRequest request) {
+    public ResponseEntity<ApiResponse<ResetPasswordResponse>> requestPasswordReset(
+            @Valid @RequestBody ForgotPasswordRequest request) {
 
-        PasswordResetResponse res = authService.requestPasswordReset(request);
+        ResetPasswordResponse res = authService.requestPasswordReset(request);
 
         return ResponseEntity.ok(
                 ApiResponse.success("Password recovery email has been sent", res)
@@ -108,10 +110,10 @@ public class AuthController {
 
     // VALIDATE RESET TOKEN
     @PostMapping("/validate-reset-token")
-    public ResponseEntity<ApiResponse<PasswordResetResponse>> validateResetToken(
+    public ResponseEntity<ApiResponse<ResetPasswordResponse>> validateResetToken(
             @Valid @RequestBody ValidateResetTokenRequest request) {
 
-        PasswordResetResponse res = authService.validateResetToken(request);
+        ResetPasswordResponse res = authService.validateResetToken(request);
 
         return ResponseEntity.ok(
                 ApiResponse.success("Valid tokens", res)
@@ -120,10 +122,10 @@ public class AuthController {
 
     // RESET PASSWORD
     @PostMapping("/reset-password")
-    public ResponseEntity<ApiResponse<PasswordResetResponse>> resetPassword(
+    public ResponseEntity<ApiResponse<ResetPasswordResponse>> resetPassword(
             @Valid @RequestBody ResetPasswordRequest request) {
 
-        PasswordResetResponse res = authService.resetPassword(request);
+        ResetPasswordResponse res = authService.resetPassword(request);
 
         return ResponseEntity.ok(
                 ApiResponse.success("Password reset successful", res)

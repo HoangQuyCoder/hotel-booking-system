@@ -5,16 +5,15 @@ import com.example.backend.dto.filter.BookingFilterRequest;
 import com.example.backend.dto.request.BookingRequest;
 import com.example.backend.dto.request.BookingRoomRequest;
 import com.example.backend.dto.response.BookingCalculationResponse;
+import com.example.backend.dto.response.BookingListResponse;
 import com.example.backend.dto.response.BookingResponse;
 import com.example.backend.dto.response.PagedResponse;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.mapper.BookingMapper;
-import com.example.backend.model.Booking;
-import com.example.backend.model.BookingRoom;
-import com.example.backend.model.Hotel;
-import com.example.backend.model.User;
+import com.example.backend.model.*;
 import com.example.backend.repository.BookingRepository;
 import com.example.backend.repository.HotelRepository;
+import com.example.backend.repository.RoomTypeRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.specification.BookingSpecification;
 import com.example.backend.utils.PagingUtils;
@@ -29,10 +28,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,15 +41,18 @@ public class BookingService {
     private final BookingCalculationService bookingCalc;
     private final UserRepository userRepository;
     private final HotelRepository hotelRepository;
+    private final RoomTypeRepository roomTypeRepository;
     private final NotificationService notificationService;
     private final BookingMapper bookingMapper;
 
     @Transactional
     public BookingResponse createBooking(BookingRequest request) {
-        logger.info("Creating booking for check-in: {}, check-out: {}", request.getCheckInDate(), request.getCheckOutDate());
+        logger.info("Creating booking for check-in: {}, check-out: {}", request.getCheckInDate(),
+                request.getCheckOutDate());
 
         if (request.getCheckOutDate().isBefore(request.getCheckInDate())) {
-            logger.error("[create] Check-out date {} is before check-in date {}", request.getCheckOutDate(), request.getCheckInDate());
+            logger.error("[create] Check-out date {} is before check-in date {}", request.getCheckOutDate(),
+                    request.getCheckInDate());
             throw new IllegalArgumentException("Check-out date cannot be before check-in date");
         }
 
@@ -70,22 +69,30 @@ public class BookingService {
                     return new ResourceNotFoundException("Hotel not found");
                 });
 
+        List<UUID> roomTypeIds = request.getBookingRooms()
+                .stream()
+                .map(BookingRoomRequest::getRoomTypeId)
+                .toList();
+
+        List<RoomType> roomTypes = roomTypeRepository
+                .findAllByIdInAndHotelId(roomTypeIds, request.getHotelId());
+
+        if (roomTypes.size() != roomTypeIds.size()) {
+            logger.error("Some room types do not belong to hotel {}", request.getHotelId());
+            throw new IllegalArgumentException("One or more room types are invalid for this hotel");
+        }
+
+        Random random = new Random();
         BookingCalculationResponse calc = bookingCalc.calculateBookingTotal(request);
 
-        Booking booking = Booking.builder()
-                .checkInDate(request.getCheckInDate())
-                .checkOutDate(request.getCheckOutDate())
-                .status(BookingStatus.PENDING)
-                .guestCount(request.getGuestCount())
-                .notes(request.getNotes())
-                .user(user)
-                .hotel(hotel)
-                .promotion(calc.getPromotion())
-                .bookingRooms(calc.getBookingRooms())
-                .totalAmount(calc.getTotalAmount())
-                .isActive(true)
-                .build();
-
+        Booking booking = bookingMapper.toEntity(request);
+        booking.setStatus(BookingStatus.PENDING);
+        booking.setHotel(hotel);
+        booking.setUser(user);
+        booking.setPromotion(calc.getPromotion());
+        booking.setBookingRooms(calc.getBookingRooms());
+        booking.setTotalAmount(calc.getTotalAmount());
+        booking.setConfirmationCode(String.valueOf(100000 + random.nextInt(900000)));
         booking.getBookingRooms().forEach(br -> br.setBooking(booking));
 
         try {
@@ -108,7 +115,8 @@ public class BookingService {
                 });
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_STAFF")) &&
+        if (auth.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_STAFF")) &&
                 !booking.getUser().getEmail().equals(auth.getName())) {
             logger.error("Unauthorized access to booking ID: {} by user: {}", id, auth.getName());
             throw new SecurityException("Unauthorized access to booking");
@@ -131,17 +139,15 @@ public class BookingService {
             throw new IllegalArgumentException("Check-out date cannot be before check-in date");
         }
 
-        // Update basic fields
-        booking.setGuestCount(request.getGuestCount());
-        booking.setNotes(request.getNotes());
+        bookingMapper.updateEntity(request, booking);
 
         // Determine whether recalculation is needed
-        boolean shouldRecalculate =
-                !request.getCheckInDate().equals(booking.getCheckInDate()) ||
-                        !request.getCheckOutDate().equals(booking.getCheckOutDate()) ||
-                        !Objects.equals(request.getPromoCode(),
-                                booking.getPromotion() != null ? booking.getPromotion().getCode() : null) ||
-                        isBookingRoomsChanged(request.getBookingRooms(), booking.getBookingRooms());
+        boolean shouldRecalculate = !request.getCheckInDate().equals(booking.getCheckInDate()) ||
+                !request.getCheckOutDate().equals(booking.getCheckOutDate()) ||
+                !Objects.equals(request.getPromoCode(),
+                        booking.getPromotion() != null ? booking.getPromotion().getCode() : null)
+                ||
+                isBookingRoomsChanged(request.getBookingRooms(), booking.getBookingRooms());
 
         if (shouldRecalculate) {
             logger.info("[update] Recalculating booking total for ID: {}", id);
@@ -249,7 +255,7 @@ public class BookingService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<BookingResponse> getAllBookings(BookingFilterRequest filterRequest) {
+    public PagedResponse<BookingListResponse> getAllBookings(BookingFilterRequest filterRequest) {
         logger.info("Filtering bookings with: {}", filterRequest);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -269,8 +275,8 @@ public class BookingService {
 
         Page<Booking> pageResult = bookingRepository.findAll(spec, pageable);
 
-        List<BookingResponse> content = pageResult.getContent().stream()
-                .map(bookingMapper::toResponse)
+        List<BookingListResponse> content = pageResult.getContent().stream()
+                .map(bookingMapper::toListResponse)
                 .collect(Collectors.toList());
 
         return new PagedResponse<>(
@@ -278,8 +284,7 @@ public class BookingService {
                 pageResult.getNumber(),
                 pageResult.getSize(),
                 pageResult.getTotalElements(),
-                pageResult.getTotalPages()
-        );
+                pageResult.getTotalPages());
     }
 
     private void validateUpdatePermission(Booking booking, Authentication auth) {
@@ -301,15 +306,16 @@ public class BookingService {
     }
 
     private boolean isBookingRoomsChanged(List<BookingRoomRequest> newRooms, List<BookingRoom> oldRooms) {
-        if (newRooms == null || oldRooms == null) return true;
-        if (newRooms.size() != oldRooms.size()) return true;
+        if (newRooms == null || oldRooms == null)
+            return true;
+        if (newRooms.size() != oldRooms.size())
+            return true;
 
         // Create a temporary map to compare rooms by roomTypeId
         Map<UUID, Integer> oldRoomMap = oldRooms.stream()
                 .collect(Collectors.toMap(
                         room -> room.getRoomType().getId(),
-                        BookingRoom::getQuantity
-                ));
+                        BookingRoom::getQuantity));
 
         for (BookingRoomRequest newRoom : newRooms) {
             Integer oldQty = oldRoomMap.get(newRoom.getRoomTypeId());

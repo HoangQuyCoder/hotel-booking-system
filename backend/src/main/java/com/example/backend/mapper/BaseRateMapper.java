@@ -1,11 +1,17 @@
 package com.example.backend.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+import com.example.backend.config.BaseMapperConfig;
+import com.example.backend.dto.request.BaseRateRequest;
 import com.example.backend.dto.response.BaseRateResponse;
 import com.example.backend.model.BaseRate;
-import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
-public interface BaseRateMapper extends BaseMapper<BaseRate, BaseRateResponse> {
+@Mapper(config = BaseMapperConfig.class)
+public interface BaseRateMapper extends BaseMapper<BaseRate, BaseRateRequest, BaseRateResponse> {
 
-    BaseRateResponse toResponse(BaseRate baseRate);
+    @Override
+    @Mapping(target = "isActive", constant = "true")
+    BaseRate toEntity(BaseRateRequest request);
 }

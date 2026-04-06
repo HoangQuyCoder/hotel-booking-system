@@ -1,6 +1,9 @@
 export const UserStatus = {
   ACTIVE: "ACTIVE",
   INACTIVE: "INACTIVE",
+  LOCKED_TEMP: "LOCKED_TEMP",
+  LOCKED_PERMANENT: "LOCKED_PERMANENT",
+  PENDING: "PENDING",
   BANNED: "BANNED",
 } as const;
 export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus];
@@ -30,7 +33,8 @@ export const BookingStatus = {
 export type BookingStatus = (typeof BookingStatus)[keyof typeof BookingStatus];
 
 export const TransactionStatus = {
-  SUCCESS: "SUCCESS",
+  PENDING: "PENDING",
+  COMPLETED: "COMPLETED",
   FAILED: "FAILED",
   REFUNDED: "REFUNDED",
 } as const;
@@ -47,6 +51,7 @@ export type TransactionType =
 export const NotificationType = {
   EMAIL: "EMAIL",
   SMS: "SMS",
+  PUSH: "PUSH",
 } as const;
 export type NotificationType =
   (typeof NotificationType)[keyof typeof NotificationType];
@@ -55,6 +60,7 @@ export const NotificationStatus = {
   PENDING: "PENDING",
   SENT: "SENT",
   FAILED: "FAILED",
+  RETRYING: "RETRYING",
 } as const;
 export type NotificationStatus =
   (typeof NotificationStatus)[keyof typeof NotificationStatus];
@@ -72,9 +78,9 @@ export const CurrencyCode = {
 export type CurrencyCode = (typeof CurrencyCode)[keyof typeof CurrencyCode];
 
 export const PaymentMethod = {
-  VISA: "VISA",
-  VNPAY: "VNPAY",
-  MOMO: "MOMO",
+  CREDIT_CARD: "CREDIT_CARD",
+  CASH: "CASH",
   BANK_TRANSFER: "BANK_TRANSFER",
+  MOBILE_PAYMENT: "MOBILE_PAYMENT",
 } as const;
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod];
