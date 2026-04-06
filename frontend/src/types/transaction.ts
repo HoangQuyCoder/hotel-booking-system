@@ -1,8 +1,14 @@
 import type { BaseEntity, BaseFilterRequest } from "./common";
-import type { CurrencyCode, PaymentMethod, TransactionStatus, TransactionType } from "./enum";
+import type {
+  CurrencyCode,
+  PaymentMethod,
+  TransactionStatus,
+  TransactionType,
+} from "./enum";
+import type { BookingListResponse } from "./booking";
 
 export interface TransactionResponse extends BaseEntity {
-  bookingId: string;
+  booking: BookingListResponse;
   amount: number;
   currency: CurrencyCode;
   paymentMethod: PaymentMethod;

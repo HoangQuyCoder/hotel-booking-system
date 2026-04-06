@@ -4,6 +4,7 @@ import type { RoomStatus } from "./enum";
 export interface RoomResponse extends BaseEntity {
   roomNumber: string;
   status: RoomStatus;
+  roomTypeName: string;
 }
 
 export interface RoomRequest {
@@ -14,6 +15,7 @@ export interface RoomRequest {
 
 export interface RoomFilterRequest extends BaseFilterRequest {
   roomTypeId?: string;
+  hotelId?: string;
   roomNumber?: string;
   status?: RoomStatus;
 }

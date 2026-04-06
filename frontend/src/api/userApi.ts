@@ -5,6 +5,7 @@ import type {
   UserResponse,
   UserUpdateRequest,
   UserFilterRequest,
+  RegisterRequest,
   PagedResponse
 } from "../types";
 
@@ -25,6 +26,12 @@ export const userApi = {
   getAll: (params: UserFilterRequest) =>
     apiCall<ApiResponse<PagedResponse<UserResponse>>>(
       apiClient.get("/users", { params })
+    ),
+
+  // POST /users
+  create: (data: RegisterRequest) =>
+    apiCall<ApiResponse<UserResponse>>(
+      apiClient.post("/users", data)
     ),
 
   // PUT /users/{id}

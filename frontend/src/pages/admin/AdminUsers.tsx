@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Users,
   Edit,
@@ -9,23 +9,31 @@ import {
   ShieldOff,
 } from "lucide-react";
 import { useUserApi } from "../../hooks/useUserApi";
+import { useRoleApi } from "../../hooks/useRoleApi";
 import { Pagination } from "../../components/ui/Pagination";
-import { RoleName } from "../../types/enum";
 import { useDebounce } from "../../hooks/useDebounce";
 import { AdminPageHeader } from "../../components/admin/AdminPageHeader";
 import { AdminFilterBar } from "../../components/admin/AdminFilterBar";
 import { AdminTable } from "../../components/admin/AdminTable";
 import { AdminStatusBadge } from "../../components/admin/AdminStatusBadge";
 import { AdminEmptyState } from "../../components/admin/AdminEmptyState";
+import { UserModal } from "../../components/admin/modal/UserModal";
+import type { UserResponse } from "../../types";
 
 export default function AdminUsers() {
   const { useUsers, deleteUser } = useUserApi();
+  const { useRoles } = useRoleApi();
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [search, setSearch] = useState("");
-  const debouncedSearch = useDebounce(search, 500);
+  const debouncedSearch = useDebounce(search, 800);
   const [roleFilter, setRoleFilter] = useState<string>("");
 
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<UserResponse | null>(null);
+
+  const { data: rolesData } = useRoles();
   const { data: usersData, isLoading } = useUsers({
     page,
     size,
@@ -33,10 +41,25 @@ export default function AdminUsers() {
     roleId: roleFilter || undefined,
   });
 
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(0);
+  }, [debouncedSearch, roleFilter]);
+
   const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       await deleteUser.mutateAsync(id);
     }
+  };
+
+  const handleEdit = (user: UserResponse) => {
+    setEditingUser(user);
+    setIsModalOpen(true);
+  };
+
+  const handleAddUser = () => {
+    setEditingUser(null);
+    setIsModalOpen(true);
   };
 
   const roleColors: Record<string, string> = {
@@ -46,10 +69,11 @@ export default function AdminUsers() {
     CLIENT: "bg-emerald-50 text-emerald-600 border-emerald-200",
   };
 
-  const filterOptions = Object.values(RoleName).map((role) => ({
-    value: role,
-    label: role,
-  }));
+  const filterOptions =
+    rolesData?.map((role: any) => ({
+      value: role.id.toString(),
+      label: role.roleName,
+    })) || [];
 
   const columns = [
     { label: "User" },
@@ -76,8 +100,8 @@ export default function AdminUsers() {
         options={filterOptions}
         filterIcon={Filter}
         statusLabel="All roles"
-        onActionClick={() => console.log("Add User")}
-        actionLabel="Add User"
+        onActionClick={handleAddUser}
+        actionLabel="New User"
         actionIcon={UserPlus}
       />
 
@@ -93,7 +117,7 @@ export default function AdminUsers() {
           />
         }
       >
-        {usersData?.content?.map((user: any) => (
+        {usersData?.content?.map((user: UserResponse) => (
           <tr
             key={user.id}
             className="hover:bg-gray-50 transition-colors group"
@@ -129,7 +153,10 @@ export default function AdminUsers() {
             </td>
             <td className="px-6 py-4">
               <span
-                className={`text-[11px] px-2.5 py-1 rounded-full font-semibold uppercase tracking-wide border ${roleColors[user.roleName] || "bg-gray-100 text-gray-500 border-gray-200"}`}
+                className={`text-[11px] px-2.5 py-1 rounded-full font-semibold uppercase tracking-wide border ${
+                  roleColors[user.roleName] ||
+                  "bg-gray-100 text-gray-500 border-gray-200"
+                }`}
               >
                 {user.roleName}
               </span>
@@ -147,7 +174,10 @@ export default function AdminUsers() {
             </td>
             <td className="px-6 py-4 text-right">
               <div className="flex items-center justify-end gap-1">
-                <button className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">
+                <button
+                  onClick={() => handleEdit(user)}
+                  className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                >
                   <Edit className="w-4 h-4" />
                 </button>
                 <button
@@ -171,6 +201,13 @@ export default function AdminUsers() {
           />
         </div>
       )}
+
+      {/* User Management Modal */}
+      <UserModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        user={editingUser}
+      />
     </div>
   );
 }

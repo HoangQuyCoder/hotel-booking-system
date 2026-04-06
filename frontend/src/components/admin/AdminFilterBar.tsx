@@ -51,7 +51,9 @@ export const AdminFilterBar: React.FC<AdminFilterBarProps> = ({
       {/* Status filter */}
       {onStatusChange && (
         <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 py-2 rounded-xl hover:border-gray-300 transition-colors">
-          {FilterIcon && <FilterIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />}
+          {FilterIcon && (
+            <FilterIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          )}
           <select
             value={statusValue}
             onChange={(e) => onStatusChange(e.target.value)}
