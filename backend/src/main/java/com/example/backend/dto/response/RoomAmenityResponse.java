@@ -5,7 +5,8 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class RoomAmenityResponse extends BaseResponse{
+public class RoomAmenityResponse extends BaseResponse {
     private String name;
     private String category;
+    private String roomTypeName;
 }

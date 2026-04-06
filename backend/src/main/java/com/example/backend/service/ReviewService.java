@@ -54,7 +54,6 @@ public class ReviewService {
 
             review.setHotel(hotel);
             review.setUser(user);
-            review.setIsActive(true);
 
             Review saved = reviewRepository.save(review);
             logger.info("Review created successfully with id {}", saved.getId());

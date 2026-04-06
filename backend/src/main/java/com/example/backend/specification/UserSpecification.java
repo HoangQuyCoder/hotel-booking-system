@@ -18,6 +18,7 @@ public class UserSpecification {
                 .and(SpecUtils.betweenIfNotNull("createdAt", filter.getCreatedFrom(), filter.getCreatedTo()))
                 .and(SpecUtils.betweenIfNotNull("updatedAt", filter.getUpdatedFrom(), filter.getUpdatedTo()))
                 .and(SpecUtils.nestedEqualIfNotNull("role", "id", filter.getRoleId()))
-                .and(SpecUtils.keywordSearch(filter.getKeyword(), "username", "email", "firstName", "lastName", "phoneNumber", "address"));
+                .and(SpecUtils.keywordSearch(filter.getKeyword(), "email", "firstName", "lastName", "phoneNumber",
+                        "address"));
     }
 }

@@ -13,6 +13,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 public class RoomFilterRequest extends BaseFilterRequest {
     private UUID roomTypeId;
+    private UUID hotelId;
     private String status;
     private String roomNumber;
 }

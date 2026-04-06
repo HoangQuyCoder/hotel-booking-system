@@ -13,4 +13,8 @@ public interface RoomAmenityMapper extends BaseMapper<RoomAmenity, RoomAmenityRe
     @Override
     @Mapping(target = "isActive", constant = "true")
     RoomAmenity toEntity(RoomAmenityRequest request);
+
+    @Override
+    @Mapping(source = "roomType.name", target = "roomTypeName")
+    RoomAmenityResponse toResponse(RoomAmenity roomAmenity);
 }
