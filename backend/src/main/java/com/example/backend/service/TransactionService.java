@@ -114,6 +114,7 @@ public class TransactionService {
         }
     }
 
+    @Transactional
     public TransactionResponse getTransactionById(UUID id) {
         logger.info("Fetching transaction with ID: {}", id);
 
@@ -178,6 +179,7 @@ public class TransactionService {
         }
     }
 
+    @Transactional
     public PagedResponse<TransactionResponse> getAllTransactions(TransactionFilterRequest filterRequest) {
         logger.info("Searching transactions with: {}", filterRequest);
 

@@ -70,6 +70,7 @@ public class BaseRateService {
         }
     }
 
+    @Transactional
     public BaseRateResponse getBaseRateById(UUID id) {
         logger.info("Fetching base rate with ID: {}", id);
 
@@ -146,6 +147,7 @@ public class BaseRateService {
         }
     }
 
+    @Transactional
     public PagedResponse<BaseRateResponse> getAllBaseRates(BaseRateFilterRequest filterRequest) {
         logger.info("Filtering BaseRates with request: {}", filterRequest);
 

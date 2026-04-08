@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: optional:dotenv
   datasource:
     url: ${DB_URL_LOCAL}
     username: ${DB_USERNAME}
@@ -8,7 +10,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+      dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
+    open-in-view: false
 
   mail:
     host: smtp.gmail.com

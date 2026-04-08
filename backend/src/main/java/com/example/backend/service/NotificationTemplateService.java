@@ -63,6 +63,7 @@ public class NotificationTemplateService {
         }
     }
 
+    @Transactional
     public NotificationTemplateResponse getTemplateById(UUID id) {
         logger.debug("Fetching template by ID: {}", id);
 
@@ -139,6 +140,7 @@ public class NotificationTemplateService {
                 pageResult.getTotalPages());
     }
 
+    @Transactional
     public NotificationTemplate getTemplate(String name) {
         return notificationTemplateRepository.findByName(name)
                 .orElseThrow(() -> {

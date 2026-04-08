@@ -67,6 +67,7 @@ public class HotelService {
         }
     }
 
+    @Transactional
     public HotelDetailResponse getHotelById(UUID id) {
         logger.info("Fetching hotel with ID: {}", id);
 
@@ -163,6 +164,7 @@ public class HotelService {
         return hotelRepository.findDistinctCitiesContainingIgnoreCase(keyword.trim());
     }
 
+    @Transactional
     public List<HotelListResponse> getFeaturedHotels() {
         // Featured = rating cao + active
         return hotelRepository.findTop10ByIsActiveTrueOrderByRatingDesc()
@@ -171,6 +173,7 @@ public class HotelService {
                 .toList();
     }
 
+    @Transactional
     public List<HotelListResponse> getTopRatedHotels() {
         return hotelRepository.findTop10ByIsActiveTrueOrderByRatingDesc()
                 .stream()
@@ -178,6 +181,7 @@ public class HotelService {
                 .toList();
     }
 
+    @Transactional
     public List<HotelListResponse> getNewestHotels() {
         return hotelRepository.findTop10ByIsActiveTrueOrderByCreatedAtDesc()
                 .stream()
@@ -185,6 +189,7 @@ public class HotelService {
                 .toList();
     }
 
+    @Transactional
     public List<HotelListResponse> getHotelsByCity(String city) {
         return hotelRepository.findTop10ByCityAndIsActiveTrueOrderByRatingDesc(city)
                 .stream()
@@ -192,6 +197,7 @@ public class HotelService {
                 .toList();
     }
 
+    @Transactional
     public List<HotelListResponse> getNearbyHotels(Double lat, Double lng) {
         List<Hotel> hotels = hotelRepository.findAll();
 

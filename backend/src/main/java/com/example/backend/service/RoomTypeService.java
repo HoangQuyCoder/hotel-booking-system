@@ -69,6 +69,7 @@ public class RoomTypeService {
         }
     }
 
+    @Transactional
     public RoomTypeResponse getRoomTypeById(UUID id) {
         logger.info("Fetching room type with ID: {}", id);
 

@@ -72,7 +72,7 @@ public class EmailService {
         verificationRepository.save(verification);
     }
 
-    // Check if email is verified
+    // Check if the email is verified
     public void validateEmailVerified(String email) {
         boolean verified = verificationRepository
                 .findTopByEmailOrderByExpiryTimeDesc(email)

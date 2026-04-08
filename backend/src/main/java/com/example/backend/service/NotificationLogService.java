@@ -36,6 +36,7 @@ public class NotificationLogService {
     private final UserRepository userRepository;
     private final NotificationLogMapper notificationLogMapper;
 
+    @Transactional
     public NotificationLogResponse getLogById(UUID id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         NotificationLog log = logRepository.findById(id)
@@ -52,6 +53,7 @@ public class NotificationLogService {
         return notificationLogMapper.toResponse(log);
     }
 
+    @Transactional
     public List<NotificationLogResponse> getLogs(UUID userId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
@@ -87,7 +89,6 @@ public class NotificationLogService {
                 pageResult.getNumber(),
                 pageResult.getSize(),
                 pageResult.getTotalElements(),
-                pageResult.getTotalPages()
-        );
+                pageResult.getTotalPages());
     }
 }
