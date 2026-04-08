@@ -70,12 +70,6 @@ src/test/
 **/*.test.java
 
 # ======================
-# DATABASE / LOCAL CONFIG
-# ======================
-application.yml
-application-dev.yml
-
-# ======================
 # DOCKER
 # ======================
 docker-data/

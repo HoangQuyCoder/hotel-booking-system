@@ -27,6 +27,7 @@ build/
 *.class
 *.jar
 *.zip
+*.log
 
 # ======================
 # NODE (if used)
