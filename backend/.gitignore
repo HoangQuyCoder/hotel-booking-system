@@ -1,40 +1,87 @@
-HELP.md
+# ======================
+# BUILD OUTPUT
+# ======================
 target/
-.mvn/wrapper/maven-wrapper.jar
+build/
+*.class
+*.jar
+*.war
+*.zip
+
+# Keep target inside src (if needed)
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# ======================
+# MAVEN
+# ======================
+.mvn/wrapper/maven-wrapper.jar
+.m2/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+# ======================
+# IDE / EDITOR
+# ======================
+# IntelliJ
+.idea/
 *.iml
 *.ipr
+*.iws
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
+# VS Code
 .vscode/
 
-# Spring Boot configuration
-src/main/resources/application.properties
-src/main/resources/application.yml
-src/main/resources/application-*.yml
-src/main/resources/application-*.properties
+# Eclipse / STS
+.project
+.classpath
+.settings/
+.factorypath
+.springBeans
+.sts4-cache
+.apt_generated
 
+# ======================
+# OS FILES
+# ======================
+.DS_Store
+Thumbs.db
+
+# ======================
+# LOGS
+# ======================
+*.log
+npm-debug.log*
+
+# ======================
+# ENVIRONMENT
+# ======================
+.env
+.env.*
+!.env.example
+
+# ======================
+# NODE (if frontend inside repo)
+# ======================
+node_modules/
+
+# ======================
+# TEST
+# ======================
+src/test/
+**/*.test.java
+
+# ======================
+# DATABASE / LOCAL CONFIG
+# ======================
+application.yml
+application-dev.yml
+
+# ======================
+# DOCKER
+# ======================
+docker-data/
+*.pid
+
+# ======================
+# DOCUMENTATION
+# ======================
+docs/

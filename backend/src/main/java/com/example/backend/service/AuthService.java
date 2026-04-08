@@ -85,7 +85,7 @@ public class AuthService {
                 userRepository.save(user);
             }
 
-            throw new ResourceNotFoundException("Invalid username/email or password");
+            throw new ResourceNotFoundException("Invalid email or password");
         }
     }
 
