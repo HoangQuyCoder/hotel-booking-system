@@ -105,6 +105,7 @@ public class BookingService {
         }
     }
 
+    @Transactional
     public BookingResponse getBookingById(UUID id) {
         logger.info("Fetching booking with ID: {}", id);
 

@@ -63,6 +63,7 @@ public class PromotionService {
         }
     }
 
+    @Transactional
     public PromotionResponse getPromotionById(UUID id) {
         logger.info("Fetching promotion with ID: {}", id);
 
@@ -146,6 +147,7 @@ public class PromotionService {
         }
     }
 
+    @Transactional
     public PagedResponse<PromotionResponse> getAllPromotions(PromotionFilterRequest filterRequest) {
         logger.info("Searching promotions with = {}", filterRequest);
 

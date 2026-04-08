@@ -164,6 +164,7 @@ public class AuthService {
         return new ResetPasswordResponse("Password reset successfully");
     }
 
+    @Transactional
     public ResetPasswordResponse validateResetToken(ValidateResetTokenRequest request) {
         logger.debug("Validating reset token: {}", request.getToken());
         User user = getUserByValidResetToken(request.getToken());

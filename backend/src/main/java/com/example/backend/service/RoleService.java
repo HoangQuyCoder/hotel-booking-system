@@ -41,6 +41,7 @@ public class RoleService {
         return roleMapper.toResponse(saved);
     }
 
+    @Transactional
     public RoleResponse getRoleById(UUID id) {
         logger.info("Fetching role with ID: {}", id);
 
@@ -88,6 +89,7 @@ public class RoleService {
         }
     }
 
+    @Transactional
     public List<RoleResponse> getAllRoles() {
         logger.info("Fetching all roles");
 
