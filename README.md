@@ -1,189 +1,130 @@
 # 🏨 Hotel Booking System
 
-A full-stack web application that allows users to **search, book, and manage hotel rooms**, built with **Spring Boot (Java)** for the backend and **React + TypeScript (Vite)** for the frontend.
+[![Node.js Version](https://img.shields.io/badge/Node.js-18%2B-brightgreen)](https://nodejs.org/)
+[![Java Version](https://img.shields.io/badge/Java-17%2B-brightgreen)](https://www.oracle.com/java/)
+[![Spring Boot Version](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen)](https://spring.io/projects/spring-boot)
+[![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
+[![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-blue)](https://github.com/features/actions)
 
----
+A production-ready hotel booking system built with **Spring Boot 3.x** (Java) for the backend and **React + TypeScript + Vite** for the frontend. Fully containerized with Docker and orchestrated using Docker Compose.
 
 ## 📋 Table of Contents
 
-1. [Overview](#-overview)
-2. [Features](#-features)
-3. [Tech Stack](#-tech-stack)
-4. [Project Structure](#-project-structure)
-5. [Installation & Setup](#-installation--setup)
-6. [Future Improvements](#-future-improvements)
-7. [Author](#-author)
+- [Overview](#-overview)
+- [Achievements & Features](#-achievements--features)
+- [Technology Stack](#-technology-stack)
+- [Author](#-author)
+- [License](#-license)
 
 ---
 
 ## 🧠 Overview
 
-This project demonstrates a **complete hotel booking workflow**, including:
+The Hotel Booking System is a full-featured web application that allows users to search, book, and manage hotel reservations. It demonstrates modern full-stack development best practices:
 
-- User registration and authentication (JWT)
-- Hotel and room management (Admin)
-- Booking creation, update, and cancellation (User)
-- Integration between **Spring Boot REST API** and **React frontend**
+- **JWT-based authentication** and role-based authorization
+- **RESTful API** with comprehensive business logic
+- **Responsive UI** with real-time updates
+- **Containerized deployment** using Docker
+- **Automated CI/CD** with GitHub Actions
+- **Database migrations** with version control
 
----
+## ✨ Achievements & Features
 
-## ✨ Features
+### 👥 User Features
 
-### 👥 User
+- ✅ Register, login, and JWT-based authentication
+- ✅ Search and browse hotels and room types
+- ✅ View detailed hotel and room information
+- ✅ Book rooms with flexible date selection
+- ✅ Manage booking history
+- ✅ Cancel bookings with refund policies
+- ✅ Manage user profile
+- ✅ Write and read hotel reviews
 
-- Register and login
-- Browse available hotels and rooms
-- Book and cancel rooms
+### 🛠 Admin Features
 
-### 🛠 Admin
+- ✅ Hotel management (CRUD operations)
+- ✅ Room type and amenities management
+- ✅ Base pricing and daily price adjustments
+- ✅ View all bookings and users
+- ✅ Manage promotions and discounts
+- ✅ Access booking transaction history
+- ✅ Manage notification templates
 
-- Manage hotels and rooms
-- View all bookings and users
+### 🔒 Security Features
 
-### 🔒 Security
+- ✅ JWT token-based authentication
+- ✅ Role-based access control (RBAC)
+- ✅ Password encryption (BCrypt)
+- ✅ CORS security headers
+- ✅ SQL injection prevention
+- ✅ CSRF protection
 
-- JWT-based authentication
-- Role-based authorization (USER / ADMIN)
+### ⚡ Performance Features
 
----
+- ✅ Database connection pooling
+- ✅ Query optimization with caching
+- ✅ Asynchronous request handling
+- ✅ Lazy loading of resources
 
-## ⚙️ Tech Stack
+## ⚙️ Technology Stack
 
-| Layer           | Technology                                             |
-| --------------- | ------------------------------------------------------ |
-| **Frontend**    | React + TypeScript + Vite + Axios + React Router       |
-| **Backend**     | Spring Boot 3.x, Spring Data JPA, Spring Security, JWT |
-| **Database**    | MySQL (H2 for development)                             |
-| **Build Tools** | Maven (backend), npm (frontend)                        |
-| **Language**    | Java 17, TypeScript                                    |
-| **Tools**       | IntelliJ IDEA, VS Code, Postman                        |
+### Backend
 
----
+| Component  | Technology            | Version |
+| ---------- | --------------------- | ------- |
+| Framework  | Spring Boot           | 3.x     |
+| Language   | Java                  | 17+     |
+| ORM        | Spring Data JPA       | -       |
+| Auth       | Spring Security + JWT | -       |
+| Database   | PostgreSQL            | 14+     |
+| Build Tool | Maven                 | 3.8+    |
+| Container  | Docker                | 20.10+  |
 
-## 📂 Project Structure
+### Frontend
 
-```
-hotel-booking-system/
-│
-├── backend/
-│   ├── src/main/java/com/example/hotelbooking/
-│   │   ├── controller/
-│   │   ├── service/
-│   │   ├── repository/
-│   │   ├── model/
-│   │   └── exception/
-│   ├── src/main/resources/
-│   │   └── application.properties
-│   └── pom.xml
-│
-├── frontend/
-│   ├── src/
-│   │   ├── api/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── router/
-│   │   ├── types/
-│   │   ├── App.tsx
-│   │   └── main.tsx
-│   ├── package.json
-│   └── vite.config.ts
-│
-└── README.md
-```
+| Component       | Technology   | Version |
+| --------------- | ------------ | ------- |
+| Framework       | React        | 18+     |
+| Language        | TypeScript   | 5.x     |
+| Build Tool      | Vite         | 5.x     |
+| HTTP Client     | Axios        | 1.x     |
+| Router          | React Router | 6.x     |
+| Styling         | Tailwind CSS | 3.x     |
+| Package Manager | npm          | 9+      |
 
----
+### CI/CD & DevOps
 
-## 🛠 Installation & Setup
-
-### 🔹 1. Clone the repository
-
-```bash
-git clone https://github.com/HoangQuyCoder/hotel-booking-system.git
-cd hotel-booking-system
-```
-
----
-
-### 🔹 2. Backend setup (Spring Boot)
-
-```bash
-cd backend
-```
-
-#### Update configuration in `src/main/resources/application.properties`
-
-```properties
-# Database
-spring.datasource.url=jdbc:mysql://localhost:3306/hotel_booking
-spring.datasource.username=root
-spring.datasource.password=yourpassword
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-
-# JWT
-app.jwt.secret=your-secret-key
-app.jwt.expiration=3600000
-
-# CORS
-spring.web.cors.allowed-origins=http://localhost:5173
-spring.web.cors.allowed-methods=GET,POST,PUT,DELETE
-```
-
-#### Run backend
-
-```bash
-mvn spring-boot:run
-```
-
-Backend runs on **http://localhost:8081**
-
----
-
-### 🔹 3. Frontend setup (React + Vite + TypeScript)
-
-```bash
-cd ../frontend
-npm install
-npm run dev
-```
-
-Frontend runs on **http://localhost:5173**
-
----
-
-### 🔹 4. Test connection
-
-When backend and frontend are both running:
-
-- Register or log in via frontend
-- Open Developer Tools → Network tab to confirm API calls to `http://localhost:8081/api/v1/...`
-
----
-
-## 🚀 Future Improvements
-
-- Add search and filter options (price, rating, location)
-- Payment gateway integration
-- Admin dashboard with statistics
-- Unit & integration tests
-- Docker setup for easy deployment
-
----
+| Component       | Technology     |
+| --------------- | -------------- |
+| Orchestration   | Docker Compose |
+| CI/CD Pipeline  | GitHub Actions |
+| Version Control | Git            |
+| DB Migrations   | Liquibase      |
 
 ## 👨‍💻 Author
 
-**Lê Hoàng Quý**  
-🎯 Aspiring Java Backend Developer | Focused on Spring Boot, Microservices & REST APIs  
-📧 hoangquyle11@gmail.com  
-🌐 [LinkedIn](www.linkedin.com/in/lê-hoàng-quý-762ba3389)
+**Lê Hoàng Quý**
+
+- 🎯 Java Backend Developer | Spring Boot & Microservices Specialist
+- 📧 Email: hoangquyle11@gmail.com
+- 💼 LinkedIn: https://www.linkedin.com/in/lê-hoàng-quý-762ba3389
+- 🐙 GitHub: https://github.com/HoangQuyCoder
+
+## 📄 License
+
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+
+## 📊 Project Status
+
+- ✅ Development: Active
+- ✅ Testing: In progress
+- ⏳ Production Ready: Q2 2026
+- 📈 Version: 1.0.0 (Beta)
 
 ---
 
-## 🏁 Run Summary
+**Last updated:** April 2026
 
-| Service                     | Port   | Command               |
-| --------------------------- | ------ | --------------------- |
-| **Backend (Spring Boot)**   | `8081` | `mvn spring-boot:run` |
-| **Frontend (React + Vite)** | `5173` | `npm run dev`         |
-
----
+**Happy booking! 🎉**
