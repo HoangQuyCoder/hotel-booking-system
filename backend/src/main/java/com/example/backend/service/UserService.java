@@ -41,6 +41,7 @@ public class UserService {
 
     // ============================= GET USER =============================
 
+    @Transactional
     public UserResponse getUserById(UUID id) {
         logger.debug("Fetching user by ID: {}", id);
 

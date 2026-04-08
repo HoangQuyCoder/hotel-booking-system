@@ -72,6 +72,7 @@ public class RoomService {
         }
     }
 
+    @Transactional
     public RoomResponse getRoomById(UUID id) {
         logger.info("Fetching room with ID: {}", id);
 

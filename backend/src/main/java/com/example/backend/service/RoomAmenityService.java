@@ -66,6 +66,7 @@ public class RoomAmenityService {
         }
     }
 
+    @Transactional
     public RoomAmenityResponse getRoomAmenityById(UUID id) {
         logger.info("Fetching room amenity with ID: {}", id);
 

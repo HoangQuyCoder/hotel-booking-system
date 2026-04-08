@@ -14,6 +14,8 @@ import com.example.backend.repository.ReviewRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.specification.ReviewSpecification;
 import com.example.backend.utils.PagingUtils;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +41,7 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final ReviewMapper reviewMapper;
 
+    @Transactional
     public ReviewResponse create(ReviewRequest request) {
         logger.info("Creating review for user {} and hotel {}", request.getUserId(), request.getHotelId());
 
@@ -70,6 +73,7 @@ public class ReviewService {
         }
     }
 
+    @Transactional
     public ReviewResponse update(UUID id, ReviewRequest request) {
         logger.info("Updating review with id {}", id);
 
@@ -94,6 +98,7 @@ public class ReviewService {
         }
     }
 
+    @Transactional
     public void delete(UUID id) {
         logger.warn("Soft deleting review with id {}", id);
 
@@ -116,6 +121,7 @@ public class ReviewService {
         }
     }
 
+    @Transactional
     public ReviewResponse getReviewById(UUID id) {
         logger.info("Fetching review by id {}", id);
 
@@ -135,6 +141,7 @@ public class ReviewService {
         }
     }
 
+    @Transactional
     public PagedResponse<ReviewResponse> getAll(ReviewFilterRequest filterRequest) {
         logger.info("Fetching all reviews with filters");
 
@@ -165,6 +172,7 @@ public class ReviewService {
         }
     }
 
+    @Transactional
     public PagedResponse<ReviewResponse> getReviewsByHotelId(UUID hotelId, int page, int size) {
         logger.info("Fetching reviews by hotel id {}", hotelId);
 

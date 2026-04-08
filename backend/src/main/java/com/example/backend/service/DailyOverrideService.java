@@ -65,6 +65,7 @@ public class DailyOverrideService {
         }
     }
 
+    @Transactional
     public DailyOverrideResponse getDailyOverrideById(UUID id) {
         logger.info("Fetching daily override with ID: {}", id);
 
