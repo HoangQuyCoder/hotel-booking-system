@@ -243,7 +243,6 @@ export default function Navbar() {
                   variant="outline"
                   size="lg"
                   block
-                  className="bg-white text-gray-900 border-white hover:bg-gray-100"
                   onClick={closeAll}
                 >
                   Login

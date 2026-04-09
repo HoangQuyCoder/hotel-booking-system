@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class UserResponse extends BaseResponse{
+public class UserResponse extends BaseResponse {
     private String email;
     private String firstName;
     private String lastName;
@@ -21,4 +21,3 @@ public class UserResponse extends BaseResponse{
     private LocalDateTime lockedUntil;
     private Integer failedLoginAttempts;
 }
-
