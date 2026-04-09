@@ -12,6 +12,7 @@ public class JwtCookieUtil {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(30 * 24 * 60 * 60);
+        cookie.setSecure(true);
         cookie.setAttribute("SameSite", "Strict");
         response.addCookie(cookie);
     }
