@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 public class JwtCookieUtil {
 
     public void addJwtCookie(HttpServletResponse response, String token) {
-        String cookie = String.format(
-                "token=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
-                token,
-                30 * 24 * 60 * 60);
-
-        response.addHeader("Set-Cookie", cookie);
+        Cookie cookie = new Cookie("token", token);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(30 * 24 * 60 * 60);
+        cookie.setAttribute("SameSite", "Strict");
+        response.addCookie(cookie);
     }
 
     public void clearJwtCookie(HttpServletResponse response) {
