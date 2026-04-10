@@ -9,7 +9,12 @@ import { Plus, Trash2, Bed } from "lucide-react";
 import { useBookingApi } from "../../../hooks/useBookingApi";
 import { useHotelApi } from "../../../hooks/useHotelApi";
 import { useRoomTypeApi } from "../../../hooks/useRoomTypeApi";
-import type { BookingListResponse, BookingRequest } from "../../../types";
+import type {
+  BookingListResponse,
+  BookingRequest,
+  HotelListResponse,
+  RoomTypeListResponse,
+} from "../../../types";
 
 const schema = yup.object().shape({
   hotelId: yup.string().required("Hotel is required"),
@@ -80,11 +85,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
 
   useEffect(() => {
     if (booking) {
-      // For Admin, full detail of booking is needed for edit
-      // If booking is of type BookingListResponse, we might have limited info
-      // Using reset to clear previous form when modal open
       reset({
-        hotelId: "", // BookingListResponse may not have hotelId directly
+        hotelId: "",
         checkInDate: booking.checkInDate?.split("T")[0],
         checkOutDate: booking.checkOutDate?.split("T")[0],
         guestCount: booking.guestCount,
@@ -136,7 +138,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               }`}
             >
               <option value="">Select Hotel</option>
-              {hotelsData?.content?.map((h: any) => (
+              {hotelsData?.content?.map((h: HotelListResponse) => (
                 <option key={h.id} value={h.id}>
                   {h.name}
                 </option>
@@ -202,7 +204,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 outline-none transition-all disabled:opacity-50"
                   >
                     <option value="">Select Room Type</option>
-                    {roomTypesData?.content?.map((rt: any) => (
+                    {roomTypesData?.content?.map((rt: RoomTypeListResponse) => (
                       <option key={rt.id} value={rt.id}>
                         {rt.name}
                       </option>

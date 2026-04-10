@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
-import { Clock } from "lucide-react";
+import { Clock, type LucideIcon } from "lucide-react";
+import type { BookingListResponse } from "../../../types";
 import { AdminStatusBadge } from "../AdminStatusBadge";
 
 interface RecentBookingsProps {
-  bookings: any[];
+  bookings: BookingListResponse[];
   isLoading?: boolean;
 }
 
@@ -13,7 +14,7 @@ export default function RecentBookings({
 }: RecentBookingsProps) {
   const statusConfig: Record<
     string,
-    { label: string; color: string; icon: any }
+    { label: string; color: string; icon: LucideIcon }
   > = {
     PENDING: {
       label: "Pending",
@@ -71,7 +72,7 @@ export default function RecentBookings({
       {/* List */}
       <div className="space-y-3">
         {bookings.length > 0 ? (
-          bookings.map((booking: any) => {
+          bookings.map((booking: BookingListResponse) => {
             const status = statusConfig[booking.status] || {
               label: booking.status,
               color: "bg-gray-100 text-gray-500 border-gray-200",

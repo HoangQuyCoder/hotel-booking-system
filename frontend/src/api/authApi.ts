@@ -24,13 +24,13 @@ export const authApi = {
     apiCall<ApiResponse<void>>(apiClient.post("/auth/verify-code", data)),
 
   forgotPassword: (data: { email: string }) =>
-    apiCall<ApiResponse<any>>(apiClient.post("/auth/forgot-password", data)),
+    apiCall<ApiResponse<void>>(apiClient.post("/auth/forgot-password", data)),
 
   resetPassword: (data: ResetPasswordRequest) =>
-    apiCall<ApiResponse<any>>(apiClient.post("/auth/reset-password", data)),
+    apiCall<ApiResponse<void>>(apiClient.post("/auth/reset-password", data)),
 
   validateResetToken: (data: { token: string }) =>
-    apiCall<ApiResponse<any>>(
+    apiCall<ApiResponse<void>>(
       apiClient.get("/auth/validate-reset-token", { params: data }),
     ),
 };

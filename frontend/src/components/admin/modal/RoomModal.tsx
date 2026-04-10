@@ -61,7 +61,7 @@ export const RoomModal: React.FC<RoomModalProps> = ({
         status: "AVAILABLE",
       });
     }
-  }, [room, reset, isOpen]);
+  }, [room, reset, isOpen, roomTypesData?.content]);
 
   const onSubmit = async (data: any) => {
     try {
