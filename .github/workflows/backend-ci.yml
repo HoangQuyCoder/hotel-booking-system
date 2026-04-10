@@ -1,0 +1,71 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'backend/**'
+  pull_request:
+    branches: ["main"]
+    paths:
+      - 'backend/**'
+  workflow_dispatch:
+
+jobs:
+  build-and-check:
+    name: Maven Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Build & Test
+        run: mvn clean verify
+        working-directory: backend
+
+  docker-build-and-push:
+    name: Docker Build & Push
+    needs: build-and-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/hotel-booking-backend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/hotel-booking-backend:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to Render
+    needs: [build-and-check, docker-build-and-push]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Trigger Render Deploy Hook
+        run: |
+          curl -f -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
