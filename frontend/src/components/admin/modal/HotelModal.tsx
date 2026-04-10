@@ -11,6 +11,7 @@ import type {
   HotelDetailResponse,
   HotelRequest,
   HotelUpdateRequest,
+  UserListResponse,
 } from "../../../types";
 
 const schema = yup.object().shape({
@@ -97,7 +98,7 @@ export const HotelModal: React.FC<HotelModalProps> = ({
     }
   }, [hotel, reset, isOpen]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: HotelRequest | HotelUpdateRequest) => {
     try {
       if (isEdit && hotel) {
         await updateHotel.mutateAsync({
@@ -197,7 +198,7 @@ export const HotelModal: React.FC<HotelModalProps> = ({
                 }`}
               >
                 <option value="">Select a manager</option>
-                {usersData?.content?.map((u: any) => (
+                {usersData?.content?.map((u: UserListResponse) => (
                   <option key={u.id} value={u.id}>
                     {u.firstName} {u.lastName} ({u.email})
                   </option>

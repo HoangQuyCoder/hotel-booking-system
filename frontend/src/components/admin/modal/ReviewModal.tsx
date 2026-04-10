@@ -8,7 +8,12 @@ import { Star } from "lucide-react";
 import { useReviewApi } from "../../../hooks/useReviewApi";
 import { useHotelApi } from "../../../hooks/useHotelApi";
 import { useUserApi } from "../../../hooks/useUserApi";
-import type { ReviewResponse, ReviewRequest } from "../../../types";
+import type {
+  ReviewResponse,
+  ReviewRequest,
+  HotelListResponse,
+  UserListResponse,
+} from "../../../types";
 
 const schema = yup.object().shape({
   hotelId: yup.string().required("Hotel is required"),
@@ -100,7 +105,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 outline-none"
           >
             <option value="">Select Hotel</option>
-            {hotelsData?.content?.map((h: any) => (
+            {hotelsData?.content?.map((h: HotelListResponse) => (
               <option key={h.id} value={h.id}>
                 {h.name}
               </option>
@@ -120,7 +125,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 outline-none"
           >
             <option value="">Select User</option>
-            {usersData?.content?.map((u: any) => (
+            {usersData?.content?.map((u: UserListResponse) => (
               <option key={u.id} value={u.id}>
                 {u.firstName} {u.lastName} ({u.email})
               </option>
