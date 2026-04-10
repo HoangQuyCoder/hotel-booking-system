@@ -106,7 +106,7 @@ export default function BookingCard({ hotel }: { hotel: HotelDetailResponse }) {
     if (currentGuests > maxGuests && maxGuests > 0) {
       setGuests(maxGuests.toString());
     }
-  }, [maxGuests]);
+  }, [maxGuests, guests]);
 
   // Add new roomtype
   const addRoomSelection = () => {

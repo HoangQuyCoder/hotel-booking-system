@@ -32,7 +32,7 @@ export default function ResetPassword() {
         onError: () => setTokenValid(false),
       },
     );
-  }, [token]);
+  }, [token, validateResetToken]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

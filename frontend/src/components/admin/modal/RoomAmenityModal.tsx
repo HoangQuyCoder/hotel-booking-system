@@ -60,7 +60,7 @@ export const RoomAmenityModal: React.FC<RoomAmenityModalProps> = ({
         roomTypeId: "",
       });
     }
-  }, [amenity, reset, isOpen]);
+  }, [amenity, reset, isOpen, roomTypesData?.content]);
 
   const onSubmit = async (data: any) => {
     try {
