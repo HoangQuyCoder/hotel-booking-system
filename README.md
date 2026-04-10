@@ -96,12 +96,11 @@ The Hotel Booking System is a full-featured web application that allows users to
 
 ### CI/CD & DevOps
 
-| Component       | Technology     |
-| --------------- | -------------- |
-| Orchestration   | Docker Compose |
-| CI/CD Pipeline  | GitHub Actions |
-| Version Control | Git            |
-| DB Migrations   | Liquibase      |
+| Component       | Technology      |
+| --------------- | --------------- |
+| Orchestration   | Docker Compose  |
+| CI/CD Pipeline  | GitHub Actions  |
+| Version Control | Git, Docker Hub |
 
 ## 👨‍💻 Author
 
@@ -109,7 +108,7 @@ The Hotel Booking System is a full-featured web application that allows users to
 
 - 🎯 Java Backend Developer | Spring Boot & Microservices Specialist
 - 📧 Email: hoangquyle11@gmail.com
-- 💼 LinkedIn: https://www.linkedin.com/in/lê-hoàng-quý-762ba3389
+- 💼 LinkedIn: https://www.linkedin.com/in/le-hoang-quy-762ba3389
 - 🐙 GitHub: https://github.com/HoangQuyCoder
 
 ## 📄 License
