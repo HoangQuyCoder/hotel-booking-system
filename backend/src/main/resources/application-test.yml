@@ -13,6 +13,9 @@ spring:
   mail:
     host: localhost
     port: 25
+    username: test-user
+    password: test-password
+    from: noreply@hotelify.com
     properties:
       mail:
         smtp:
