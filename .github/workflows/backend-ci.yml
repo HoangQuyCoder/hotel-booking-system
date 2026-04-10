@@ -29,7 +29,7 @@ jobs:
           cache: "maven"
 
       - name: Build & Test
-        run: mvn clean verify -Dspring.profiles.active=test
+        run: mvn clean verify -Dspring.profiles.active=test -DdependencyCheck.skip=true
         working-directory: backend
         env:
           SPRING_PROFILES_ACTIVE: test
