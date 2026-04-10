@@ -15,6 +15,8 @@ jobs:
   build-and-check:
     name: Maven Build & Test
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,8 +29,11 @@ jobs:
           cache: "maven"
 
       - name: Build & Test
-        run: mvn clean verify
+        run: mvn clean verify -Dspring.profiles.active=test
         working-directory: backend
+        env:
+          SPRING_PROFILES_ACTIVE: test
+          spring.profiles.active: test
 
   docker-build-and-push:
     name: Docker Build & Push

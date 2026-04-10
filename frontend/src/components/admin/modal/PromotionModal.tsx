@@ -66,7 +66,7 @@ export const PromotionModal: React.FC<PromotionModalProps> = ({
     }
   }, [promotion, reset, isOpen]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: PromotionRequest) => {
     try {
       if (isEdit && promotion) {
         await updatePromotion.mutateAsync({

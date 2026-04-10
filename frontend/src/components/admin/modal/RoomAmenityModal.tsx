@@ -7,7 +7,11 @@ import { Input } from "../../ui/Input";
 import { Button } from "../../ui/Button";
 import { useRoomAmenityApi } from "../../../hooks/useRoomAmenityApi";
 import { useRoomTypeApi } from "../../../hooks/useRoomTypeApi";
-import type { RoomAmenityResponse, RoomAmenityRequest } from "../../../types";
+import type {
+  RoomAmenityResponse,
+  RoomAmenityRequest,
+  RoomTypeListResponse,
+} from "../../../types";
 
 const schema = yup.object().shape({
   name: yup.string().required("Amenity name is required"),
@@ -45,7 +49,7 @@ export const RoomAmenityModal: React.FC<RoomAmenityModalProps> = ({
   useEffect(() => {
     if (amenity && roomTypesData?.content) {
       const matchingType = roomTypesData.content.find(
-        (rt: any) => rt.name === amenity.roomTypeName,
+        (rt: RoomTypeListResponse) => rt.name === amenity.roomTypeName,
       );
 
       reset({
@@ -60,9 +64,9 @@ export const RoomAmenityModal: React.FC<RoomAmenityModalProps> = ({
         roomTypeId: "",
       });
     }
-  }, [amenity, reset, isOpen]);
+  }, [amenity, reset, isOpen, roomTypesData?.content]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: RoomAmenityRequest) => {
     try {
       if (isEdit && amenity) {
         await updateRoomAmenity.mutateAsync({
@@ -118,7 +122,7 @@ export const RoomAmenityModal: React.FC<RoomAmenityModalProps> = ({
             }`}
           >
             <option value="">Select a room type</option>
-            {roomTypesData?.content?.map((rt: any) => (
+            {roomTypesData?.content?.map((rt: RoomTypeListResponse) => (
               <option key={rt.id} value={rt.id}>
                 {rt.name}
               </option>

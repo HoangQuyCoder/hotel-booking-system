@@ -7,7 +7,11 @@ import { Input } from "../../ui/Input";
 import { Button } from "../../ui/Button";
 import { useRoomApi } from "../../../hooks/useRoomApi";
 import { useRoomTypeApi } from "../../../hooks/useRoomTypeApi";
-import type { RoomResponse, RoomRequest } from "../../../types";
+import type {
+  RoomResponse,
+  RoomRequest,
+  RoomTypeListResponse,
+} from "../../../types";
 
 const schema = yup.object().shape({
   roomNumber: yup.string().required("Room number is required"),
@@ -61,7 +65,7 @@ export const RoomModal: React.FC<RoomModalProps> = ({
         status: "AVAILABLE",
       });
     }
-  }, [room, reset, isOpen]);
+  }, [room, reset, isOpen, roomTypesData?.content]);
 
   const onSubmit = async (data: any) => {
     try {
@@ -103,7 +107,7 @@ export const RoomModal: React.FC<RoomModalProps> = ({
             }`}
           >
             <option value="">Select a type</option>
-            {roomTypesData?.content?.map((rt: any) => (
+            {roomTypesData?.content?.map((rt: RoomTypeListResponse) => (
               <option key={rt.id} value={rt.id}>
                 {rt.name}
               </option>
