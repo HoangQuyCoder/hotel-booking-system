@@ -5,8 +5,8 @@ spring:
     password: 
     driver-class-name: org.h2.Driver
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
+      dialect: org.hibernate.dialect.H2Dialect
       ddl-auto: create-drop
     show-sql: true
     open-in-view: false
