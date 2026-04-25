@@ -129,8 +129,7 @@ export default function Bookings() {
                   <div className="flex-1 space-y-4 text-center md:text-left">
                     <div className="flex flex-col md:flex-row items-center gap-3">
                       <h3 className="text-2xl font-black text-gray-900 tracking-tight">
-                        {(booking as any).hotelName ||
-                          (booking as any).hoteName}
+                        {booking.hotelName}
                       </h3>
                       {getStatusBadge(booking.status)}
                     </div>

@@ -2,15 +2,30 @@ import { Shield, AlertTriangle, Plane } from "lucide-react";
 
 export default function SafetyInformation() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-900 via-blue-900 to-indigo-950 text-gray-300 py-24">
-      <div className="max-w-4xl mx-auto px-6 md:px-12">
-        <h1 className="text-4xl font-bold text-white text-center mb-4">
-          Safety Information
-        </h1>
-        <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">
-          Your safety is our top priority at Theodore. We are committed to
-          providing secure and reliable travel experiences.
-        </p>
+    <div className="min-h-screen bg-[#F8FAFC]">
+      {/* Hero Section */}
+      <section className="relative h-[50vh] min-h-[400px] flex items-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/images/hero-safety.png" 
+            alt="Safety Information" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/20 z-10" />
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full text-center">
+          <h1 className="text-5xl md:text-6xl font-extrabold text-white mb-6 drop-shadow-md">
+            Safety <span className="text-cyan-400">Information</span>
+          </h1>
+          <p className="text-xl text-slate-100 max-w-2xl mx-auto drop-shadow-sm">
+            Your safety is our top priority at Theodore. We are committed to
+            providing secure and reliable travel experiences.
+          </p>
+        </div>
+      </section>
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-30 pb-24">
 
         <div className="grid md:grid-cols-2 gap-8">
           <div className="bg-gray-900 p-8 rounded-3xl">

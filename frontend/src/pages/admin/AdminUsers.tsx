@@ -18,7 +18,7 @@ import { AdminTable } from "../../components/admin/AdminTable";
 import { AdminStatusBadge } from "../../components/admin/AdminStatusBadge";
 import { AdminEmptyState } from "../../components/admin/AdminEmptyState";
 import { UserModal } from "../../components/admin/modal/UserModal";
-import type { UserResponse } from "../../types";
+import type { RoleResponse, UserResponse } from "../../types";
 
 export default function AdminUsers() {
   const { useUsers, deleteUser } = useUserApi();
@@ -70,7 +70,7 @@ export default function AdminUsers() {
   };
 
   const filterOptions =
-    rolesData?.map((role: any) => ({
+    rolesData?.map((role: RoleResponse) => ({
       value: role.id.toString(),
       label: role.roleName,
     })) || [];

@@ -32,6 +32,7 @@ const HotelDetail = lazy(() => import("../pages/HotelDetail.tsx"));
 const BookingDetail = lazy(() => import("../pages/BookingDetail.tsx"));
 const Profile = lazy(() => import("../pages/Profile.tsx"));
 const Bookings = lazy(() => import("../pages/Bookings.tsx"));
+const New = lazy(() => import("../pages/New.tsx"));
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
 
 export default function AppRouter() {
@@ -43,7 +44,8 @@ export default function AppRouter() {
         <Route path="/" element={<Home />} />
         <Route path="/hotels" element={<Hotels />} />
         <Route path="/hotels/:id" element={<HotelDetail />} />
-        <Route path="/destinations" element={<Hotels />} />
+        <Route path="/destination" element={<Hotels />} />
+        <Route path="/new" element={<New />} />
 
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />

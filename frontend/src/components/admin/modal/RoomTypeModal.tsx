@@ -6,14 +6,17 @@ import { AdminModal } from "./AdminModal";
 import { Input } from "../../ui/Input";
 import { Button } from "../../ui/Button";
 import { useRoomTypeApi } from "../../../hooks/useRoomTypeApi";
+import { useHotelApi } from "../../../hooks/useHotelApi";
 import type {
-  RoomTypeResponse,
   RoomTypeRequest,
   RoomTypeUpdateRequest,
+  RoomTypeListResponse,
+  HotelListResponse,
 } from "../../../types";
 
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
+  hotelId: yup.string().required("Hotel is required"),
   capacity: yup.number().min(1).required("Capacity is required"),
   sizeSqm: yup.number().min(1).required("Size is required"),
   totalRooms: yup.number().min(1).required("Total rooms is required"),
@@ -24,7 +27,7 @@ interface RoomTypeModalProps {
   isOpen: boolean;
   onClose: () => void;
   hotelId: string;
-  roomType?: RoomTypeResponse | null;
+  roomType?: RoomTypeListResponse | null;
 }
 
 export const RoomTypeModal: React.FC<RoomTypeModalProps> = ({
@@ -35,6 +38,8 @@ export const RoomTypeModal: React.FC<RoomTypeModalProps> = ({
 }) => {
   const isEdit = !!roomType;
   const { createRoomType, updateRoomType } = useRoomTypeApi();
+  const { useHotels } = useHotelApi();
+  const { data: hotelsData } = useHotels({ page: 0, size: 100 });
 
   const {
     register,
@@ -53,6 +58,7 @@ export const RoomTypeModal: React.FC<RoomTypeModalProps> = ({
         sizeSqm: roomType.sizeSqm,
         totalRooms: roomType.totalRooms,
         description: roomType.description,
+        hotelId: hotelId,
       });
     } else {
       reset({
@@ -61,22 +67,20 @@ export const RoomTypeModal: React.FC<RoomTypeModalProps> = ({
         sizeSqm: 25,
         totalRooms: 10,
         description: "",
+        hotelId: hotelId,
       });
     }
-  }, [roomType, reset, isOpen]);
+  }, [roomType, reset, isOpen, hotelId]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: unknown) => {
     try {
       if (isEdit && roomType) {
         await updateRoomType.mutateAsync({
           id: roomType.id,
-          data: { ...data, hotelId } as RoomTypeUpdateRequest,
+          data: data as RoomTypeUpdateRequest,
         });
       } else {
-        await createRoomType.mutateAsync({
-          ...data,
-          hotelId,
-        } as RoomTypeRequest);
+        await createRoomType.mutateAsync(data as RoomTypeRequest);
       }
       onClose();
     } catch (error) {
@@ -96,6 +100,26 @@ export const RoomTypeModal: React.FC<RoomTypeModalProps> = ({
           {...register("name")}
           error={errors.name?.message}
         />
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-semibold text-gray-700">Hotel</label>
+          <select
+            {...register("hotelId")}
+            className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all ${
+              errors.hotelId ? "border-red-500" : "border-gray-200"
+            }`}
+          >
+            <option value="">Select a hotel</option>
+            {hotelsData?.content?.map((hotel: HotelListResponse) => (
+              <option key={hotel.id} value={hotel.id}>
+                {hotel.name}
+              </option>
+            ))}
+          </select>
+          {errors.hotelId && (
+            <p className="text-xs text-red-500">{errors.hotelId.message}</p>
+          )}
+        </div>
         <div className="grid grid-cols-3 gap-4">
           <Input
             label="Capacity"

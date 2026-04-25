@@ -11,6 +11,7 @@ import {
   Clock,
   Layers,
   Sparkles,
+  type LucideIcon,
 } from "lucide-react";
 import { useRoomApi } from "../../hooks/useRoomApi";
 import { useHotelApi } from "../../hooks/useHotelApi";
@@ -28,8 +29,8 @@ import { RoomTypeModal } from "../../components/admin/modal/RoomTypeModal";
 import { RoomAmenityModal } from "../../components/admin/modal/RoomAmenityModal";
 import type {
   RoomResponse,
-  RoomTypeResponse,
   RoomAmenityResponse,
+  RoomTypeListResponse,
 } from "../../types";
 
 export default function AdminRooms() {
@@ -52,7 +53,7 @@ export default function AdminRooms() {
   const [editingRoom, setEditingRoom] = useState<RoomResponse | null>(null);
   const [isRoomTypeModalOpen, setIsRoomTypeModalOpen] = useState(false);
   const [editingRoomType, setEditingRoomType] =
-    useState<RoomTypeResponse | null>(null);
+    useState<RoomTypeListResponse | null>(null);
   const [isAmenityModalOpen, setIsAmenityModalOpen] = useState(false);
   const [editingAmenity, setEditingAmenity] =
     useState<RoomAmenityResponse | null>(null);
@@ -115,7 +116,7 @@ export default function AdminRooms() {
     setIsRoomModalOpen(true);
   };
 
-  const handleEditRoomType = (rt: RoomTypeResponse) => {
+  const handleEditRoomType = (rt: RoomTypeListResponse) => {
     setEditingRoomType(rt);
     setIsRoomTypeModalOpen(true);
   };
@@ -127,7 +128,7 @@ export default function AdminRooms() {
 
   const statusConfig: Record<
     string,
-    { label: string; color: string; icon: any }
+    { label: string; color: string; icon: LucideIcon }
   > = {
     AVAILABLE: {
       label: "Available",
@@ -319,7 +320,7 @@ export default function AdminRooms() {
             />
           }
         >
-          {roomTypesData?.content?.map((rt: any) => (
+          {roomTypesData?.content.map((rt: RoomTypeListResponse) => (
             <tr
               key={rt.id}
               className="hover:bg-gray-50 transition-colors group"

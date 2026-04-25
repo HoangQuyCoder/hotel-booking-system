@@ -105,7 +105,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     }
   }, [booking, reset, isOpen]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: unknown) => {
     try {
       if (isEdit && booking) {
         await updateBooking.mutateAsync({

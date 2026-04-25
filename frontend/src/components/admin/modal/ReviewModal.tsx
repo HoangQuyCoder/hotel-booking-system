@@ -75,7 +75,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
     }
   }, [review, reset, isOpen]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: unknown) => {
     try {
       if (isEdit && review) {
         await updateReview.mutateAsync({

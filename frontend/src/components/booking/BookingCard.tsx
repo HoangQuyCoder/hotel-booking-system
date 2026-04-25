@@ -179,9 +179,12 @@ export default function BookingCard({ hotel }: { hotel: HotelDetailResponse }) {
     try {
       const res = await createBooking.mutateAsync(payload);
       navigate(`/bookings/${res.data.id}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       const msg =
-        err?.response?.data?.message || err.message || "Failed to book";
+        (err as { response: { data: { message: string } } }).response?.data
+          ?.message ||
+        (err as { message: string }).message ||
+        "Failed to book";
       setError(msg);
     }
   };

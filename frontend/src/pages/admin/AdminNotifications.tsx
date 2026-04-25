@@ -13,6 +13,7 @@ import {
   Trash2,
   FileText,
   ListTodo,
+  type LucideIcon,
 } from "lucide-react";
 import { useNotificationApi } from "../../hooks/useNotificationApi";
 import { Pagination } from "../../components/ui/Pagination";
@@ -48,7 +49,7 @@ export default function AdminNotifications() {
     page,
     size,
     keyword: debouncedSearch,
-    status: (statusFilter as any) || undefined,
+    status: (statusFilter as NotificationStatus) || undefined,
   });
 
   const { data: templatesData, isLoading: isLoadingTemplates } = useTemplates({
@@ -65,7 +66,7 @@ export default function AdminNotifications() {
 
   const statusConfig: Record<
     string,
-    { label: string; color: string; icon: any }
+    { label: string; color: string; icon: LucideIcon }
   > = {
     PENDING: {
       label: "Pending",
@@ -94,7 +95,7 @@ export default function AdminNotifications() {
     label: statusConfig[status]?.label || status,
   }));
 
-  const typeIcons: Record<string, any> = {
+  const typeIcons: Record<string, LucideIcon> = {
     EMAIL: Mail,
     SMS: Smartphone,
     PUSH: Info,
@@ -296,7 +297,7 @@ export default function AdminNotifications() {
                       {template.name}
                     </p>
                     <p className="text-gray-400 text-[10px] mt-0.5 font-semibold">
-                      Language: {(template as any).defaultLanguage || "en"}
+                      Language: {template.defaultLanguage}
                     </p>
                   </td>
                   <td className="px-6 py-4">

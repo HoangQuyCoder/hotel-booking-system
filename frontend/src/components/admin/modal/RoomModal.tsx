@@ -48,9 +48,8 @@ export const RoomModal: React.FC<RoomModalProps> = ({
 
   useEffect(() => {
     if (room && roomTypesData?.content) {
-      // Find matching ID by name since RoomResponse only has roomTypeName
       const matchingType = roomTypesData.content.find(
-        (rt: any) => rt.name === room.roomTypeName,
+        (rt: RoomTypeListResponse) => rt.name === room.roomTypeName,
       );
 
       reset({
@@ -67,7 +66,7 @@ export const RoomModal: React.FC<RoomModalProps> = ({
     }
   }, [room, reset, isOpen, roomTypesData?.content]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: unknown) => {
     try {
       if (isEdit && room) {
         await updateRoom.mutateAsync({
