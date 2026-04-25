@@ -18,14 +18,14 @@ interface BaseProps {
 
 type ButtonProps =
   | (BaseProps &
-    React.ButtonHTMLAttributes<HTMLButtonElement> & {
-      to?: undefined;
-    })
+      React.ButtonHTMLAttributes<HTMLButtonElement> & {
+        to?: undefined;
+      })
   | (BaseProps &
-    Omit<LinkProps, "className" | "children"> & {
-      to: LinkProps["to"];
-      disabled?: boolean;
-    });
+      Omit<LinkProps, "className" | "children"> & {
+        to: LinkProps["to"];
+        disabled?: boolean;
+      });
 
 export const Button = React.forwardRef<
   HTMLButtonElement | HTMLAnchorElement,
@@ -44,7 +44,7 @@ export const Button = React.forwardRef<
   } = props;
 
   const isLink = "to" in props && props.to;
-  const disabled = (props as any).disabled || false;
+  const disabled = (props as ButtonProps).disabled || false;
   const isDisabled = disabled || loading;
 
   // Base
@@ -53,16 +53,11 @@ export const Button = React.forwardRef<
 
   // Variant
   const variantStyles: Record<Variant, string> = {
-    primary:
-      "bg-cyan-600 text-white hover:bg-cyan-700",
-    secondary:
-      "bg-gray-600 text-white hover:bg-gray-700",
-    outline:
-      "border border-cyan-600 text-white hover:bg-cyan-700",
-    ghost:
-      "text-gray-600 hover:bg-gray-100",
-    danger:
-      "bg-red-600 text-white hover:bg-red-700",
+    primary: "bg-cyan-600 text-white hover:bg-cyan-700",
+    secondary: "bg-gray-600 text-white hover:bg-gray-700",
+    outline: "border border-cyan-600 text-white hover:bg-cyan-700",
+    ghost: "text-gray-600 hover:bg-gray-100",
+    danger: "bg-red-600 text-white hover:bg-red-700",
   };
 
   // Size
@@ -120,7 +115,9 @@ export const Button = React.forwardRef<
       ref={ref as React.Ref<HTMLButtonElement>}
       className={classes}
       disabled={isDisabled}
-      type={(rest as any).type ?? "button"}
+      type={
+        (rest as React.ButtonHTMLAttributes<HTMLButtonElement>).type ?? "button"
+      }
       {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}
     >
       {content}

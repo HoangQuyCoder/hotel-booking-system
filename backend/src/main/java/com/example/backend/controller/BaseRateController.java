@@ -9,6 +9,7 @@ import com.example.backend.service.BaseRateService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,61 +20,57 @@ import java.util.UUID;
 @RequestMapping("/api/v1/base-rates")
 public class BaseRateController {
 
-    private final BaseRateService baseRateService;
+        private final BaseRateService baseRateService;
 
-    // CREATE BASE RATE
-    @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<BaseRateResponse>> createBaseRate(
-            @Valid @RequestBody BaseRateRequest request) {
+        // CREATE BASE RATE
+        @PostMapping
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ApiResponse<BaseRateResponse>> createBaseRate(
+                        @Valid @RequestBody BaseRateRequest request) {
 
-        BaseRateResponse created = baseRateService.createBaseRate(request);
-        return ResponseEntity
-                .status(201)
-                .body(ApiResponse.success("Create a successful base price!", created));
-    }
+                BaseRateResponse created = baseRateService.createBaseRate(request);
+                return ResponseEntity
+                                .status(201)
+                                .body(ApiResponse.success("Create a successful base price!", created));
+        }
 
-    // GET BY ID
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<BaseRateResponse>> getBaseRate(@PathVariable UUID id) {
-        BaseRateResponse baseRate = baseRateService.getBaseRateById(id);
-        return ResponseEntity.ok(
-                ApiResponse.success("Get price information successfully", baseRate)
-        );
-    }
+        // GET BY ID
+        @GetMapping("/{id}")
+        public ResponseEntity<ApiResponse<BaseRateResponse>> getBaseRate(@PathVariable @NonNull UUID id) {
+                BaseRateResponse baseRate = baseRateService.getBaseRateById(id);
+                return ResponseEntity.ok(
+                                ApiResponse.success("Get price information successfully", baseRate));
+        }
 
-    // UPDATE BASE RATE
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<BaseRateResponse>> updateBaseRate(
-            @PathVariable UUID id,
-            @Valid @RequestBody BaseRateRequest request) {
+        // UPDATE BASE RATE
+        @PutMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ApiResponse<BaseRateResponse>> updateBaseRate(
+                        @PathVariable @NonNull UUID id,
+                        @Valid @RequestBody BaseRateRequest request) {
 
-        BaseRateResponse updated = baseRateService.updateBaseRate(id, request);
-        return ResponseEntity.ok(
-                ApiResponse.success("Basic price update successful", updated)
-        );
-    }
+                BaseRateResponse updated = baseRateService.updateBaseRate(id, request);
+                return ResponseEntity.ok(
+                                ApiResponse.success("Basic price update successful", updated));
+        }
 
-    // DELETE BASE RATE
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deleteBaseRate(@PathVariable UUID id) {
-        baseRateService.deleteBaseRate(id);
-        return ResponseEntity.ok(
-                ApiResponse.ok("Base price deleted successfully")
-        );
-    }
+        // DELETE BASE RATE
+        @DeleteMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ApiResponse<Void>> deleteBaseRate(@PathVariable @NonNull UUID id) {
+                baseRateService.deleteBaseRate(id);
+                return ResponseEntity.ok(
+                                ApiResponse.ok("Base price deleted successfully"));
+        }
 
-    // GET ALL (with pagination and filter)
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<PagedResponse<BaseRateResponse>>> getAllBaseRates(
-            BaseRateFilterRequest filterRequest) {
+        // GET ALL (with pagination and filter)
+        @GetMapping
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ApiResponse<PagedResponse<BaseRateResponse>>> getAllBaseRates(
+                        BaseRateFilterRequest filterRequest) {
 
-        PagedResponse<BaseRateResponse> paged = baseRateService.getAllBaseRates(filterRequest);
-        return ResponseEntity.ok(
-                ApiResponse.success("Get basic price list successfully", paged)
-        );
-    }
+                PagedResponse<BaseRateResponse> paged = baseRateService.getAllBaseRates(filterRequest);
+                return ResponseEntity.ok(
+                                ApiResponse.success("Get basic price list successfully", paged));
+        }
 }

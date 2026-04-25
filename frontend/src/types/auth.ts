@@ -26,6 +26,6 @@ export interface RegisterRequest {
 
 export interface ResetPasswordRequest {
   token: string;
-  newPassword: string;
+  password: string;
   confirmPassword: string;
 }

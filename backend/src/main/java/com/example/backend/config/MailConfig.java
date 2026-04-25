@@ -32,8 +32,13 @@ public class MailConfig {
         mailSender.setPassword(password);
 
         Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.smtp.auth", true);
-        props.put("mail.smtp.starttls.enable", true);
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.starttls.required", "true");
+        props.put("mail.smtp.ssl.trust", "smtp.gmail.com"); // Tin tưởng host Gmail
+        props.put("mail.debug", "true");
+
+        System.out.println("DEBUG: Mail Sender initialized for user: " + username);
 
         return mailSender;
     }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useAuthApi } from "../hooks/useAuthApi";
 import { Input } from "../components/ui/Input";
@@ -10,29 +10,14 @@ export default function ResetPassword() {
   const token = searchParams.get("token") ?? "";
   const navigate = useNavigate();
 
-  const { validateResetToken, resetPassword } = useAuthApi();
+  const { useValidateToken, resetPassword } = useAuthApi();
+  const { isPending: isValidating, isError: isTokenInvalid } =
+    useValidateToken(token);
 
-  const [tokenValid, setTokenValid] = useState<boolean | null>(null);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [success, setSuccess] = useState(false);
-
-  // Validate token on mount
-  useEffect(() => {
-    if (!token) {
-      setTokenValid(false);
-      return;
-    }
-
-    validateResetToken.mutate(
-      { token },
-      {
-        onSuccess: () => setTokenValid(true),
-        onError: () => setTokenValid(false),
-      },
-    );
-  }, [token, validateResetToken]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +32,7 @@ export default function ResetPassword() {
     }
 
     resetPassword.mutate(
-      { token, newPassword, confirmPassword },
+      { token, password: newPassword, confirmPassword },
       {
         onSuccess: () => {
           setSuccess(true);
@@ -57,7 +42,7 @@ export default function ResetPassword() {
   };
 
   // ── Loading: validating token ──
-  if (tokenValid === null) {
+  if (isValidating) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-3 text-gray-500">
@@ -69,7 +54,7 @@ export default function ResetPassword() {
   }
 
   // ── Invalid / expired token ──
-  if (!tokenValid) {
+  if (isTokenInvalid || !token) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <section

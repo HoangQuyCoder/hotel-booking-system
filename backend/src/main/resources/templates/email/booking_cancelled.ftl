@@ -1,13 +1,13 @@
 <#include "layout/header.ftl">
 
-<p>Xin chào ${userName}!</p>
-<p>Chúng tôi rất tiếc khi nhận được yêu cầu hủy đặt phòng của bạn.</p>
+<p>Hello ${userName}!</p>
+<p>We are sorry to hear that you have requested to cancel your booking.</p>
 
-<p><b>Mã đặt phòng:</b> ${bookingCode}</p>
-<p><b>Khách sạn:</b> ${hotelName}</p>
-<p><b>Ngày nhận phòng:</b> ${checkIn}</p>
-<p><b>Ngày trả phòng:</b> ${checkOut}</p>
+<p><b>Booking Code:</b> ${bookingCode}</p>
+<p><b>Hotel:</b> ${hotelName}</p>
+<p><b>Check-in Date:</b> ${checkIn}</p>
+<p><b>Check-out Date:</b> ${checkOut}</p>
 
-<p>Nếu bạn cần hỗ trợ thêm, vui lòng liên hệ đội ngũ chăm sóc khách hàng của Hotelify.</p>
+<p>If you need further assistance, please contact the Theodore customer support team.</p>
 
 <#include "layout/footer.ftl">

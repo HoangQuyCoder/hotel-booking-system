@@ -9,6 +9,7 @@ import com.example.backend.service.PromotionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,62 +20,58 @@ import java.util.UUID;
 @RequestMapping("/api/v1/promotions")
 public class PromotionController {
 
-    private final PromotionService promotionService;
+        private final PromotionService promotionService;
 
-    // CREATE NEW PROMOTION
-    @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<PromotionResponse>> createPromotion(
-            @Valid @RequestBody PromotionRequest request) {
+        // CREATE NEW PROMOTION
+        @PostMapping
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ApiResponse<PromotionResponse>> createPromotion(
+                        @Valid @RequestBody PromotionRequest request) {
 
-        PromotionResponse created = promotionService.createPromotion(request);
-        return ResponseEntity
-                .status(201)
-                .body(ApiResponse.success("Create a successful promotion!", created));
-    }
+                PromotionResponse created = promotionService.createPromotion(request);
+                return ResponseEntity
+                                .status(201)
+                                .body(ApiResponse.success("Create a successful promotion!", created));
+        }
 
-    // GET BY ID
-    @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<PromotionResponse>> getPromotion(@PathVariable UUID id) {
-        PromotionResponse promotion = promotionService.getPromotionById(id);
-        return ResponseEntity.ok(
-                ApiResponse.success("Get promotion information successfully", promotion)
-        );
-    }
+        // GET BY ID
+        @GetMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ApiResponse<PromotionResponse>> getPromotion(@PathVariable @NonNull UUID id) {
+                PromotionResponse promotion = promotionService.getPromotionById(id);
+                return ResponseEntity.ok(
+                                ApiResponse.success("Get promotion information successfully", promotion));
+        }
 
-    // UPDATE PROMOTION
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<PromotionResponse>> updatePromotion(
-            @PathVariable UUID id,
-            @Valid @RequestBody PromotionRequest request) {
+        // UPDATE PROMOTION
+        @PutMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ApiResponse<PromotionResponse>> updatePromotion(
+                        @PathVariable @NonNull UUID id,
+                        @Valid @RequestBody PromotionRequest request) {
 
-        PromotionResponse updated = promotionService.updatePromotion(id, request);
-        return ResponseEntity.ok(
-                ApiResponse.success("Promotion program updated successfully", updated)
-        );
-    }
+                PromotionResponse updated = promotionService.updatePromotion(id, request);
+                return ResponseEntity.ok(
+                                ApiResponse.success("Promotion program updated successfully", updated));
+        }
 
-    // REMOVE PROMOTION
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deletePromotion(@PathVariable UUID id) {
-        promotionService.deletePromotion(id);
-        return ResponseEntity.ok(
-                ApiResponse.ok("Promotion deleted successfully")
-        );
-    }
+        // REMOVE PROMOTION
+        @DeleteMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ApiResponse<Void>> deletePromotion(@PathVariable @NonNull UUID id) {
+                promotionService.deletePromotion(id);
+                return ResponseEntity.ok(
+                                ApiResponse.ok("Promotion deleted successfully"));
+        }
 
-    // GET PROMOTION LIST
-    @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
-    public ResponseEntity<ApiResponse<PagedResponse<PromotionResponse>>> getAllPromotions(
-            PromotionFilterRequest filter) {
+        // GET PROMOTION LIST
+        @GetMapping
+        @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
+        public ResponseEntity<ApiResponse<PagedResponse<PromotionResponse>>> getAllPromotions(
+                        PromotionFilterRequest filter) {
 
-        PagedResponse<PromotionResponse> paged = promotionService.getAllPromotions(filter);
-        return ResponseEntity.ok(
-                ApiResponse.success("Get promotion list successfully", paged)
-        );
-    }
+                PagedResponse<PromotionResponse> paged = promotionService.getAllPromotions(filter);
+                return ResponseEntity.ok(
+                                ApiResponse.success("Get promotion list successfully", paged));
+        }
 }

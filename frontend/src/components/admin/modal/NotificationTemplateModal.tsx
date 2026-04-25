@@ -63,7 +63,7 @@ export const NotificationTemplateModal: React.FC<
     }
   }, [template, reset, isOpen]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: unknown) => {
     try {
       if (isEdit && template) {
         await updateTemplate.mutateAsync({

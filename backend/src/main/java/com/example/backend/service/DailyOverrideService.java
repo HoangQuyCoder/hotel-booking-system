@@ -18,10 +18,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -36,7 +38,7 @@ public class DailyOverrideService {
     private final DailyOverrideMapper dailyOverrideMapper;
 
     @Transactional
-    public DailyOverrideResponse createDailyOverride(DailyOverrideRequest request) {
+    public DailyOverrideResponse createDailyOverride(@NonNull DailyOverrideRequest request) {
         logger.info("Creating daily override for room type ID: {} on date: {}",
                 request.getRoomTypeId(), request.getDate());
 
@@ -46,7 +48,7 @@ public class DailyOverrideService {
             throw new IllegalArgumentException("Daily override already exists for this date");
         }
 
-        RoomType roomType = roomTypeRepository.findById(request.getRoomTypeId())
+        RoomType roomType = roomTypeRepository.findById(Objects.requireNonNull(request.getRoomTypeId()))
                 .orElseThrow(() -> {
                     logger.error("[create] Room type not found with ID: {}", request.getRoomTypeId());
                     return new ResourceNotFoundException("Room type not found");
@@ -66,7 +68,7 @@ public class DailyOverrideService {
     }
 
     @Transactional
-    public DailyOverrideResponse getDailyOverrideById(UUID id) {
+    public DailyOverrideResponse getDailyOverrideById(@NonNull UUID id) {
         logger.info("Fetching daily override with ID: {}", id);
 
         DailyOverride dailyOverride = dailyOverrideRepository.findById(id)
@@ -78,7 +80,7 @@ public class DailyOverrideService {
     }
 
     @Transactional
-    public DailyOverrideResponse updateDailyOverride(UUID id, DailyOverrideRequest request) {
+    public DailyOverrideResponse updateDailyOverride(@NonNull UUID id, @NonNull DailyOverrideRequest request) {
         logger.info("Updating daily override with ID: {}", id);
 
         DailyOverride dailyOverride = dailyOverrideRepository.findById(id)
@@ -96,7 +98,7 @@ public class DailyOverrideService {
             }
         }
 
-        RoomType roomType = roomTypeRepository.findById(request.getRoomTypeId())
+        RoomType roomType = roomTypeRepository.findById(Objects.requireNonNull(request.getRoomTypeId()))
                 .orElseThrow(() -> {
                     logger.error("[update] Room type not found with ID: {}", request.getRoomTypeId());
                     return new ResourceNotFoundException("Room type not found");
@@ -116,7 +118,7 @@ public class DailyOverrideService {
     }
 
     @Transactional
-    public void deleteDailyOverride(UUID id) {
+    public void deleteDailyOverride(@NonNull UUID id) {
         logger.info("Deleting daily override with ID: {}", id);
 
         DailyOverride dailyOverride = dailyOverrideRepository.findById(id)
@@ -143,7 +145,7 @@ public class DailyOverrideService {
 
         Specification<DailyOverride> spec = DailyOverrideSpecification.build(filterRequest);
 
-        Page<DailyOverride> pageResult = dailyOverrideRepository.findAll(spec, pageable);
+        Page<DailyOverride> pageResult = dailyOverrideRepository.findAll(spec, Objects.requireNonNull(pageable));
 
         List<DailyOverrideResponse> content = pageResult.getContent()
                 .stream()

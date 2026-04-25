@@ -46,7 +46,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     },
   });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: unknown) => {
     try {
       await createTransaction.mutateAsync(data as TransactionRequest);
       reset();

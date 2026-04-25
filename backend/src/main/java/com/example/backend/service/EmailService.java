@@ -11,15 +11,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.lang.NonNull;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
 public class EmailService {
+    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
     private final EmailVerificationRepository verificationRepository;
     private final UserRepository userRepository;
     private final OtpConfig otpConfig;
@@ -30,7 +35,7 @@ public class EmailService {
 
     // Send OTP code
     public EmailVerificationResponse requestEmailVerification(String email) {
-        if (userRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmailIgnoreCase(email)) {
             throw new ConflictException("Email already registered!");
         }
 
@@ -44,7 +49,7 @@ public class EmailService {
                 .expiryTime(LocalDateTime.now().plusMinutes(otpConfig.getExpiryMinutes()))
                 .build();
 
-        EmailVerification saved = verificationRepository.save(verification);
+        EmailVerification saved = verificationRepository.save(Objects.requireNonNull(verification));
 
         return EmailVerificationResponse.builder()
                 .email(saved.getEmail())
@@ -56,7 +61,7 @@ public class EmailService {
     // Verify OTP code
     public void verifyCode(String email, String code) {
         EmailVerification verification = verificationRepository
-                .findTopByEmailOrderByExpiryTimeDesc(email)
+                .findTopByEmailIgnoreCaseOrderByExpiryTimeDesc(email)
                 .orElseThrow(() -> new BadRequestException("Invalid verification code"));
 
         if (verification.isExpired()) {
@@ -75,7 +80,7 @@ public class EmailService {
     // Check if the email is verified
     public void validateEmailVerified(String email) {
         boolean verified = verificationRepository
-                .findTopByEmailOrderByExpiryTimeDesc(email)
+                .findTopByEmailIgnoreCaseOrderByExpiryTimeDesc(email)
                 .map(v -> !v.isExpired() && v.isUsed())
                 .orElse(false);
 
@@ -96,17 +101,24 @@ public class EmailService {
 
     // Send emails synchronously
     @Async
-    public void sendEmail(String toEmail, String subject, String content) {
+    public void sendEmail(@NonNull String toEmail,
+            @NonNull String subject,
+            @NonNull String content) {
+
         MimeMessage message = mailSender.createMimeMessage();
+
         try {
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setFrom(fromEmail);
+
+            helper.setFrom(Objects.requireNonNull(fromEmail));
             helper.setTo(toEmail);
             helper.setSubject(subject);
-            helper.setText(content, true); // true = HTML
+            helper.setText(content, true);
 
             mailSender.send(message);
+
         } catch (Exception e) {
+            logger.error("Error occurred while sending email to {}: {}", toEmail, e.getMessage(), e);
             throw new EmailSendException("Failed to send email to " + toEmail, e);
         }
     }

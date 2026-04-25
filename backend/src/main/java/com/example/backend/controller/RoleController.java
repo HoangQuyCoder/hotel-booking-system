@@ -7,6 +7,7 @@ import com.example.backend.service.RoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,32 +33,29 @@ public class RoleController {
 
     // GET BY ID
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<RoleResponse>> getRole(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<RoleResponse>> getRole(@PathVariable @NonNull UUID id) {
         RoleResponse role = roleService.getRoleById(id);
         return ResponseEntity.ok(
-                ApiResponse.success("Get role information successfully", role)
-        );
+                ApiResponse.success("Get role information successfully", role));
     }
 
     // UPDATE ROLE
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<RoleResponse>> updateRole(
-            @PathVariable UUID id,
-            @Valid @RequestBody RoleRequest request) {
+            @PathVariable @NonNull UUID id,
+            @Valid @RequestBody @NonNull RoleRequest request) {
 
         RoleResponse updated = roleService.updateRole(id, request);
         return ResponseEntity.ok(
-                ApiResponse.success("Role update successful", updated)
-        );
+                ApiResponse.success("Role update successful", updated));
     }
 
     // DELETE ROLE BY ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteRole(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<Void>> deleteRole(@PathVariable @NonNull UUID id) {
         roleService.deleteRole(id);
         return ResponseEntity.ok(
-                ApiResponse.ok("User deleted successfully")
-        );
+                ApiResponse.ok("User deleted successfully"));
     }
 
     // TAKE ALL ROLES
@@ -65,7 +63,6 @@ public class RoleController {
     public ResponseEntity<ApiResponse<List<RoleResponse>>> getAllRoles() {
         List<RoleResponse> roles = roleService.getAllRoles();
         return ResponseEntity.ok(
-                ApiResponse.success("Get list of successful roles", roles)
-        );
+                ApiResponse.success("Get list of successful roles", roles));
     }
 }

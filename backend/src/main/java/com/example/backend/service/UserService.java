@@ -1,6 +1,7 @@
 package com.example.backend.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +44,7 @@ public class UserService {
     // ============================= GET USER =============================
 
     @Transactional
-    public UserResponse getUserById(UUID id) {
+    public UserResponse getUserById(@NonNull UUID id) {
         logger.debug("Fetching user by ID: {}", id);
 
         User user = userRepository.findById(id)
@@ -63,7 +65,7 @@ public class UserService {
         Specification<User> spec = UserSpecification.build(filterRequest);
 
         // Execute query
-        Page<User> pageResult = userRepository.findAll(spec, pageable);
+        Page<User> pageResult = userRepository.findAll(spec, Objects.requireNonNull(pageable));
         logger.info("Found {} users (page {}/{})", pageResult.getNumberOfElements(), pageResult.getNumber() + 1,
                 pageResult.getTotalPages());
 
@@ -88,7 +90,7 @@ public class UserService {
     // ============================= UPDATE =============================
 
     @Transactional
-    public UserResponse updateUser(UUID id, @Valid UserUpdateRequest request) {
+    public UserResponse updateUser(@NonNull UUID id, @Valid UserUpdateRequest request) {
         logger.info("Updating user with ID: {}", id);
 
         User user = userRepository.findById(id)
@@ -120,7 +122,7 @@ public class UserService {
         userMapper.updateEntity(request, user);
 
         try {
-            User updated = userRepository.save(user);
+            User updated = userRepository.save(Objects.requireNonNull(user));
             logger.info("User updated successfully: {}", user.getEmail());
             return userMapper.toResponse(updated);
         } catch (Exception e) {
@@ -132,7 +134,7 @@ public class UserService {
     // ============================= DELETE =============================
 
     @Transactional
-    public void deleteUser(UUID id) {
+    public void deleteUser(@NonNull UUID id) {
         logger.warn("Deactivating user with ID: {}", id);
 
         User user = userRepository.findById(id)

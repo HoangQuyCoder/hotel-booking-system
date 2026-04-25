@@ -16,7 +16,7 @@ import { AdminPageHeader } from "../../components/admin/AdminPageHeader";
 import { AdminFilterBar } from "../../components/admin/AdminFilterBar";
 import { AdminEmptyState } from "../../components/admin/AdminEmptyState";
 import { HotelModal } from "../../components/admin/modal/HotelModal";
-import type { HotelDetailResponse } from "../../types";
+import type { HotelDetailResponse, HotelListResponse } from "../../types";
 
 export default function AdminHotels() {
   const { useHotels, deleteHotel, useHotelById } = useHotelApi();
@@ -85,7 +85,7 @@ export default function AdminHotels() {
             />
           ))
         ) : hotelsData?.content?.length ? (
-          hotelsData.content.map((hotel: any) => (
+          hotelsData.content.map((hotel: HotelListResponse) => (
             <div
               key={hotel.id}
               className="bg-white border border-gray-200 rounded-2xl overflow-hidden group hover:border-indigo-300 hover:shadow-lg transition-all duration-300 flex flex-col h-full"

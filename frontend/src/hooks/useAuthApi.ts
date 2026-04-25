@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { authApi } from "../api/authApi";
 import type { UserResponse } from "../types";
@@ -17,6 +17,7 @@ export const useAuthApi = () => {
   };
 
   const clearUser = () => {
+    localStorage.removeItem("token");
     queryClient.setQueryData(["user"], null);
     queryClient.removeQueries({ queryKey: ["user"], exact: true });
   };
@@ -26,6 +27,9 @@ export const useAuthApi = () => {
     mutationFn: authApi.login,
 
     onSuccess: (res) => {
+      if (res.data.accessToken) {
+        localStorage.setItem("token", res.data.accessToken);
+      }
       setUser(res.data);
       if (res.message) toast.success(res.message);
     },
@@ -46,6 +50,9 @@ export const useAuthApi = () => {
     mutationFn: authApi.register,
 
     onSuccess: (res) => {
+      if (res.data.accessToken) {
+        localStorage.setItem("token", res.data.accessToken);
+      }
       setUser(res.data);
       if (res.message) toast.success(res.message);
     },
@@ -77,13 +84,13 @@ export const useAuthApi = () => {
     },
   });
 
-  const validateResetToken = useMutation({
-    mutationFn: authApi.validateResetToken,
-
-    onSuccess: (res) => {
-      if (res.message) toast.success(res.message);
-    },
-  });
+  const useValidateToken = (token: string) =>
+    useQuery({
+      queryKey: ["validateToken", token],
+      queryFn: () => authApi.validateResetToken({ token }),
+      enabled: !!token,
+      retry: false,
+    });
 
   const resetPassword = useMutation({
     mutationFn: authApi.resetPassword,
@@ -100,7 +107,7 @@ export const useAuthApi = () => {
     sendCode,
     verifyCode,
     forgotPassword,
-    validateResetToken,
+    useValidateToken,
     resetPassword,
   };
 };

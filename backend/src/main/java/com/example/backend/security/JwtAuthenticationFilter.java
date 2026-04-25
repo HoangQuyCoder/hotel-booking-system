@@ -2,10 +2,7 @@ package com.example.backend.security;
 
 import com.example.backend.service.CustomUserDetailsService;
 import com.example.backend.service.JwtService;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.security.SignatureException;
-import io.micrometer.common.lang.NonNull;
+import org.springframework.lang.NonNull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,8 +37,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain)
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
         logger.debug("Processing request for URI: {}", request.getRequestURI());
@@ -57,9 +54,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
                     if (jwtService.isTokenValid(token, email)) {
-                        UsernamePasswordAuthenticationToken authToken =
-                                new UsernamePasswordAuthenticationToken(
-                                        userDetails, null, userDetails.getAuthorities());
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities());
 
                         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authToken);
@@ -67,8 +63,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         logger.debug("Successfully authenticated user: {}", email);
                     }
                 }
-            } catch (ExpiredJwtException | MalformedJwtException | SignatureException e) {
-                logger.warn("JWT error: {}", e.getMessage());
+            } catch (Exception e) {
+                logger.warn("JWT authentication failed: {}", e.getMessage());
             }
         }
 
@@ -82,7 +78,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private Optional<String> extractFromCookie(HttpServletRequest request) {
-        if (request.getCookies() == null) return Optional.empty();
+        if (request.getCookies() == null)
+            return Optional.empty();
 
         return Arrays.stream(request.getCookies())
                 .filter(c -> COOKIE_NAME.equals(c.getName()))

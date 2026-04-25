@@ -11,6 +11,7 @@ import com.example.backend.service.HotelService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +39,7 @@ public class HotelController {
 
         // GET HOTEL BY ID
         @GetMapping("/{id}")
-        public ResponseEntity<ApiResponse<HotelDetailResponse>> getHotel(@PathVariable UUID id) {
+        public ResponseEntity<ApiResponse<HotelDetailResponse>> getHotel(@PathVariable @NonNull UUID id) {
                 HotelDetailResponse hotel = hotelService.getHotelById(id);
                 return ResponseEntity.ok(
                                 ApiResponse.success("Get hotel information successfully", hotel));
@@ -48,7 +49,7 @@ public class HotelController {
         @PutMapping("/{id}")
         @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<ApiResponse<HotelDetailResponse>> updateHotel(
-                        @PathVariable UUID id,
+                        @PathVariable @NonNull UUID id,
                         @Valid @RequestBody HotelUpdateRequest request) {
 
                 HotelDetailResponse updated = hotelService.updateHotel(id, request);
@@ -59,7 +60,7 @@ public class HotelController {
         // DELETE HOTEL
         @DeleteMapping("/{id}")
         @PreAuthorize("hasRole('ADMIN')")
-        public ResponseEntity<ApiResponse<Void>> deleteHotel(@PathVariable UUID id) {
+        public ResponseEntity<ApiResponse<Void>> deleteHotel(@PathVariable @NonNull UUID id) {
                 hotelService.deleteHotel(id);
                 return ResponseEntity.ok(
                                 ApiResponse.ok("Delete hotel successfully"));

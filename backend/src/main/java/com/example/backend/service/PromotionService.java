@@ -16,10 +16,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -64,7 +66,7 @@ public class PromotionService {
     }
 
     @Transactional
-    public PromotionResponse getPromotionById(UUID id) {
+    public PromotionResponse getPromotionById(@NonNull UUID id) {
         logger.info("Fetching promotion with ID: {}", id);
 
         Promotion promotion = promotionRepository.findById(id)
@@ -76,7 +78,7 @@ public class PromotionService {
     }
 
     @Transactional
-    public PromotionResponse updatePromotion(UUID id, PromotionRequest request) {
+    public PromotionResponse updatePromotion(@NonNull UUID id, PromotionRequest request) {
         logger.info("Updating promotion with ID: {}", id);
 
         Promotion promotion = promotionRepository.findById(id)
@@ -123,7 +125,7 @@ public class PromotionService {
     }
 
     @Transactional
-    public void deletePromotion(UUID id) {
+    public void deletePromotion(@NonNull UUID id) {
         logger.info("Deleting promotion with ID: {}", id);
 
         Promotion promotion = promotionRepository.findById(id)
@@ -155,7 +157,7 @@ public class PromotionService {
 
         Specification<Promotion> spec = PromotionSpecification.build(filterRequest);
 
-        Page<Promotion> pageResult = promotionRepository.findAll(spec, pageable);
+        Page<Promotion> pageResult = promotionRepository.findAll(spec, Objects.requireNonNull(pageable));
 
         List<PromotionResponse> content = pageResult.getContent()
                 .stream()

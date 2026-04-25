@@ -1,6 +1,7 @@
 package com.example.backend.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +39,7 @@ public class RoomAmenityService {
     private final RoomAmenityMapper roomAmenityMapper;
 
     @Transactional
-    public RoomAmenityResponse createRoomAmenity(RoomAmenityRequest request) {
+    public RoomAmenityResponse createRoomAmenity(@NonNull RoomAmenityRequest request) {
         logger.info("Creating room amenity with name: {} for room type ID: {}", request.getName(),
                 request.getRoomTypeId());
 
@@ -47,7 +49,7 @@ public class RoomAmenityService {
             throw new IllegalArgumentException("Room amenity already exists for this room type");
         }
 
-        RoomType roomType = roomTypeRepository.findById(request.getRoomTypeId())
+        RoomType roomType = roomTypeRepository.findById(Objects.requireNonNull(request.getRoomTypeId()))
                 .orElseThrow(() -> {
                     logger.error("[create] Room type not found with ID: {}", request.getRoomTypeId());
                     return new ResourceNotFoundException("Room type not found");
@@ -67,7 +69,7 @@ public class RoomAmenityService {
     }
 
     @Transactional
-    public RoomAmenityResponse getRoomAmenityById(UUID id) {
+    public RoomAmenityResponse getRoomAmenityById(@NonNull UUID id) {
         logger.info("Fetching room amenity with ID: {}", id);
 
         RoomAmenity roomAmenity = roomAmenityRepository.findById(id)
@@ -79,7 +81,7 @@ public class RoomAmenityService {
     }
 
     @Transactional
-    public RoomAmenityResponse updateRoomAmenity(UUID id, RoomAmenityRequest request) {
+    public RoomAmenityResponse updateRoomAmenity(@NonNull UUID id, @NonNull RoomAmenityRequest request) {
         logger.info("Updating room amenity with ID: {}", id);
 
         RoomAmenity roomAmenity = roomAmenityRepository.findById(id)
@@ -97,7 +99,7 @@ public class RoomAmenityService {
             }
         }
 
-        RoomType roomType = roomTypeRepository.findById(request.getRoomTypeId())
+        RoomType roomType = roomTypeRepository.findById(Objects.requireNonNull(request.getRoomTypeId()))
                 .orElseThrow(() -> {
                     logger.error("[update] Room type not found with ID: {}", request.getRoomTypeId());
                     return new ResourceNotFoundException("Room type not found");
@@ -117,7 +119,7 @@ public class RoomAmenityService {
     }
 
     @Transactional
-    public void deleteRoomAmenity(UUID id) {
+    public void deleteRoomAmenity(@NonNull UUID id) {
         logger.info("Deleting room amenity with ID: {}", id);
 
         RoomAmenity roomAmenity = roomAmenityRepository.findById(id)
@@ -144,7 +146,7 @@ public class RoomAmenityService {
 
         Specification<RoomAmenity> spec = RoomAmenitySpecification.build(filterRequest);
 
-        Page<RoomAmenity> pageResult = roomAmenityRepository.findAll(spec, pageable);
+        Page<RoomAmenity> pageResult = roomAmenityRepository.findAll(spec, Objects.requireNonNull(pageable));
 
         List<RoomAmenityResponse> content = pageResult.getContent()
                 .stream()

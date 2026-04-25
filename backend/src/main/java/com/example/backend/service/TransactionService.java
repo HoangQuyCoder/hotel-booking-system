@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -47,7 +48,7 @@ public class TransactionService {
     private final TransactionMapper transactionMapper;
 
     @Transactional
-    public TransactionResponse createTransaction(TransactionRequest request) {
+    public TransactionResponse createTransaction(@NonNull TransactionRequest request) {
         logger.info("Creating transaction for booking ID: {}", request.getBookingId());
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -60,9 +61,9 @@ public class TransactionService {
             throw new SecurityException("Unauthorized to create transaction");
         }
 
-        Booking booking = bookingRepository.findById(request.getBookingId())
+        Booking booking = bookingRepository.findById(Objects.requireNonNull(request.getBookingId()))
                 .orElseThrow(() -> {
-                    logger.error("Booking not found with ID: {}", request.getBookingId());
+                    logger.error("[create] Booking not found with ID: {}", request.getBookingId());
                     return new ResourceNotFoundException("Booking not found");
                 });
 
@@ -115,7 +116,7 @@ public class TransactionService {
     }
 
     @Transactional
-    public TransactionResponse getTransactionById(UUID id) {
+    public TransactionResponse getTransactionById(@NonNull UUID id) {
         logger.info("Fetching transaction with ID: {}", id);
 
         Transaction transaction = transactionRepository.findById(id)
@@ -136,7 +137,7 @@ public class TransactionService {
     }
 
     @Transactional
-    public TransactionResponse refundTransaction(UUID id) {
+    public TransactionResponse refundTransaction(@NonNull UUID id) {
         logger.info("Refunding transaction with ID: {}", id);
 
         Transaction transaction = transactionRepository.findById(id)
@@ -169,7 +170,7 @@ public class TransactionService {
         try {
             transaction.setStatus(TransactionStatus.REFUNDED);
             transactionRepository.save(transaction);
-            Transaction saved = transactionRepository.save(refundTransaction);
+            Transaction saved = transactionRepository.save(Objects.requireNonNull(refundTransaction));
             notificationService.sendPaymentRefundEmail(saved);
             logger.info("Transaction refunded successfully with ID: {}", id);
             return transactionMapper.toResponse(saved);
@@ -187,7 +188,7 @@ public class TransactionService {
 
         Specification<Transaction> spec = TransactionSpecification.build(filterRequest);
 
-        Page<Transaction> pageResult = transactionRepository.findAll(spec, pageable);
+        Page<Transaction> pageResult = transactionRepository.findAll(spec, Objects.requireNonNull(pageable));
 
         List<TransactionResponse> content = pageResult.getContent().stream()
                 .map(transactionMapper::toResponse)
@@ -202,7 +203,7 @@ public class TransactionService {
     }
 
     @Transactional
-    public void deleteTransaction(UUID id) {
+    public void deleteTransaction(@NonNull UUID id) {
         logger.info("Deleting transaction with ID: {}", id);
 
         Transaction transaction = transactionRepository.findById(id)
@@ -234,7 +235,7 @@ public class TransactionService {
     }
 
     @Transactional
-    public TransactionResponse updateTransactionStatus(UUID id, TransactionStatus status) {
+    public TransactionResponse updateTransactionStatus(@NonNull UUID id, TransactionStatus status) {
         logger.info("Updating transaction status for ID: {} to {}", id, status);
 
         Transaction transaction = transactionRepository.findById(id)

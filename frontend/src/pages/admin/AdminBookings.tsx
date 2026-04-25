@@ -14,6 +14,7 @@ import {
   Plus,
   Edit,
   Trash2,
+  type LucideIcon,
 } from "lucide-react";
 import { useBookingApi } from "../../hooks/useBookingApi";
 import { Pagination } from "../../components/ui/Pagination";
@@ -72,7 +73,7 @@ export default function AdminBookings() {
 
   const statusConfig: Record<
     string,
-    { label: string; color: string; icon: any }
+    { label: string; color: string; icon: LucideIcon }
   > = {
     PENDING: {
       label: "Pending",

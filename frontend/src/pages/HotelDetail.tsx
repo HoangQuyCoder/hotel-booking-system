@@ -16,7 +16,8 @@ export default function HotelDetail() {
   if (isLoading) return <HotelDetailSkeleton />;
 
   if (isError) {
-    const status = (error as any)?.response?.status;
+    const status = (error as unknown as { response: { status: number } })
+      ?.response?.status;
 
     if (status === 404) {
       return (
