@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -71,7 +72,7 @@ public class BookingCalculationService {
         return request.getBookingRooms().stream()
                 .map(req -> {
 
-                    RoomType roomType = roomTypeRepository.findById(req.getRoomTypeId())
+                    RoomType roomType = roomTypeRepository.findById(Objects.requireNonNull(req.getRoomTypeId()))
                             .orElseThrow(() -> new ResourceNotFoundException("RoomType not found"));
 
                     List<Room> availableRooms = roomRepository

@@ -1,8 +1,8 @@
 <#include "layout/header.ftl">
 
-<p>Xin chào ${email}!</p>
-<p>Chào mừng bạn đến với Hotelify 🎉</p>
-<p>Mã xác thực: ${code}</p>
-<p>Nó sẽ hết hạn sau ${expiryTime} phút.</p>
+<p>Hello ${email}!</p>
+<p>Welcome to Theodore!</p>
+<p>Verification Code: <b>${code}</b></p>
+<p>This code will expire in ${expiryTime} minutes.</p>
 
 <#include "layout/footer.ftl">

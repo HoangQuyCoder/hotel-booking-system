@@ -19,10 +19,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -37,7 +39,7 @@ public class RoomService {
     private final RoomMapper roomMapper;
 
     @Transactional
-    public RoomResponse createRoom(RoomRequest request) {
+    public RoomResponse createRoom(@NonNull RoomRequest request) {
         logger.info("Creating room with number: {} for room type ID: {}", request.getRoomNumber(),
                 request.getRoomTypeId());
 
@@ -47,7 +49,7 @@ public class RoomService {
             throw new IllegalArgumentException("Room number already exists for this room type");
         }
 
-        RoomType roomType = roomTypeRepository.findById(request.getRoomTypeId())
+        RoomType roomType = roomTypeRepository.findById(Objects.requireNonNull(request.getRoomTypeId()))
                 .orElseThrow(() -> {
                     logger.error("[create] Room type not found with ID: {}", request.getRoomTypeId());
                     return new ResourceNotFoundException("Room type not found");
@@ -73,7 +75,7 @@ public class RoomService {
     }
 
     @Transactional
-    public RoomResponse getRoomById(UUID id) {
+    public RoomResponse getRoomById(@NonNull UUID id) {
         logger.info("Fetching room with ID: {}", id);
 
         Room room = roomRepository.findById(id)
@@ -85,7 +87,7 @@ public class RoomService {
     }
 
     @Transactional
-    public RoomResponse updateRoom(UUID id, RoomRequest request) {
+    public RoomResponse updateRoom(@NonNull UUID id, @NonNull RoomRequest request) {
         logger.info("Updating room with ID: {}", id);
 
         Room room = roomRepository.findById(id)
@@ -103,7 +105,7 @@ public class RoomService {
             }
         }
 
-        RoomType roomType = roomTypeRepository.findById(request.getRoomTypeId())
+        RoomType roomType = roomTypeRepository.findById(Objects.requireNonNull(request.getRoomTypeId()))
                 .orElseThrow(() -> {
                     logger.error("[update] Room type not found with ID: {}", request.getRoomTypeId());
                     return new ResourceNotFoundException("Room type not found");
@@ -128,7 +130,7 @@ public class RoomService {
     }
 
     @Transactional
-    public void deleteRoom(UUID id) {
+    public void deleteRoom(@NonNull UUID id) {
         logger.info("Deleting room with ID: {}", id);
 
         Room room = roomRepository.findById(id)
@@ -155,7 +157,7 @@ public class RoomService {
 
         Specification<Room> spec = RoomSpecification.build(filterRequest);
 
-        Page<Room> roomPage = roomRepository.findAll(spec, pageable);
+        Page<Room> roomPage = roomRepository.findAll(spec, Objects.requireNonNull(pageable));
 
         List<RoomResponse> content = roomPage.getContent()
                 .stream()

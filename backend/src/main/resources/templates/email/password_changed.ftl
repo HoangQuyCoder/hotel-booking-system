@@ -1,14 +1,14 @@
 <#include "layout/header.ftl">
 
-<p>Xin chào ${userName}!</p>
+<p>Hello ${userName}!</p>
 
-<p>Mật khẩu của bạn vừa được thay đổi thành công.</p>
+<p>Your password has been successfully changed.</p>
 
-<p>Nếu bạn không thực hiện hành động này, vui lòng <b>đặt lại mật khẩu ngay lập tức</b> để bảo vệ tài khoản.</p>
+<p>If you did not perform this action, please <b>reset your password immediately</b> to secure your account.</p>
 
-<p>Truy cập trang đăng nhập để kiểm tra hoạt động tài khoản của bạn:</p>
-<p><a href="${loginUrl!}" style="color:#004080;font-weight:bold;">Đăng nhập vào tài khoản</a></p>
+<p>Visit the login page to check your account activity:</p>
+<p><a href="${loginUrl!}" style="color:#004080;font-weight:bold;">Log in to your account</a></p>
 
-<p>Cảm ơn bạn đã sử dụng dịch vụ của <b>Hotelify</b>.</p>
+<p>Thank you for using <b>Theodore</b> services.</p>
 
 <#include "layout/footer.ftl">

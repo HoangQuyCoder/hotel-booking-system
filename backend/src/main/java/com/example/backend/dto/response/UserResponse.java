@@ -20,4 +20,5 @@ public class UserResponse extends BaseResponse {
     private LocalDateTime lastLoginAt;
     private LocalDateTime lockedUntil;
     private Integer failedLoginAttempts;
+    private String accessToken;
 }

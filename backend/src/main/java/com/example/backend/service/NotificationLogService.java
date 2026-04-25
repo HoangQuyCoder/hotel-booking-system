@@ -17,12 +17,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -37,7 +39,7 @@ public class NotificationLogService {
     private final NotificationLogMapper notificationLogMapper;
 
     @Transactional
-    public NotificationLogResponse getLogById(UUID id) {
+    public NotificationLogResponse getLogById(@NonNull UUID id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         NotificationLog log = logRepository.findById(id)
                 .orElseThrow(() -> {
@@ -78,7 +80,7 @@ public class NotificationLogService {
         Specification<NotificationLog> spec = NotificationLogSpecification.build(filterRequest);
 
         // Execute query
-        Page<NotificationLog> pageResult = logRepository.findAll(spec, pageable);
+        Page<NotificationLog> pageResult = logRepository.findAll(spec, Objects.requireNonNull(pageable));
 
         List<NotificationLogResponse> content = pageResult.getContent().stream()
                 .map(notificationLogMapper::toResponse)

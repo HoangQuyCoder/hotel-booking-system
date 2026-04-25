@@ -18,11 +18,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -47,7 +49,7 @@ public class HotelService {
         }
 
         if (request.getManagerId() != null) {
-            user = userRepository.findById(request.getManagerId())
+            user = userRepository.findById(Objects.requireNonNull(request.getManagerId()))
                     .orElseThrow(() -> {
                         logger.error("Manager not found with ID: {}", request.getManagerId());
                         return new ResourceNotFoundException("Role not found");
@@ -68,7 +70,7 @@ public class HotelService {
     }
 
     @Transactional
-    public HotelDetailResponse getHotelById(UUID id) {
+    public HotelDetailResponse getHotelById(@NonNull UUID id) {
         logger.info("Fetching hotel with ID: {}", id);
 
         Hotel hotel = hotelRepository.findById(id)
@@ -81,7 +83,7 @@ public class HotelService {
     }
 
     @Transactional
-    public HotelDetailResponse updateHotel(UUID id, HotelUpdateRequest request) {
+    public HotelDetailResponse updateHotel(@NonNull UUID id, HotelUpdateRequest request) {
         logger.info("Updating hotel with ID: {}", id);
 
         Hotel hotel = hotelRepository.findById(id)
@@ -97,7 +99,8 @@ public class HotelService {
             }
         }
 
-        if (request.getManagerId() != null && !userRepository.existsById(request.getManagerId())) {
+        if (request.getManagerId() != null
+                && !userRepository.existsById(Objects.requireNonNull(request.getManagerId()))) {
             logger.error("[update] Manager not found with ID: {}", request.getManagerId());
             throw new ResourceNotFoundException("Manager not found");
         }
@@ -115,7 +118,7 @@ public class HotelService {
     }
 
     @Transactional
-    public void deleteHotel(UUID id) {
+    public void deleteHotel(@NonNull UUID id) {
         logger.info("Deleting hotel with ID: {}", id);
 
         Hotel hotel = hotelRepository.findById(id)
@@ -143,7 +146,7 @@ public class HotelService {
 
         Specification<Hotel> spec = HotelSpecification.build(filterRequest);
 
-        Page<Hotel> hotels = hotelRepository.findAll(spec, pageable);
+        Page<Hotel> hotels = hotelRepository.findAll(spec, Objects.requireNonNull(pageable));
 
         List<HotelListResponse> content = hotels.getContent().stream()
                 .map(hotelMapper::toListResponse)
