@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Sparkles, ArrowRight, X, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useHotelApi } from "../hooks/useHotelApi";
@@ -9,47 +8,46 @@ export default function New() {
   const { useNewestHotels } = useHotelApi();
   const { data: hotels, isLoading, isError } = useNewestHotels();
 
-  useEffect(() => {
-    document.title = "Newest Hotels | Hotel Booking System";
-  }, []);
-
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       {/* Hero Section */}
       <section className="relative h-[75vh] min-h-[600px] flex items-center overflow-hidden">
         {/* Background Image with Zoom effect */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/images/hero-new.png" 
-            alt="Newest Hotels" 
+          <img
+            src="/images/hero-new.png"
+            alt="Newest Hotels"
             className="w-full h-full object-cover"
           />
           {/* Overlay for readability and navbar contrast */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-transparent z-10" />
           <div className="absolute inset-0 bg-black/20 z-10" />
         </div>
-        
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/20 backdrop-blur-md text-cyan-200 text-sm font-semibold mb-6 border border-cyan-400/30">
               <Sparkles className="w-4 h-4" />
               <span>Just Added</span>
             </div>
-            
+
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1] mb-6 drop-shadow-sm">
               Discover Our <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-300">
                 Newest
-              </span> Destinations
+              </span>{" "}
+              Destinations
             </h1>
-            
+
             <p className="text-xl text-slate-100 leading-relaxed mb-10 max-w-2xl drop-shadow-sm">
-              Be the first to experience our latest additions. From boutique urban escapes to tranquil coastal retreats, explore our freshest listings curated just for you.
+              Be the first to experience our latest additions. From boutique
+              urban escapes to tranquil coastal retreats, explore our freshest
+              listings curated just for you.
             </p>
-            
+
             <div className="flex flex-wrap gap-4">
-              <Link 
-                to="/hotels" 
+              <Link
+                to="/hotels"
                 className="inline-flex items-center gap-2 bg-white text-slate-900 px-8 py-4 rounded-2xl font-bold hover:bg-cyan-50 transition-all shadow-xl no-underline"
               >
                 Explore All Hotels

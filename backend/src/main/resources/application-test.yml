@@ -28,7 +28,7 @@ jwt:
   expiration: 3600000
 
 frontend:
-  host: ${FRONTEND_URL}
+  host: http://localhost:3000
 
 otp:
   length: 6
