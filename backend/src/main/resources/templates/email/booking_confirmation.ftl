@@ -1,13 +1,13 @@
 <#include "layout/header.ftl">
 
-<p>Xin chào ${userName}!</p>
-<p>Cảm ơn bạn đã đặt phòng tại Hotelify!</p>
+<p>Hello ${userName}!</p>
+<p>Thank you for booking with Theodore!</p>
 
-<p><b>Mã đặt phòng:</b> ${bookingCode}</p>
-<p><b>Khách sạn:</b> ${hotelName}</p>
-<p><b>Ngày nhận phòng:</b> ${checkIn}</p>
-<p><b>Ngày trả phòng:</b> ${checkOut}</p>
+<p><b>Booking Code:</b> ${bookingCode}</p>
+<p><b>Hotel:</b> ${hotelName}</p>
+<p><b>Check-in Date:</b> ${checkIn}</p>
+<p><b>Check-out Date:</b> ${checkOut}</p>
 
-<p>Chúng tôi rất mong được chào đón bạn tại khách sạn.</p>
+<p>We look forward to welcoming you at our hotel.</p>
 
 <#include "layout/footer.ftl">

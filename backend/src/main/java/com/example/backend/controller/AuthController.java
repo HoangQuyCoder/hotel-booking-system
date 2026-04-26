@@ -12,11 +12,17 @@ import com.example.backend.utils.JwtCookieUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Objects;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -41,6 +47,7 @@ public class AuthController {
                 // Auto login after register
                 String token = jwtService.generateToken(newUser.getEmail(), newUser.getRoleName().name());
                 jwtCookieUtil.addJwtCookie(response, token);
+                newUser.setAccessToken(token);
 
                 return ResponseEntity
                                 .status(HttpStatus.CREATED)
@@ -50,9 +57,9 @@ public class AuthController {
         // SEND CODE
         @PostMapping("/send-code")
         public ResponseEntity<ApiResponse<Void>> sendCode(
-                        @Valid @RequestBody EmailRequest request) {
+                        @Valid @RequestBody @NonNull EmailRequest request) {
 
-                notificationService.sendEmailVerificationCode(request.getEmail());
+                notificationService.sendEmailVerificationCode(Objects.requireNonNull(request.getEmail()));
 
                 return ResponseEntity.ok(
                                 ApiResponse.ok("Verification code has been sent to your email"));
@@ -79,6 +86,7 @@ public class AuthController {
 
                 String token = jwtService.generateToken(userResponse.getEmail(), userResponse.getRoleName().name());
                 jwtCookieUtil.addJwtCookie(response, token);
+                userResponse.setAccessToken(token);
 
                 return ResponseEntity.ok(
                                 ApiResponse.success("Log in successfully!", userResponse));
@@ -104,11 +112,11 @@ public class AuthController {
         }
 
         // VALIDATE RESET TOKEN
-        @PostMapping("/validate-reset-token")
+        @GetMapping("/validate-reset-token")
         public ResponseEntity<ApiResponse<ResetPasswordResponse>> validateResetToken(
-                        @Valid @RequestBody ValidateResetTokenRequest request) {
+                        @RequestParam String token) {
 
-                ResetPasswordResponse res = authService.validateResetToken(request);
+                ResetPasswordResponse res = authService.validateResetToken(token);
 
                 return ResponseEntity.ok(
                                 ApiResponse.success("Valid tokens", res));

@@ -10,6 +10,7 @@ import {
   ArrowUpRight,
   ArrowDownLeft,
   Banknote,
+  type LucideIcon,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTransactionApi } from "../../hooks/useTransactionApi";
@@ -78,7 +79,7 @@ export default function AdminTransactions() {
 
   const statusConfig: Record<
     string,
-    { label: string; color: string; icon: any }
+    { label: string; color: string; icon: LucideIcon }
   > = {
     PENDING: {
       label: "Pending",
@@ -104,7 +105,7 @@ export default function AdminTransactions() {
 
   const typeConfig: Record<
     string,
-    { label: string; icon: any; color: string }
+    { label: string; icon: LucideIcon; color: string }
   > = {
     PAYMENT: {
       label: "Payment",

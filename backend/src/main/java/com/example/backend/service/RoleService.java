@@ -11,9 +11,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -35,14 +37,14 @@ public class RoleService {
             throw new BadRequestException("Role name already exists");
         }
 
-        Role role = roleMapper.toEntity(request);
+        Role role = roleMapper.toEntity(Objects.requireNonNull(request));
 
-        Role saved = roleRepository.save(role);
+        Role saved = roleRepository.save(Objects.requireNonNull(role));
         return roleMapper.toResponse(saved);
     }
 
     @Transactional
-    public RoleResponse getRoleById(UUID id) {
+    public RoleResponse getRoleById(@NonNull UUID id) {
         logger.info("Fetching role with ID: {}", id);
 
         Role role = roleRepository.findById(id)
@@ -54,7 +56,7 @@ public class RoleService {
     }
 
     @Transactional
-    public RoleResponse updateRole(UUID id, RoleRequest request) {
+    public RoleResponse updateRole(@NonNull UUID id, @NonNull RoleRequest request) {
         Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
@@ -63,13 +65,13 @@ public class RoleService {
             throw new BadRequestException("Role name already exists");
         }
 
-        roleMapper.updateEntity(request, role);
+        roleMapper.updateEntity(Objects.requireNonNull(request), Objects.requireNonNull(role));
 
-        return roleMapper.toResponse(roleRepository.save(role));
+        return roleMapper.toResponse(roleRepository.save(Objects.requireNonNull(role)));
     }
 
     @Transactional
-    public void deleteRole(UUID id) {
+    public void deleteRole(@NonNull UUID id) {
         logger.info("Deactivating role with ID: {}", id);
 
         Role role = roleRepository.findById(id)

@@ -10,6 +10,7 @@ import com.example.backend.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +26,7 @@ public class TransactionController {
     // CREATE NEW TRANSACTION
     @PostMapping
     public ResponseEntity<ApiResponse<TransactionResponse>> createTransaction(
-            @Valid @RequestBody TransactionRequest request) {
+            @Valid @RequestBody @NonNull TransactionRequest request) {
 
         TransactionResponse created = transactionService.createTransaction(request);
         return ResponseEntity
@@ -35,28 +36,26 @@ public class TransactionController {
 
     // GET TRANSACTION DETAILS
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<TransactionResponse>> getTransaction(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<TransactionResponse>> getTransaction(@PathVariable @NonNull UUID id) {
         TransactionResponse transaction = transactionService.getTransactionById(id);
         return ResponseEntity.ok(
-                ApiResponse.success("Get transaction information successfully", transaction)
-        );
+                ApiResponse.success("Get transaction information successfully", transaction));
     }
 
     // TRANSACTION REFUND
     @PutMapping("/{id}/refund")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public ResponseEntity<ApiResponse<TransactionResponse>> refundTransaction(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<TransactionResponse>> refundTransaction(@PathVariable @NonNull UUID id) {
         TransactionResponse refunded = transactionService.refundTransaction(id);
         return ResponseEntity.ok(
-                ApiResponse.success("Refund transaction successful", refunded)
-        );
+                ApiResponse.success("Refund transaction successful", refunded));
     }
 
     // UPDATE TRADING STATUS (PENDING → SUCCESS / FAILED / REFUNDED...)
     @PutMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<ApiResponse<TransactionResponse>> updateTransactionStatus(
-            @PathVariable UUID id,
+            @PathVariable @NonNull UUID id,
             @Valid @RequestBody TransactionStatus status) {
 
         TransactionResponse updated = transactionService.updateTransactionStatus(id, status);
@@ -68,8 +67,7 @@ public class TransactionController {
         };
 
         return ResponseEntity.ok(
-                ApiResponse.success(message, updated)
-        );
+                ApiResponse.success(message, updated));
     }
 
     // GET TRANSACTION LIST
@@ -80,17 +78,15 @@ public class TransactionController {
 
         PagedResponse<TransactionResponse> paged = transactionService.getAllTransactions(filter);
         return ResponseEntity.ok(
-                ApiResponse.success("Get list of successful transactions", paged)
-        );
+                ApiResponse.success("Get list of successful transactions", paged));
     }
 
     // DELETE TRANSACTION
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public ResponseEntity<ApiResponse<Void>> deleteTransaction(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<Void>> deleteTransaction(@PathVariable @NonNull UUID id) {
         transactionService.deleteTransaction(id);
         return ResponseEntity.ok(
-                ApiResponse.ok("Transaction deleted successfully")
-        );
+                ApiResponse.ok("Transaction deleted successfully"));
     }
 }

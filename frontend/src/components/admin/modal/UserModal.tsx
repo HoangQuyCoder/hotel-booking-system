@@ -11,6 +11,7 @@ import type {
   UserResponse,
   RegisterRequest,
   UserUpdateRequest,
+  RoleResponse,
 } from "../../../types";
 
 const schema = yup.object().shape({
@@ -79,7 +80,7 @@ export const UserModal: React.FC<UserModalProps> = ({
     }
   }, [user, reset, isOpen]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: unknown) => {
     try {
       if (isEdit && user) {
         await updateUser.mutateAsync({
@@ -133,7 +134,7 @@ export const UserModal: React.FC<UserModalProps> = ({
                 }`}
               >
                 <option value="">Select a role</option>
-                {rolesData?.map((role: any) => (
+                {rolesData?.map((role: RoleResponse) => (
                   <option key={role.id} value={role.roleName}>
                     {role.roleName}
                   </option>

@@ -14,7 +14,9 @@ export interface UserResponse extends BaseEntity {
   lastLoginAt: string;
   failedLoginAttempts: number;
   lockedUntil: string;
+  accessToken?: string;
 }
+
 
 export interface UserListResponse extends BaseEntity {
   email: string;

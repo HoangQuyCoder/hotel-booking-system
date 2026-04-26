@@ -1,8 +1,23 @@
 package com.example.backend.service;
 
+import java.time.LocalDateTime;
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.example.backend.common.RoleName;
 import com.example.backend.common.UserStatus;
-import com.example.backend.dto.request.*;
+import com.example.backend.dto.request.ForgotPasswordRequest;
+import com.example.backend.dto.request.LoginRequest;
+import com.example.backend.dto.request.RegisterRequest;
+import com.example.backend.dto.request.ResetPasswordRequest;
 import com.example.backend.dto.response.ResetPasswordResponse;
 import com.example.backend.dto.response.UserResponse;
 import com.example.backend.exception.BadRequestException;
@@ -13,18 +28,9 @@ import com.example.backend.model.User;
 import com.example.backend.repository.RoleRepository;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.security.CustomUserDetails;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -137,10 +143,16 @@ public class AuthService {
         user.setResetPasswordExpiry(LocalDateTime.now().plusMinutes(5));
         user.setResetTokenUsed(false);
 
-        userRepository.save(user);
-        notificationService.sendPasswordResetEmail(user.getEmail(), resetToken);
-        logger.info("Password reset email sent to: {}", user.getEmail());
-        return new ResetPasswordResponse("Password reset email sent successfully");
+        try {
+            userRepository.save(user);
+            notificationService.sendPasswordResetEmail(Objects.requireNonNull(user.getEmail()),
+                    Objects.requireNonNull(resetToken));
+            logger.info("Password reset email sent to: {}", user.getEmail());
+            return new ResetPasswordResponse("Password reset email sent successfully");
+        } catch (Exception e) {
+            logger.error("Failed to save user or send password reset email", e);
+            throw new RuntimeException("Failed to send reset password email");
+        }
     }
 
     @Transactional
@@ -158,16 +170,21 @@ public class AuthService {
         user.setResetPasswordExpiry(null);
         user.setResetTokenUsed(true);
 
-        userRepository.save(user);
-        notificationService.sendPasswordChangedEmail(user.getEmail());
-        logger.info("Password reset completed successfully for user: {}", user.getEmail());
-        return new ResetPasswordResponse("Password reset successfully");
+        try {
+            userRepository.save(user);
+            notificationService.sendPasswordChangedEmail(Objects.requireNonNull(user.getEmail()));
+            logger.info("Password reset completed successfully for user: {}", user.getEmail());
+            return new ResetPasswordResponse("Password reset successfully");
+        } catch (Exception e) {
+            logger.error("Failed to save user or send password changed email", e);
+            throw new RuntimeException("Failed to reset password");
+        }
     }
 
     @Transactional
-    public ResetPasswordResponse validateResetToken(ValidateResetTokenRequest request) {
-        logger.debug("Validating reset token: {}", request.getToken());
-        User user = getUserByValidResetToken(request.getToken());
+    public ResetPasswordResponse validateResetToken(String token) {
+        logger.debug("Validating reset token: {}", token);
+        User user = getUserByValidResetToken(token);
         logger.info("Reset token is valid for user: {}", user.getEmail());
         return new ResetPasswordResponse("Reset token is valid");
     }

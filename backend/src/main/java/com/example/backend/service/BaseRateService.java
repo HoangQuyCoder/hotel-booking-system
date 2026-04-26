@@ -18,10 +18,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -44,7 +46,7 @@ public class BaseRateService {
             throw new IllegalArgumentException("End date cannot be before start date");
         }
 
-        RoomType roomType = roomTypeRepository.findById(request.getRoomTypeId())
+        RoomType roomType = roomTypeRepository.findById(Objects.requireNonNull(request.getRoomTypeId()))
                 .orElseThrow(() -> {
                     logger.error("[create] Room type not found with ID: {}", request.getRoomTypeId());
                     return new ResourceNotFoundException("Room type not found");
@@ -71,7 +73,7 @@ public class BaseRateService {
     }
 
     @Transactional
-    public BaseRateResponse getBaseRateById(UUID id) {
+    public BaseRateResponse getBaseRateById(@NonNull UUID id) {
         logger.info("Fetching base rate with ID: {}", id);
 
         BaseRate baseRate = baseRateRepository.findById(id)
@@ -83,7 +85,7 @@ public class BaseRateService {
     }
 
     @Transactional
-    public BaseRateResponse updateBaseRate(UUID id, BaseRateRequest request) {
+    public BaseRateResponse updateBaseRate(@NonNull UUID id, BaseRateRequest request) {
         logger.info("Updating base rate with ID: {}", id);
 
         BaseRate baseRate = baseRateRepository.findById(id)
@@ -97,7 +99,7 @@ public class BaseRateService {
             throw new IllegalArgumentException("End date cannot be before start date");
         }
 
-        RoomType roomType = roomTypeRepository.findById(request.getRoomTypeId())
+        RoomType roomType = roomTypeRepository.findById(Objects.requireNonNull(request.getRoomTypeId()))
                 .orElseThrow(() -> {
                     logger.error("[update] Room type not found with ID: {}", request.getRoomTypeId());
                     return new ResourceNotFoundException("Room type not found");
@@ -128,7 +130,7 @@ public class BaseRateService {
     }
 
     @Transactional
-    public void deleteBaseRate(UUID id) {
+    public void deleteBaseRate(@NonNull UUID id) {
         logger.info("Deleting base rate with ID: {}", id);
 
         BaseRate baseRate = baseRateRepository.findById(id)
@@ -155,7 +157,7 @@ public class BaseRateService {
 
         Specification<BaseRate> spec = BaseRateSpecification.build(filterRequest);
 
-        Page<BaseRate> pageResult = baseRateRepository.findAll(spec, pageable);
+        Page<BaseRate> pageResult = baseRateRepository.findAll(spec, Objects.requireNonNull(pageable));
 
         List<BaseRateResponse> content = pageResult.getContent()
                 .stream()

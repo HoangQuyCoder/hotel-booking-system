@@ -50,7 +50,6 @@ export const HotelModal: React.FC<HotelModalProps> = ({
   const isEdit = !!hotel;
   const { createHotel, updateHotel } = useHotelApi();
   const { useUsers } = useUserApi();
-  // Fetch users with ROLE_MANAGER ideally, but here we just list users for now
   const { data: usersData } = useUsers({ page: 0, size: 100 });
 
   const {

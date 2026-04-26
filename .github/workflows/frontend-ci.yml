@@ -15,8 +15,6 @@ jobs:
   quality-check:
     name: Build and Quality Check
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -32,9 +30,9 @@ jobs:
         run: npm ci
         working-directory: frontend
 
-      # - name: Lint check
-      #   run: npm run lint
-      #   working-directory: frontend
+      - name: Lint
+        run: npm run lint
+        working-directory: frontend
 
       - name: Build project
         run: npm run build

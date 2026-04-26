@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -46,7 +47,7 @@ public class BookingService {
     private final BookingMapper bookingMapper;
 
     @Transactional
-    public BookingResponse createBooking(BookingRequest request) {
+    public BookingResponse createBooking(@NonNull BookingRequest request) {
         logger.info("Creating booking for check-in: {}, check-out: {}", request.getCheckInDate(),
                 request.getCheckOutDate());
 
@@ -63,7 +64,7 @@ public class BookingService {
                     return new ResourceNotFoundException("User not found");
                 });
 
-        Hotel hotel = hotelRepository.findById(request.getHotelId())
+        Hotel hotel = hotelRepository.findById(Objects.requireNonNull(request.getHotelId()))
                 .orElseThrow(() -> {
                     logger.error("Hotel not found with ID: {}", request.getHotelId());
                     return new ResourceNotFoundException("Hotel not found");
@@ -106,7 +107,7 @@ public class BookingService {
     }
 
     @Transactional
-    public BookingResponse getBookingById(UUID id) {
+    public BookingResponse getBookingById(@NonNull UUID id) {
         logger.info("Fetching booking with ID: {}", id);
 
         Booking booking = bookingRepository.findById(id)
@@ -127,7 +128,7 @@ public class BookingService {
     }
 
     @Transactional
-    public BookingResponse updateBooking(UUID id, BookingRequest request) {
+    public BookingResponse updateBooking(@NonNull UUID id, @NonNull BookingRequest request) {
         logger.info("Updating booking with ID: {}", id);
 
         Booking booking = bookingRepository.findById(id)
@@ -167,7 +168,7 @@ public class BookingService {
     }
 
     @Transactional
-    public void cancelBooking(UUID id) {
+    public void cancelBooking(@NonNull UUID id) {
         logger.info("Cancelling booking with ID: {}", id);
 
         Booking booking = bookingRepository.findById(id)
@@ -202,7 +203,7 @@ public class BookingService {
     }
 
     @Transactional
-    public BookingResponse checkInBooking(UUID id) {
+    public BookingResponse checkInBooking(@NonNull UUID id) {
         logger.info("Checking in booking with ID: {}", id);
 
         Booking booking = bookingRepository.findById(id)
@@ -229,7 +230,7 @@ public class BookingService {
     }
 
     @Transactional
-    public BookingResponse checkOutBooking(UUID id) {
+    public BookingResponse checkOutBooking(@NonNull UUID id) {
         logger.info("Checking out booking with ID: {}", id);
 
         Booking booking = bookingRepository.findById(id)
@@ -274,7 +275,7 @@ public class BookingService {
 
         Specification<Booking> spec = BookingSpecification.build(filterRequest);
 
-        Page<Booking> pageResult = bookingRepository.findAll(spec, pageable);
+        Page<Booking> pageResult = bookingRepository.findAll(spec, Objects.requireNonNull(pageable));
 
         List<BookingListResponse> content = pageResult.getContent().stream()
                 .map(bookingMapper::toListResponse)

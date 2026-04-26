@@ -29,14 +29,29 @@ export default function HelpCenter() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-900 via-blue-900 to-indigo-950 text-gray-300 py-24">
-      <div className="max-w-4xl mx-auto px-6 md:px-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-4">Help Center</h1>
-          <p className="text-xl text-gray-400">
-            We’re here to make your journey perfect
+    <div className="min-h-screen bg-[#F8FAFC]">
+      {/* Hero Section */}
+      <section className="relative h-[45vh] min-h-[350px] flex items-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/images/hero-contact.png" 
+            alt="Help Center" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/20 z-10" />
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full text-center">
+          <h1 className="text-5xl md:text-6xl font-extrabold text-white mb-6 drop-shadow-md">
+            Help <span className="text-cyan-400">Center</span>
+          </h1>
+          <p className="text-xl text-slate-100 max-w-2xl mx-auto drop-shadow-sm">
+            We’re here to make your journey perfect. Find answers to common questions or reach out to our team.
           </p>
         </div>
+      </section>
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-30 pb-24">
 
         {/* Search bar */}
         <div className="relative mb-12">

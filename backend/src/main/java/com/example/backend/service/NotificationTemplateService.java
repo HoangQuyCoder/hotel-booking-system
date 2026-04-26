@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import freemarker.template.Template;
@@ -51,7 +53,7 @@ public class NotificationTemplateService {
         try {
             NotificationTemplate template = notificationTemplateMapper.toEntity(request);
 
-            NotificationTemplate saved = notificationTemplateRepository.save(template);
+            NotificationTemplate saved = notificationTemplateRepository.save(Objects.requireNonNull(template));
 
             logger.info("Template created with ID: {}", saved.getId());
 
@@ -64,7 +66,7 @@ public class NotificationTemplateService {
     }
 
     @Transactional
-    public NotificationTemplateResponse getTemplateById(UUID id) {
+    public NotificationTemplateResponse getTemplateById(@NonNull UUID id) {
         logger.debug("Fetching template by ID: {}", id);
 
         NotificationTemplate template = notificationTemplateRepository.findById(id)
@@ -78,7 +80,7 @@ public class NotificationTemplateService {
     }
 
     @Transactional
-    public NotificationTemplateResponse updateTemplate(UUID id, NotificationTemplateRequest request) {
+    public NotificationTemplateResponse updateTemplate(@NonNull UUID id, NotificationTemplateRequest request) {
         NotificationTemplate template = notificationTemplateRepository.findById(id)
                 .orElseThrow(() -> {
                     logger.error("[update] Notification template not found for ID: {}", id);
@@ -88,7 +90,7 @@ public class NotificationTemplateService {
         notificationTemplateMapper.updateEntity(request, template);
 
         try {
-            NotificationTemplate updated = notificationTemplateRepository.save(template);
+            NotificationTemplate updated = notificationTemplateRepository.save(Objects.requireNonNull(template));
             logger.info("Template updated: {}", id);
             return notificationTemplateMapper.toResponse(updated);
         } catch (Exception e) {
@@ -98,7 +100,7 @@ public class NotificationTemplateService {
     }
 
     @Transactional
-    public void deleteTemplate(UUID id) {
+    public void deleteTemplate(@NonNull UUID id) {
         logger.warn("Deactivating template with ID: {}", id);
 
         NotificationTemplate template = notificationTemplateRepository.findById(id)
@@ -126,7 +128,8 @@ public class NotificationTemplateService {
         Specification<NotificationTemplate> spec = NotificationSpecification.build(filterRequest);
 
         // Execute query
-        Page<NotificationTemplate> pageResult = notificationTemplateRepository.findAll(spec, pageable);
+        Page<NotificationTemplate> pageResult = notificationTemplateRepository.findAll(spec,
+                Objects.requireNonNull(pageable));
 
         List<NotificationTemplateResponse> content = pageResult.getContent().stream()
                 .map(notificationTemplateMapper::toResponse)

@@ -60,7 +60,7 @@ export default function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8 font-medium">
-          {["Home", "Destinations", "News", "Contact"].map((item) => (
+          {["Home", "Destination", "New", "Contact"].map((item) => (
             <Link
               key={item}
               to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
@@ -176,7 +176,7 @@ export default function Navbar() {
         <div className="md:hidden mt-6 bg-gray-900/95 backdrop-blur-md rounded-xl p-6 space-y-6 border border-gray-800">
           {/* Navigation */}
           <div className="space-y-4">
-            {["Home", "Destinations", "News", "Contact"].map((item) => (
+            {["Home", "Destination", "New", "Contact"].map((item) => (
               <Link
                 key={item}
                 to={item === "Home" ? "/" : `/${item.toLowerCase()}`}

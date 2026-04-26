@@ -1,12 +1,12 @@
 <#include "layout/header.ftl">
 
-<p>Xin chào ${userName}!</p>
-<p>Thanh toán của bạn đã được xử lý thành công.</p>
+<p>Hello ${userName}!</p>
+<p>Your payment has been processed successfully.</p>
 
-<p><b>Mã giao dịch:</b> ${transactionCode}</p>
-<p><b>Số tiền:</b> ${amount}</p>
-<p><b>Ngày thanh toán:</b> ${paymentDate}</p>
+<p><b>Transaction Code:</b> ${transactionCode}</p>
+<p><b>Amount:</b> ${amount}</p>
+<p><b>Payment Date:</b> ${paymentDate}</p>
 
-<p>Cảm ơn bạn đã tin tưởng sử dụng dịch vụ của Hotelify!</p>
+<p>Thank you for choosing Theodore!</p>
 
 <#include "layout/footer.ftl">

@@ -24,9 +24,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -42,17 +44,17 @@ public class ReviewService {
     private final ReviewMapper reviewMapper;
 
     @Transactional
-    public ReviewResponse create(ReviewRequest request) {
+    public ReviewResponse create(@NonNull ReviewRequest request) {
         logger.info("Creating review for user {} and hotel {}", request.getUserId(), request.getHotelId());
 
         try {
-            Review review = reviewMapper.toEntity(request);
+            Review review = reviewMapper.toEntity(Objects.requireNonNull(request));
 
-            Hotel hotel = hotelRepository.findById(request.getHotelId())
+            Hotel hotel = hotelRepository.findById(Objects.requireNonNull(request.getHotelId()))
                     .orElseThrow(
                             () -> new ResourceNotFoundException("Hotel not found with id: " + request.getHotelId()));
 
-            User user = userRepository.findById(request.getUserId())
+            User user = userRepository.findById(Objects.requireNonNull(request.getUserId()))
                     .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + request.getUserId()));
 
             review.setHotel(hotel);
@@ -74,16 +76,16 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewResponse update(UUID id, ReviewRequest request) {
+    public ReviewResponse update(@NonNull UUID id, @NonNull ReviewRequest request) {
         logger.info("Updating review with id {}", id);
 
         try {
-            Review review = reviewRepository.findById(id)
+            Review review = reviewRepository.findById(Objects.requireNonNull(id))
                     .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + id));
 
-            reviewMapper.updateEntity(request, review);
+            reviewMapper.updateEntity(Objects.requireNonNull(request), review);
 
-            Review updated = reviewRepository.save(review);
+            Review updated = reviewRepository.save(Objects.requireNonNull(review));
             logger.info("Review updated successfully with id {}", id);
 
             return reviewMapper.toResponse(updated);
@@ -99,11 +101,11 @@ public class ReviewService {
     }
 
     @Transactional
-    public void delete(UUID id) {
+    public void delete(@NonNull UUID id) {
         logger.warn("Soft deleting review with id {}", id);
 
         try {
-            Review review = reviewRepository.findById(id)
+            Review review = reviewRepository.findById(Objects.requireNonNull(id))
                     .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + id));
 
             review.setIsActive(false);
@@ -122,11 +124,11 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewResponse getReviewById(UUID id) {
+    public ReviewResponse getReviewById(@NonNull UUID id) {
         logger.info("Fetching review by id {}", id);
 
         try {
-            Review review = reviewRepository.findById(id)
+            Review review = reviewRepository.findById(Objects.requireNonNull(id))
                     .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + id));
 
             return reviewMapper.toResponse(review);
@@ -150,7 +152,8 @@ public class ReviewService {
 
             Specification<Review> spec = ReviewSpecification.build(filterRequest);
 
-            Page<Review> reviewPage = reviewRepository.findAll(spec, pageable);
+            Page<Review> reviewPage = reviewRepository.findAll(Objects.requireNonNull(spec),
+                    Objects.requireNonNull(pageable));
 
             List<ReviewResponse> content = reviewPage.getContent()
                     .stream()

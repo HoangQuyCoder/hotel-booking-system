@@ -9,6 +9,7 @@ import com.example.backend.service.DailyOverrideService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,62 +20,58 @@ import java.util.UUID;
 @RequestMapping("/api/v1/daily-overrides")
 public class DailyOverrideController {
 
-    private final DailyOverrideService dailyOverrideService;
+        private final DailyOverrideService dailyOverrideService;
 
-    // CREATE DAILY SPECIALS
-    @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<DailyOverrideResponse>> createDailyOverride(
-            @Valid @RequestBody DailyOverrideRequest request) {
+        // CREATE DAILY SPECIALS
+        @PostMapping
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ApiResponse<DailyOverrideResponse>> createDailyOverride(
+                        @Valid @RequestBody @NonNull DailyOverrideRequest request) {
 
-        DailyOverrideResponse created = dailyOverrideService.createDailyOverride(request);
-        return ResponseEntity
-                .status(201)
-                .body(ApiResponse.success("Created special daily price successfully!", created));
-    }
+                DailyOverrideResponse created = dailyOverrideService.createDailyOverride(request);
+                return ResponseEntity
+                                .status(201)
+                                .body(ApiResponse.success("Created special daily price successfully!", created));
+        }
 
-    // GET DETAILS
-    @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<DailyOverrideResponse>> getDailyOverride(@PathVariable UUID id) {
-        DailyOverrideResponse override = dailyOverrideService.getDailyOverrideById(id);
-        return ResponseEntity.ok(
-                ApiResponse.success("Get special price information successfully", override)
-        );
-    }
+        // GET DETAILS
+        @GetMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ApiResponse<DailyOverrideResponse>> getDailyOverride(@PathVariable @NonNull UUID id) {
+                DailyOverrideResponse override = dailyOverrideService.getDailyOverrideById(id);
+                return ResponseEntity.ok(
+                                ApiResponse.success("Get special price information successfully", override));
+        }
 
-    // UPDATE SPECIAL PRICE
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<DailyOverrideResponse>> updateDailyOverride(
-            @PathVariable UUID id,
-            @Valid @RequestBody DailyOverrideRequest request) {
+        // UPDATE SPECIAL PRICE
+        @PutMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ApiResponse<DailyOverrideResponse>> updateDailyOverride(
+                        @PathVariable @NonNull UUID id,
+                        @Valid @RequestBody @NonNull DailyOverrideRequest request) {
 
-        DailyOverrideResponse updated = dailyOverrideService.updateDailyOverride(id, request);
-        return ResponseEntity.ok(
-                ApiResponse.success("Updated special price by date successfully", updated)
-        );
-    }
+                DailyOverrideResponse updated = dailyOverrideService.updateDailyOverride(id, request);
+                return ResponseEntity.ok(
+                                ApiResponse.success("Updated special price by date successfully", updated));
+        }
 
-    // DELETE SPECIAL PRICE
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deleteDailyOverride(@PathVariable UUID id) {
-        dailyOverrideService.deleteDailyOverride(id);
-        return ResponseEntity.ok(
-                ApiResponse.ok("Delete special price by date successfully")
-        );
-    }
+        // DELETE SPECIAL PRICE
+        @DeleteMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ApiResponse<Void>> deleteDailyOverride(@PathVariable @NonNull UUID id) {
+                dailyOverrideService.deleteDailyOverride(id);
+                return ResponseEntity.ok(
+                                ApiResponse.ok("Delete special price by date successfully"));
+        }
 
-    // GET LIST (pagination and filtering)
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<PagedResponse<DailyOverrideResponse>>> getAllDailyOverrides(
-            DailyOverrideFilterRequest filter) {
+        // GET LIST (pagination and filtering)
+        @GetMapping
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ApiResponse<PagedResponse<DailyOverrideResponse>>> getAllDailyOverrides(
+                        DailyOverrideFilterRequest filter) {
 
-        PagedResponse<DailyOverrideResponse> paged = dailyOverrideService.getAllDailyOverrides(filter);
-        return ResponseEntity.ok(
-                ApiResponse.success("Get special price list successfully", paged)
-        );
-    }
+                PagedResponse<DailyOverrideResponse> paged = dailyOverrideService.getAllDailyOverrides(filter);
+                return ResponseEntity.ok(
+                                ApiResponse.success("Get special price list successfully", paged));
+        }
 }

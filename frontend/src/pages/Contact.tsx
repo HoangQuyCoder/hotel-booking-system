@@ -2,16 +2,30 @@ import { Phone, Mail, MapPin, Clock, Send } from "lucide-react";
 
 export default function Contact() {
   return (
-    <div className="min-h-screen  bg-gradient-to-br from-cyan-900 via-blue-900 to-indigo-950 text-gray-300 py-24">
-      <div className="max-w-6xl mx-auto px-6 md:px-12">
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-white mb-4">Get in Touch</h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+    <div className="min-h-screen bg-[#F8FAFC]">
+      {/* Hero Section */}
+      <section className="relative h-[50vh] min-h-[400px] flex items-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/images/hero-contact.png" 
+            alt="Contact Us" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/20 z-10" />
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full text-center">
+          <h1 className="text-5xl md:text-6xl font-extrabold text-white mb-6 drop-shadow-md">
+            Get in <span className="text-cyan-400">Touch</span>
+          </h1>
+          <p className="text-xl text-slate-100 max-w-2xl mx-auto drop-shadow-sm">
             Have questions or need assistance? Our team is ready to help you
             plan your perfect journey.
           </p>
         </div>
+      </section>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-30 pb-24">
         <div className="grid lg:grid-cols-5 gap-12">
           {/* Contact Form */}
           <div className="lg:col-span-3 bg-gray-900 rounded-3xl p-10">

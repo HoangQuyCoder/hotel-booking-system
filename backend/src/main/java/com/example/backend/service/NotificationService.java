@@ -9,10 +9,13 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -25,26 +28,29 @@ public class NotificationService {
         private final NotificationLogRepository notificationLogRepository;
         private final UserRepository userRepository;
 
-        @Value("${frontend.reset-password-url}")
-        private String resetPasswordUrl;
+        @Value("${frontend.host}")
+        private String frontendHost;
 
         // ------------------------------
         // HELPER
         // ------------------------------
 
         private User getUserByEmail(String email) {
-                return userRepository.findByEmail(email)
+                return userRepository.findByEmailIgnoreCase(email)
                                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
         }
 
         // ------------------------------
         // REGISTER RELATED
         // ------------------------------
-
-        public void sendEmailVerificationCode(String toEmail) {
-                User user = getUserByEmail(toEmail);
-
+        public void sendEmailVerificationCode(@NonNull String toEmail) {
                 EmailVerificationResponse verificationResponse = emailService.requestEmailVerification(toEmail);
+
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+                String formattedExpiryTime = verificationResponse
+                                .getExpiryTime()
+                                .format(formatter);
 
                 sendNotification(
                                 "VERIFICATION_CODE",
@@ -53,15 +59,15 @@ public class NotificationService {
                                 Map.of(
                                                 "email", toEmail,
                                                 "code", verificationResponse.getCode(),
-                                                "expiryTime", verificationResponse.getExpiryTime()),
-                                user);
+                                                "expiryTime", formattedExpiryTime),
+                                null);
         }
 
         // ------------------------------
         // PASSWORD RELATED
         // ------------------------------
 
-        public void sendPasswordResetEmail(String toEmail, String resetToken) {
+        public void sendPasswordResetEmail(@NonNull String toEmail, @NonNull String resetToken) {
                 User user = getUserByEmail(toEmail);
 
                 sendNotification(
@@ -69,12 +75,12 @@ public class NotificationService {
                                 toEmail,
                                 "PasswordReset",
                                 Map.of(
-                                                "email", toEmail,
-                                                "resetLink", resetPasswordUrl + "?token=" + resetToken),
+                                                "userName", user.getFirstName() + " " + user.getLastName(),
+                                                "resetLink", frontendHost + "/reset-password?token=" + resetToken),
                                 user);
         }
 
-        public void sendPasswordChangedEmail(String toEmail) {
+        public void sendPasswordChangedEmail(@NonNull String toEmail) {
                 User user = getUserByEmail(toEmail);
 
                 sendNotification(
@@ -83,7 +89,7 @@ public class NotificationService {
                                 "PasswordChanged",
                                 Map.of(
                                                 "email", toEmail,
-                                                "loginUrl", "https://hotelify.com/login"),
+                                                "loginUrl", frontendHost + "/login"),
                                 user);
         }
 
@@ -103,7 +109,7 @@ public class NotificationService {
 
                 sendNotification(
                                 "BOOKING_CONFIRMATION",
-                                user.getEmail(),
+                                Objects.requireNonNull(user.getEmail()),
                                 "BookingConfirmation",
                                 model,
                                 user);
@@ -121,7 +127,7 @@ public class NotificationService {
 
                 sendNotification(
                                 "BOOKING_CANCELLED",
-                                user.getEmail(),
+                                Objects.requireNonNull(user.getEmail()),
                                 "BookingCancelled",
                                 model,
                                 user);
@@ -131,15 +137,16 @@ public class NotificationService {
         // PAYMENT RELATED
         // ------------------------------
 
-        public void sendPaymentSuccessEmail(Transaction transaction) {
+        public void sendPaymentSuccessEmail(@NonNull Transaction transaction) {
                 sendPaymentEmail(transaction, "PAYMENT_SUCCESS", "PaymentSuccess");
         }
 
-        public void sendPaymentRefundEmail(Transaction transaction) {
+        public void sendPaymentRefundEmail(@NonNull Transaction transaction) {
                 sendPaymentEmail(transaction, "PAYMENT_REFUND", "PaymentRefund");
         }
 
-        private void sendPaymentEmail(Transaction transaction, String templateName, String event) {
+        private void sendPaymentEmail(@NonNull Transaction transaction, @NonNull String templateName,
+                        @NonNull String event) {
                 Booking booking = transaction.getBooking();
                 User user = booking.getUser();
 
@@ -152,7 +159,7 @@ public class NotificationService {
 
                 sendNotification(
                                 templateName,
-                                user.getEmail(),
+                                Objects.requireNonNull(user.getEmail()),
                                 event,
                                 model,
                                 user);
@@ -163,8 +170,8 @@ public class NotificationService {
         // ------------------------------
 
         private void sendNotification(String templateName,
-                        String recipient,
-                        String event,
+                        @NonNull String recipient,
+                        @NonNull String event,
                         Map<String, Object> placeholders,
                         User user) {
 
@@ -181,7 +188,8 @@ public class NotificationService {
 
                 try {
                         String content = templateService.buildContent(template.getTemplateFile(), placeholders);
-                        emailService.sendEmail(recipient, template.getSubject(), content);
+                        emailService.sendEmail(recipient, Objects.requireNonNull(template.getSubject()),
+                                        Objects.requireNonNull(content));
 
                         log.setStatus(NotificationStatus.SENT);
                         log.setSentAt(LocalDateTime.now());
@@ -197,7 +205,7 @@ public class NotificationService {
                         logger.error("Failed to send notification '{}' to {}: {}",
                                         template.getName(), recipient, e.getMessage());
                 } finally {
-                        notificationLogRepository.save(log);
+                        notificationLogRepository.save(Objects.requireNonNull(log));
                 }
         }
 }
