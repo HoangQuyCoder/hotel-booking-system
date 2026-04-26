@@ -78,9 +78,16 @@ jobs:
         run: |
           curl -f -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
 
-      - name: Wait for service to start
-        run: sleep 30
-
       - name: Health check API
         run: |
-          curl -f ${{ secrets.RENDER_API_URL }}/actuator/health
+          echo "Waiting for service to be healthy..."
+          for i in {1..12}; do
+            if curl -s -f "${{ secrets.RENDER_API_URL }}/actuator/health"; then
+              echo "Service is healthy!"
+              exit 0
+            fi
+            echo "Waiting for service... (attempt $i)"
+            sleep 10
+          done
+          echo "Service failed to become healthy in time."
+          exit 1
