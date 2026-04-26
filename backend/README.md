@@ -83,16 +83,22 @@ Configure your local environment variables in `.env`:
 ```env
 SPRING_PROFILES_ACTIVE=dev
 
-DB_URL_LOCAL=jdbc:postgresql://localhost:5432/hotel_booking
-DB_USERNAME=your_username
-DB_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=hotel_booking
+DB_USERNAME=postgres
+DB_PASSWORD=123456
 
 JWT_SECRET=your_secret_key
-JWT_EXPIRATION=86400000
+JWT_EXPIRATION=3600000
 
 MAIL_USERNAME=your_email@gmail.com
 MAIL_PASSWORD=your_app_password
 MAIL_FROM=your_email@gmail.com
+
+FRONTEND_URL=http://localhost:3000
+
+NVD_API_KEY=your_nvd_api_key
 ```
 
 ---
